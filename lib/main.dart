@@ -2,29 +2,24 @@ import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:carvia/presentation/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Initialize Firebase (Check if options are available)
-  try {
-    // await Firebase.initializeApp(
-    //   options: DefaultFirebaseOptions.currentPlatform,
-    // );
-    // NOTE: Waiting for user to provide firebase_options.dart
-    // For now, we just initialize without options (works for mobile if google-services.json is present)
-    await Firebase.initializeApp(); 
-  } catch (e) {
-    debugPrint("Firebase Initialization Failed: $e");
-    debugPrint("Did you forget to add google-services.json or firebase_options.dart?");
-  }
+
+  // Initialize Firebase with generated options
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider<AuthService>(
+          create: (_) => AuthService(),
+        ),
       ],
       child: const CarviaApp(),
     ),
