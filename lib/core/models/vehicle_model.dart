@@ -13,6 +13,7 @@ class VehicleModel {
   final String sellerId;
   final String status; // available, sold
   final bool isExternal;
+  final Map<String, dynamic> specs;
 
   VehicleModel({
     required this.id,

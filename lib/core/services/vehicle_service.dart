@@ -113,7 +113,7 @@ class VehicleService extends ChangeNotifier {
       // 1. Fetch Purchased
       final purchasedSnapshot = await _firestore
           .collection('vehicles')
-          .where('ownerId', isEqualTo: userId)
+          .where('sellerId', isEqualTo: userId)
           .get();
       
       final purchased = purchasedSnapshot.docs.map((doc) => VehicleModel.fromMap(doc.data(), doc.id)).toList();

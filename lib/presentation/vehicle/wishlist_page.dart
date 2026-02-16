@@ -94,7 +94,7 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget _buildVehicleCard(VehicleModel vehicle) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicleId: vehicle.id)));
+        Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicle: vehicle)));
       },
       child: Container(
         height: 120,
@@ -142,11 +142,11 @@ class _WishlistPageState extends State<WishlistPage> {
                       children: [
                         Icon(Iconsax.gas_station, size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 4),
-                        Text(vehicle.fuelType, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                        Text(vehicle.fuel, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
                         const SizedBox(width: 12),
                         Icon(Iconsax.speedometer, size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 4),
-                        Text("${vehicle.kilometers} km", style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                        Text("${vehicle.mileage} km", style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
                       ],
                     ),
                   ],

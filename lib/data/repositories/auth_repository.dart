@@ -22,7 +22,7 @@ abstract class AuthRepository {
   Future<UserModel?> completeProfile({required UserRole role, required String phone, required String name, required String email});
   Future<bool> checkEmailExists(String email);
   Future<void> updateProfile({required String uid, required String name, required String phone, String? profileImage});
-  Future<void> updateProfile({required String uid, required String name, required String phone, String? profileImage});
+
   
   // Helper
   firebase_auth.User? get currentFirebaseUser;
@@ -107,7 +107,7 @@ class AuthRepositoryImpl implements AuthRepository {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isVerified: true, // Set to true since they verified via OTP
-        isVerified: false,
+
       );
 
       await _firestore.collection('users').doc(newUser.uid).set(newUser.toMap());
@@ -141,7 +141,7 @@ class AuthRepositoryImpl implements AuthRepository {
       googleUser??= await _googleSignIn.signIn();
       
       if (googleUser == null) return null; // Cancelled
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      googleUser ??= await _googleSignIn.signIn();
       if (googleUser == null) return null;
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
@@ -251,9 +251,13 @@ class AuthRepositoryImpl implements AuthRepository {
           .limit(1)
           .get();
       return querySnapshot.docs.isNotEmpty;
+      return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       return false;
     }
+  }
+
+  @override
   Future<void> sendPasswordResetOtp(String email) async {
     // SIMULATION: In a real app, this calls a backend API to send an email.
     // Here, we generate a random OTP and "send" it via debug log/UI.
@@ -287,5 +291,27 @@ class AuthRepositoryImpl implements AuthRepository {
     // Sending the actual reset link as a fallback/security measure
     await _firebaseAuth.sendPasswordResetEmail(email: email);
     debugPrint("Triggered official reset email as backup/final step.");
+  }
+
+  @override
+  Future<void> updateProfile({required String uid, required String name, required String phone, String? profileImage}) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'name': name,
+        'phone': phone,
+        if (profileImage != null) 'profileImage': profileImage,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      
+      final user = _firebaseAuth.currentUser;
+      if (user != null) {
+        await user.updateDisplayName(name);
+        if (profileImage != null) {
+          await user.updatePhotoURL(profileImage);
+        }
+      }
+    } catch (e) {
+      throw "Failed to update profile: $e";
+    }
   }
 }

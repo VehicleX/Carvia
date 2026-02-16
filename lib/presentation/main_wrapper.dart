@@ -7,6 +7,7 @@ import 'package:carvia/presentation/vehicle/my_vehicles_page.dart';
 import 'package:carvia/presentation/challan/e_challan_page.dart';
 import 'package:carvia/presentation/ai/ai_chat_page.dart';
 import 'package:carvia/presentation/auth/login_page.dart';
+import 'package:carvia/presentation/vehicle/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
