@@ -56,16 +56,29 @@ class _LoginPageState extends State<LoginPage> {
     
     try {
       final success = await authService.loginWithGoogle();
-      if (success) {
-        if (mounted) _navigateToHome(authService.currentUser?.role ?? UserRole.buyer);
+      if (success && mounted) {
+        // User exists with complete profile, navigate to home
+        _navigateToHome(authService.currentUser?.role ?? UserRole.buyer);
+      } else if (!success && mounted) {
+        // Login cancelled or failed
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Google Sign-in cancelled or failed")),
+        );
       }
     } catch (e) {
-      if (e == "incomplete_profile") {
+      if (e.toString() == "incomplete_profile") {
          if (mounted) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const CompleteProfilePage()));
+            // User authenticated but needs to complete profile
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const CompleteProfilePage()),
+            );
          }
       } else {
-         if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed: $e")));
+         if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+             SnackBar(content: Text("Login Failed: ${e.toString()}")),
+           );
+         }
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

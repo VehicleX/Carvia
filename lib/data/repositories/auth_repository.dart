@@ -20,6 +20,7 @@ abstract class AuthRepository {
   Future<void> verifyPhone(String phone, Function(String, int?) codeSent);
   Future<bool> verifyOTP(String verificationId, String smsCode);
   Future<UserModel?> completeProfile({required UserRole role, required String phone, required String name, required String email});
+  Future<bool> checkEmailExists(String email);
   Future<void> updateProfile({required String uid, required String name, required String phone, String? profileImage});
   Future<void> updateProfile({required String uid, required String name, required String phone, String? profileImage});
   
@@ -35,8 +36,12 @@ abstract class AuthRepository {
 class AuthRepositoryImpl implements AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth = firebase_auth.FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
-  
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    // serverClientId is optional but helps with token validation
+    // If you need it for backend verification, add your OAuth client ID here
+    scopes: ['email', 'profile'],
+  );
+
   @override
   firebase_auth.User? get currentFirebaseUser => _firebaseAuth.currentUser;
   
@@ -101,11 +106,25 @@ class AuthRepositoryImpl implements AuthRepository {
         role: role,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        isVerified: true, // Set to true since they verified via OTP
         isVerified: false,
       );
 
       await _firestore.collection('users').doc(newUser.uid).set(newUser.toMap());
       return newUser;
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      switch (e.code) {
+        case 'email-already-in-use':
+          throw 'This email is already registered. Please login instead.';
+        case 'weak-password':
+          throw 'Password is too weak. Use at least 6 characters.';
+        case 'invalid-email':
+          throw 'Invalid email format.';
+        case 'operation-not-allowed':
+          throw 'Email/password accounts are not enabled.';
+        default:
+          throw 'Registration failed: ${e.message}';
+      }
     } catch (e) {
       rethrow;
     }
@@ -114,6 +133,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserModel?> loginWithGoogle() async {
     try {
+      // Try silent sign-in first (recommended for web, works on all platforms)
+      GoogleSignInAccount? googleUser = await _googleSignIn.signInSilently();
+      
+      // If silent sign-in returns null, fall back to interactive sign-in
+      // On web, this may trigger a popup (which is now deprecated but still works as fallback)
+      googleUser??= await _googleSignIn.signIn();
+      
+      if (googleUser == null) return null; // Cancelled
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) return null;
 
@@ -211,6 +238,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<bool> checkEmailExists(String email) async {
+    try {
+      // Check Firebase Auth
+      final methods = await _firebaseAuth.fetchSignInMethodsForEmail(email);
+      if (methods.isNotEmpty) return true;
+      
+      // Also check Firestore (in case auth and firestore are out of sync)
+      final querySnapshot = await _firestore
+          .collection('users')
+          .where('email', isEqualTo: email)
+          .limit(1)
+          .get();
+      return querySnapshot.docs.isNotEmpty;
+    } catch (e) {
+      return false;
+    }
   Future<void> sendPasswordResetOtp(String email) async {
     // SIMULATION: In a real app, this calls a backend API to send an email.
     // Here, we generate a random OTP and "send" it via debug log/UI.

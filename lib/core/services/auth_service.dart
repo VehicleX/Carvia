@@ -1,10 +1,12 @@
 
 import 'package:carvia/core/models/user_model.dart';
+import 'package:carvia/core/services/email_otp_service.dart';
 import 'package:carvia/data/repositories/auth_repository.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService extends ChangeNotifier {
   final AuthRepository _authRepository = AuthRepositoryImpl();
+  final EmailOtpService _emailOtpService = EmailOtpService();
   UserModel? _currentUser;
   bool _isLoading = false;
 
@@ -47,26 +49,99 @@ class AuthService extends ChangeNotifier {
       if (user != null) {
         _currentUser = user;
         _setLoading(false);
+        notifyListeners();
         return true;
       } else {
         // If repository returns null, checks if it was just cancellation or "new user".
-        // My AuthRepository.loginWithGoogle returns null if user cancelled OR if fresh user (doc doesn't exist).
-        // I should update AuthRepository to distinguish, OR check FirebaseAuth current user here.
-        
         // Check if Firebase Auth has a user but Firestore doc is missing
         if (await _isAuthButNoDoc()) {
           _setLoading(false);
           throw "incomplete_profile";
         }
         
+        // User cancelled Google sign-in
         _setLoading(false);
         return false;
       }
     } catch (e) {
       _setLoading(false);
-      if (e == "incomplete_profile") rethrow;
-      debugPrint("Google Login Error: $e");
+      if (e.toString() == "incomplete_profile") rethrow;
+      rethrow;
+    }
+  }
+
+  // Check if email already exists
+  Future<bool> checkEmailExists(String email) async {
+    return await _authRepository.checkEmailExists(email);
+  }
+
+  // Register with Email OTP Verification
+  Future<String> sendRegistrationOtp(String email) async {
+    _setLoading(true);
+    try {
+      final otp = await _emailOtpService.sendOtpToEmail(email);
+      _setLoading(false);
+      return otp; // For testing only - remove in production
+    } catch (e) {
+      _setLoading(false);
+
+      rethrow;
+    }
+  }
+  
+  // Verify OTP and complete registration
+  Future<bool> verifyOtpAndRegister({
+    required String email,
+    required String otp,
+    required String password,
+    required String name,
+    required String phone,
+    required UserRole role,
+  }) async {
+    _setLoading(true);
+    try {
+      // 1. Verify OTP
+      final isValid = await _emailOtpService.verifyOtp(email, otp);
+      if (!isValid) {
+        _setLoading(false);
+        throw 'Invalid or expired OTP';
+      }
+      
+      // 2. Create user account
+      final user = await _authRepository.register(
+        email: email,
+        password: password,
+        name: name,
+        phone: phone,
+        role: role,
+      );
+      
+      if (user != null) {
+        _currentUser = user;
+        _setLoading(false);
+        notifyListeners();
+        return true;
+      }
+      
+      _setLoading(false);
       return false;
+    } catch (e) {
+      _setLoading(false);
+
+      rethrow;
+    }
+  }
+  
+  // Resend OTP
+  Future<String> resendOtp(String email) async {
+    _setLoading(true);
+    try {
+      final otp = await _emailOtpService.resendOtp(email);
+      _setLoading(false);
+      return otp; // For testing only
+    } catch (e) {
+      _setLoading(false);
+      rethrow;
     }
   }
 
@@ -132,12 +207,7 @@ class AuthService extends ChangeNotifier {
   }) async {
     _setLoading(true);
     try {
-      // final firebaseUser = AuthRepositoryImpl().firebaseAuthInstance.currentUser; // Removed unused
-      
-      // Hack: Since I can't easily change Repo interface in one go without breaking, 
-      // I'll assume the Repo implementation handles getting the current user.
-      
-       final user = await _authRepository.completeProfile(
+      final user = await _authRepository.completeProfile(
         role: role, 
         phone: phone,
         name: _authRepository.currentFirebaseUser?.displayName ?? "User",
@@ -146,6 +216,7 @@ class AuthService extends ChangeNotifier {
       
       _currentUser = user;
       _setLoading(false);
+      notifyListeners();
     } catch (e) {
       _setLoading(false);
       rethrow;

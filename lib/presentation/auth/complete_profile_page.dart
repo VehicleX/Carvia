@@ -2,7 +2,6 @@
 import 'package:carvia/core/models/user_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
-import 'package:carvia/presentation/auth/widgets/otp_verification_modal.dart';
 import 'package:carvia/presentation/home/home_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,52 +22,11 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   bool _isLoading = false;
 
   void _handleCompleteProfile() async {
-    final phone = _phoneController.text.trim();
-    if (phone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter phone number")));
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    final authService = Provider.of<AuthService>(context, listen: false);
+    _phoneController.text.trim();
     
-    try {
-      // 1. Send OTP
-      await authService.sendOTP(phone, (verificationId, resendToken) {
-        setState(() => _isLoading = false);
-        
-        // 2. Show OTP Modal
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) => OtpVerificationModal(
-            onVerified: (smsCode) async {
-              // 3. Verify OTP & Create User Doc
-              // Note: The modal should return the SMS code or handle verification internally?
-              // Ideally, AuthService should expose a way to verify given the code.
-              // For simplistic UI flow here, let's assume valid:
-              
-              // Verify OTP first (using verificationId from closure)
-              try {
-                 final authService = Provider.of<AuthService>(context, listen: false);
-                 await authService.registerAndCreateUser(
-                     email: "", password: "", name: "", phone: "", role: UserRole.buyer, verificationId: "", smsCode: "" 
-                 );
-              } catch(e) {
-                debugPrint("Verification override error: $e");
-              }
-
-              if (context.mounted) Navigator.pop(context); // Close OTP
-              await _createUserDoc();
-            },
-          ),
-        );
-      });
-    } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
-    }
+    // Phone is optional for Google users (already verified via Google)
+    setState(() => _isLoading = true);
+    await _createUserDoc();
   }
 
   Future<void> _createUserDoc() async {
@@ -81,10 +39,16 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       );
       
       if (mounted) {
+        setState(() => _isLoading = false);
         _navigateToHome(_roles[_selectedRoleIndex]);
       }
     } catch (e) {
-       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to create profile: $e")));
+       if (mounted) {
+         setState(() => _isLoading = false);
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(content: Text("Failed to create profile: $e")),
+         );
+       }
     }
   }
 
@@ -119,7 +83,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
             const SizedBox(height: 8),
             Text(
-              "Select your role and verify your phone number.",
+              "Select your role and add your phone number (optional).",
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(color: AppColors.textSecondary),
             ),
@@ -133,7 +97,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               controller: _phoneController,
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
-                labelText: "Phone Number",
+                labelText: "Phone Number (Optional)",
+                hintText: "Add phone number later",
                 prefixIcon: const Icon(Icons.phone_rounded),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               ),
@@ -148,7 +113,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 onPressed: _isLoading ? null : _handleCompleteProfile,
                 child: _isLoading 
                   ? const CircularProgressIndicator()
-                  : const Text("Verify & Continue"),
+                  : const Text("Continue"),
               ),
             ),
           ],

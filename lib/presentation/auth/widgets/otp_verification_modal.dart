@@ -7,8 +7,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 class OtpVerificationModal extends StatefulWidget {
   final Function(String code)? onVerified;
+  final String? email;
+  final VoidCallback? onResend;
   
-  const OtpVerificationModal({super.key, this.onVerified});
+  const OtpVerificationModal({
+    super.key, 
+    this.onVerified,
+    this.email,
+    this.onResend,
+  });
 
   @override
   State<OtpVerificationModal> createState() => _OtpVerificationModalState();
@@ -89,7 +96,9 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
             ),
             const SizedBox(height: 8),
             Text(
-              "Enter the 4-digit code sent to your\nphone +1 (555) ***-0000",
+              widget.email != null 
+                ? "Enter the 4-digit code sent to\n${_maskEmail(widget.email!)}"
+                : "Enter the 4-digit code sent to your email",
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 fontSize: 14,
@@ -166,11 +175,14 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
                   "Didn't receive code? ",
                   style: GoogleFonts.outfit(color: AppColors.textSecondary),
                 ),
-                Text(
-                  "Resend in 30s",
-                  style: GoogleFonts.outfit(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
+                GestureDetector(
+                  onTap: widget.onResend,
+                  child: Text(
+                    "Resend",
+                    style: GoogleFonts.outfit(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -180,5 +192,19 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
         ),
       ),
     );
+  }
+  
+  String _maskEmail(String email) {
+    final parts = email.split('@');
+    if (parts.length != 2) return email;
+    
+    final username = parts[0];
+    final domain = parts[1];
+    
+    if (username.length <= 3) {
+      return '${username[0]}***@$domain';
+    }
+    
+    return '${username.substring(0, 2)}***${username[username.length - 1]}@$domain';
   }
 }
