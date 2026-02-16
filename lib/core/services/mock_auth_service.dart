@@ -73,6 +73,62 @@ class MockAuthService extends ChangeNotifier implements AuthService {
   }
 
   @override
+  Future<bool> checkEmailExists(String email) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+    // Mock implementation - return false to allow registration
+    // In real testing, you could check against a mock database
+    return false;
+  }
+
+  @override
+  Future<String> sendRegistrationOtp(String email) async {
+    _setLoading(true);
+    await Future.delayed(const Duration(seconds: 1));
+    _setLoading(false);
+    // Return mock OTP for testing
+    const mockOtp = "1234";
+    return mockOtp;
+  }
+
+  @override
+  Future<bool> verifyOtpAndRegister({
+    required String email,
+    required String otp,
+    required String password,
+    required String name,
+    required String phone,
+    required UserRole role,
+  }) async {
+    _setLoading(true);
+    await Future.delayed(const Duration(seconds: 1));
+
+    // Accept any 4-digit OTP in mock mode
+    if (otp.length != 4) {
+      _setLoading(false);
+      throw "Invalid OTP";
+    }
+
+    _currentUser = _createMockUser(
+      email: email,
+      name: name,
+      phone: phone,
+      role: role,
+    );
+    _setLoading(false);
+    return true;
+  }
+
+  @override
+  Future<String> resendOtp(String email) async {
+    _setLoading(true);
+    await Future.delayed(const Duration(seconds: 1));
+    _setLoading(false);
+    // Return new mock OTP
+    const mockOtp = "5678";
+    return mockOtp;
+  }
+
+  @override
   Future<void> completeProfile({required UserRole role, required String phone}) async {
     if (_currentUser == null) return;
     
