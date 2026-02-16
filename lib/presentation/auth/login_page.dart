@@ -3,6 +3,7 @@ import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:carvia/presentation/auth/complete_profile_page.dart';
 import 'package:carvia/presentation/auth/register_page.dart';
+import 'package:carvia/presentation/auth/forgot_password_page.dart';
 import 'package:carvia/presentation/home/home_pages.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -269,8 +270,10 @@ class _LoginPageState extends State<LoginPage> {
                         // ...
                         const SizedBox(height: 16),
                         Center(
-                          child: TextButton(
-                            onPressed: () {},
+                            child: TextButton(
+                            onPressed: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => const ForgotPasswordPage()));
+                            },
                             child: Text(
                               "Forgot Password?",
                               style: GoogleFonts.outfit(color: AppColors.textSecondary),

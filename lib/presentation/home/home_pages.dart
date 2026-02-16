@@ -2,6 +2,7 @@
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/presentation/auth/login_page.dart';
+import 'package:carvia/presentation/main_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import Provider
 import 'package:google_fonts/google_fonts.dart';
@@ -11,7 +12,7 @@ class UserHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildHomeScaffold(context, "User Home", Icons.person_outline);
+    return const MainWrapper();
   }
 }
 

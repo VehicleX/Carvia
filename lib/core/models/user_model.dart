@@ -85,4 +85,34 @@ class UserModel {
       'preferences': preferences,
     };
   }
+  UserModel copyWith({
+    String? name,
+    String? email,
+    String? phone,
+    UserRole? role,
+    AccountType? accountType,
+    String? profileImage,
+    bool? isVerified,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Map<String, dynamic>? address,
+    Map<String, dynamic>? preferences,
+  }) {
+    return UserModel(
+      uid: uid,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      role: role ?? this.role,
+      accountType: accountType ?? this.accountType,
+      profileImage: profileImage ?? this.profileImage,
+      isVerified: isVerified ?? this.isVerified,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      address: address ?? this.address,
+      preferences: preferences ?? this.preferences,
+    );
+  }
 }

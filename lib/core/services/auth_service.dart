@@ -223,6 +223,25 @@ class AuthService extends ChangeNotifier {
     }
   }
 
+  Future<void> updateProfile(String name, String phone) async {
+    if (_currentUser == null) return;
+    _setLoading(true);
+    try {
+      await _authRepository.updateProfile(
+        uid: _currentUser!.uid,
+        name: name,
+        phone: phone,
+      );
+      // Update local user model
+      _currentUser = _currentUser!.copyWith(name: name, phone: phone);
+    } catch (e) {
+      debugPrint("Update Profile Error: $e");
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<void> logout() async {
     await _authRepository.logout();
     _currentUser = null;
@@ -236,5 +255,41 @@ class AuthService extends ChangeNotifier {
   
   Future<bool> _isAuthButNoDoc() async {
     return _authRepository.currentFirebaseUser != null;
+  }
+
+  // --- Password Reset Simulation ---
+  String? _passwordResetOtp;
+
+  Future<void> sendPasswordResetOtp(String email) async {
+    _setLoading(true);
+    try {
+      // The Repo "throws" the OTP for simulation purposes
+      await _authRepository.sendPasswordResetOtp(email);
+    } catch (e) {
+      if (e is String && e.length == 6) {
+        _passwordResetOtp = e; // Caught the simulated OTP
+        // In a real app, we wouldn't catch it here, the user would receive an email.
+      } else {
+        rethrow;
+      }
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  Future<bool> verifyPasswordResetOtp(String email, String otp) async {
+    // Verify against the stored OTP
+    if (_passwordResetOtp == null) return false;
+    return otp == _passwordResetOtp;
+  }
+
+  Future<void> resetPassword(String email, String newPassword) async {
+    _setLoading(true);
+    try {
+      await _authRepository.resetPassword(email, newPassword);
+      _passwordResetOtp = null; // Clear OTP
+    } finally {
+      _setLoading(false);
+    }
   }
 }
