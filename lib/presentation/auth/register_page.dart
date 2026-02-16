@@ -77,7 +77,28 @@ class _RegisterPageState extends State<RegisterPage> {
       });
     } catch (e) {
       if (mounted) setState(() => _isLoading = false);
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
+      
+      String errorMessage = "Error: $e";
+      if (e.toString().contains("billing-not-enabled")) {
+        errorMessage = "Phone Auth requires billing enabled on Firebase Console.";
+      } else if (e.toString().contains("app-not-authorized")) {
+        errorMessage = "App not authorized. Check SHA-1/SHA-256 fingerprints in Firebase Console.";
+      } else if (e.toString().contains("internal-error")) {
+        errorMessage = "Internal Error. This often happens on Windows if google-services.json is missing or invalid.";
+      }
+
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Registration Failed"),
+            content: Text(errorMessage),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text("OK")),
+            ],
+          ),
+        );
+      }
     }
   }
 
