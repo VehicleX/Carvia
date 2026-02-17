@@ -227,7 +227,21 @@ class _HomePageState extends State<HomePage> {
              width: double.infinity,
              alignment: Alignment.center,
              decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(20)),
-             child: const Text("No vehicles found matching filters"),
+             child: Column(
+               mainAxisAlignment: MainAxisAlignment.center,
+               children: [
+                 const Text("No vehicles found matching filters"),
+                 const SizedBox(height: 10),
+                 ElevatedButton(
+                   onPressed: _fetchVehicles,
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: AppColors.surface,
+                     foregroundColor: AppColors.primary,
+                   ),
+                   child: const Text("Refresh"),
+                 ),
+               ],
+             ),
            );
         }
 

@@ -1,7 +1,9 @@
+import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:provider/provider.dart';
 
 class AboutCreditsPage extends StatelessWidget {
   const AboutCreditsPage({super.key});

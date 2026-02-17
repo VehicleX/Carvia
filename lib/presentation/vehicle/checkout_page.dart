@@ -252,12 +252,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       if (!mounted) return;
       
-      showDialog(
-
-      // Award Credits Logic (Mock for now, would be in Cloud Function ideally)
-      int earnedCredits = (widget.vehicle.price * 0.01).toInt();
-      // await authService.updateCredits(user.uid, earnedCredits); 
-
       if (!mounted) return;
       
       showDialog(

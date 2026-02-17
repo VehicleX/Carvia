@@ -1,5 +1,8 @@
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/models/vehicle_model.dart';
+import 'package:carvia/core/services/vehicle_service.dart';
+import 'package:carvia/presentation/seller/add_vehicle_page.dart' as import_seller;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,55 +14,92 @@ class SellerDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<AuthService>(context).currentUser;
-    
-    // Mock Stats - In production, fetch via SellerService
-    final stats = [
-      {'title': 'Active Listings', 'value': '12', 'icon': Iconsax.car, 'color': Colors.blue},
-      {'title': 'Sold Vehicles', 'value': '5', 'icon': Iconsax.tick_circle, 'color': Colors.green},
-      {'title': 'Pending Requests', 'value': '3', 'icon': Iconsax.timer, 'color': Colors.orange},
-      {'title': 'Total Earnings', 'value': '\$45K', 'icon': Iconsax.wallet_2, 'color': Colors.purple},
-    ];
+    final authService = Provider.of<AuthService>(context);
+    final user = authService.currentUser;
+    final vehicleService = Provider.of<VehicleService>(context); // Listen to changes
+
+    if (user == null) return const Center(child: Text("Loading profile..."));
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Welcome back, ${user?.name ?? 'Seller'}!", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold))
+          Text("Welcome back, ${user.name}!", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold))
               .animate().fadeIn().slideX(begin: -0.2),
           const SizedBox(height: 5),
           const Text("Here's your dealership overview.", style: TextStyle(color: AppColors.textMuted))
               .animate().fadeIn(delay: 200.ms),
           const SizedBox(height: 20),
           
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.4,
-            ),
-            itemCount: stats.length,
-            itemBuilder: (context, index) {
-              final stat = stats[index];
-              return _buildStatCard(context, stat)
-                  .animate().fadeIn(delay: (200 + (index * 100)).ms).slideY(begin: 0.2);
-            },
+          FutureBuilder<List<VehicleModel>>(
+            future: vehicleService.fetchSellerVehicles(user.uid),
+            builder: (context, snapshot) {
+              // Calculate stats from real data
+              int activeCount = 0;
+              int soldCount = 0;
+              int viewsCount = 0;
+              
+              if (snapshot.hasData) {
+                final vehicles = snapshot.data!;
+                activeCount = vehicles.where((v) => v.status == 'active').length;
+                soldCount = vehicles.where((v) => v.status == 'sold').length;
+                viewsCount = vehicles.fold(0, (sum, v) => sum + v.viewsCount);
+              }
+
+              final stats = [
+                {'title': 'Active Listings', 'value': '$activeCount', 'icon': Iconsax.car, 'color': Colors.blue},
+                {'title': 'Sold Vehicles', 'value': '$soldCount', 'icon': Iconsax.tick_circle, 'color': Colors.green},
+                {'title': 'Total Views', 'value': '$viewsCount', 'icon': Iconsax.eye, 'color': Colors.orange},
+                {'title': 'Total Earnings', 'value': '\$${soldCount * 25000} (Est)', 'icon': Iconsax.wallet_2, 'color': Colors.purple},
+              ];
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 1.4,
+                ),
+                itemCount: stats.length,
+                itemBuilder: (context, index) {
+                  final stat = stats[index];
+                  return _buildStatCard(context, stat)
+                      .animate().fadeIn(delay: (200 + (index * 100)).ms).slideY(begin: 0.2);
+                },
+              );
+            }
           ),
           
           const SizedBox(height: 30),
-          const Text("Recent Activity", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
+          const Text("Quick Actions", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold))
               .animate().fadeIn(delay: 600.ms),
           const SizedBox(height: 10),
-          _buildActivityItem(context, "Test Drive Request", "John Doe requested a test drive for BMW X5", "2 mins ago")
-              .animate().fadeIn(delay: 700.ms).slideX(begin: 0.2),
-          _buildActivityItem(context, "Vehicle Sold", "Toyota Camry marked as sold", "2 hours ago")
-              .animate().fadeIn(delay: 800.ms).slideX(begin: 0.2),
-          _buildActivityItem(context, "New Listing", "Added Tesla Model 3 to inventory", "1 day ago")
-              .animate().fadeIn(delay: 900.ms).slideX(begin: 0.2),
+          // Action Buttons instead of mock activity
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    // Navigate to Add Vehicle (Parent wrapper handles logic, but direct nav works too contextually if pushed)
+                    // Since we are inside the pageview, we can't easily switch the parent tab index without a callback.
+                    // For now, we can push the AddVehiclePage directly on stack.
+                    // But typically better to switch tab. 
+                    // Let's just push it for simplicity here as it's quick action.
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const import_seller.AddVehiclePage()));
+                  },
+                  icon: const Icon(Iconsax.add),
+                  label: const Text("Add Vehicle"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.surface,
+                    foregroundColor: AppColors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ).animate().fadeIn(delay: 700.ms),
         ],
       ),
     );

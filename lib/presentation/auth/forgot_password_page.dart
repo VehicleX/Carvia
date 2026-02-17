@@ -15,14 +15,9 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final _emailController = TextEditingController();
-  final _otpController = TextEditingController();
-  final _newPasswordController = TextEditingController();
-  
-  int _step = 0; // 0: Email, 1: OTP, 2: New Password
   bool _isLoading = false;
-  String? _simulatedOtpMessage;
 
-  Future<void> _handleSendOtp() async {
+  Future<void> _handleSendResetLink() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter your email")));
@@ -33,72 +28,24 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final authService = Provider.of<AuthService>(context, listen: false);
 
     try {
-      await authService.sendPasswordResetOtp(email);
-      // If successful (no error thrown), it means OTP was generated and stored in service.
-      // But passing it back via exception is ugly, let's just grab it from service or show generic message.
-      // Actually, my AuthService implementation catches the thrown String.
-      
+      await authService.sendPasswordResetEmail(email);
       if (mounted) {
-        setState(() {
-          _step = 1;
-          _simulatedOtpMessage = "OTP sent to $email"; 
-          // HACK: In real app, user checks email. Here, we might need to show it?
-          // The repository `debugPrint`ted it.
-          // Let's assume the user is looking at console or we show it in a snackbar for demo.
-        });
-        
-        // Show simulated OTP for convenience in this demo
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("OTP Sent! Check Debug Console (Simulated)"),
-          duration: Duration(seconds: 5),
-        ));
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _handleVerifyOtp() async {
-    final otp = _otpController.text.trim();
-    if (otp.length != 6) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Enter valid 6-digit OTP")));
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    final authService = Provider.of<AuthService>(context, listen: false); // Fix: Use local var
-
-    try {
-      final isValid = await authService.verifyPasswordResetOtp(_emailController.text.trim(), otp);
-      if (isValid) {
-        setState(() => _step = 2);
-      } else {
-         if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Invalid OTP")));
-      }
-    } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _handleResetPassword() async {
-    final newPass = _newPasswordController.text.trim();
-    if (newPass.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Password must be at least 6 chars")));
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    final authService = Provider.of<AuthService>(context, listen: false);
-
-    try {
-      await authService.resetPassword(_emailController.text.trim(), newPass);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Password Reset Successful! Please Login.")));
-        Navigator.pop(context);
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text("Email Sent"),
+            content: Text("A password reset link has been sent to $email. Please check your inbox."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                   Navigator.pop(context); // Close dialog
+                   Navigator.pop(context); // Go back to login
+                },
+                child: const Text("OK"),
+              )
+            ],
+          ),
+        );
       }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
@@ -125,29 +72,19 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _step == 0 ? "Account Check" : (_step == 1 ? "Verify Identity" : "New Credentials"),
+              "Forgot Password?",
               style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
             ).animate().fadeIn().slideX(),
             const SizedBox(height: 8),
             Text(
-              _step == 0 ? "Enter your email to receive an OTP." : (_step == 1 ? "Enter the 6-digit code sent to ${_emailController.text}" : "Create a new strong password."),
+              "Enter your email address and we'll send you a link to reset your password.",
               style: GoogleFonts.outfit(fontSize: 14, color: AppColors.textSecondary),
             ),
             const SizedBox(height: 32),
             
-            if (_step == 0) ...[
-              _buildTextField("EMAIL", Icons.email_outlined, _emailController),
-              const SizedBox(height: 24),
-              _buildButton("Send OTP", _handleSendOtp),
-            ] else if (_step == 1) ...[
-              _buildTextField("OTP CODE", Icons.lock_clock_outlined, _otpController),
-              const SizedBox(height: 24),
-               _buildButton("Verify Code", _handleVerifyOtp),
-            ] else ...[
-               _buildTextField("NEW PASSWORD", Icons.lock_outline, _newPasswordController, isPassword: true),
-              const SizedBox(height: 24),
-              _buildButton("Reset Password", _handleResetPassword),
-            ],
+            _buildTextField("EMAIL ADDRESS", Icons.email_outlined, _emailController),
+            const SizedBox(height: 24),
+            _buildButton("Send Reset Link", _handleSendResetLink),
           ],
         ),
       ),

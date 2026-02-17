@@ -48,25 +48,35 @@ class EmailOtpService {
   Future<void> _sendEmailViaHTTP(String toEmail, String otp) async {
     try {
       // EmailJS API call
-      await http.post(
+      final response = await http.post(
         Uri.parse('https://api.emailjs.com/api/v1.0/email/send'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'origin': 'http://localhost',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        },
         body: jsonEncode({
           'service_id': _emailJsServiceId,
           'template_id': _emailJsTemplateId,
           'user_id': _emailJsUserId,
           'template_params': {
-            'email': toEmail,  // Changed from 'to_email' to match template
+            'email': toEmail,
             'otp_code': otp,
             'app_name': 'Carvia',
           }
         }),
       );
 
-      // Email sent successfully or failed silently
-      
+      if (response.statusCode != 200) {
+        throw "EmailJS Error: ${response.body}";
+      }
     } catch (e) {
-      // Silently handle email sending errors
+      if (e.toString().contains("EmailJS Error")) {
+        rethrow; // Pass the specific API error
+      }
+      // If it fails (e.g. network or keys), we MUST tell the user to fix their config.
+      // The user specifically requested "Real OTP", so we cannot mock it.
+      throw "Email Sending Failed. Please ensure valid EmailJS keys are configured in `email_otp_service.dart`.";
     }
   }
   

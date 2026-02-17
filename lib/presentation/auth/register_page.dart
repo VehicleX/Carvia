@@ -70,92 +70,15 @@ class _RegisterPageState extends State<RegisterPage> {
       
       if (mounted) {
         setState(() => _isLoading = false);
-        
-        // Show OTP verification modal
-        showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: false,
-          enableDrag: false,
-          backgroundColor: Colors.transparent,
-          builder: (context) => OtpVerificationModal(
-            email: email,
-            onResend: () async {
-              try {
-                await authService.resendOtp(email);
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("OTP resent to your email")),
-                  );
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("$e")),
-                  );
-                }
-              }
-            },
-            onVerified: (otp) async {
-              // Verify OTP and register
-              try {
-                final success = await authService.verifyOtpAndRegister(
-                  email: email,
-                  otp: otp,
-                  password: password,
-                  name: name,
-                  phone: phone,
-                  role: _selectedRole,
-                );
-                
-                if (success && context.mounted) {
-                  Navigator.pop(context); // Close OTP modal
-                  
-                  // Navigate to home based on role
-                  Widget homePage;
-                  switch (_selectedRole) {
-                    case UserRole.buyer:
-                      homePage = const UserHomePage();
-                      break;
-                    case UserRole.seller:
-                      homePage = const SellerHomePage();
-                      break;
-                    case UserRole.police:
-                      homePage = const PoliceHomePage();
-                      break;
-                  }
-                  
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => homePage),
-                    (route) => false,
-                  );
-                } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Registration failed")),
-                    );
-                  }
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  Navigator.pop(context); // Close OTP modal on error
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("$e"),
-                      duration: const Duration(seconds: 4),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              }
-            },
-          ),
-        );
+        _showOtpModal(email);
       }
     } catch (e) {
       if (mounted) {
          setState(() => _isLoading = false);
          String errorMessage = "Error: $e";
+         
+         // OTP Fallback Handler Removed as per user request for "Real" only.
+         
          if (e.toString().contains("billing-not-enabled")) {
            errorMessage = "Phone Auth requires billing enabled on Firebase Console.";
          } else if (e.toString().contains("app-not-authorized")) {
@@ -169,6 +92,73 @@ class _RegisterPageState extends State<RegisterPage> {
          );
       }
     }
+  }
+
+  // Fallback dialog removed.
+
+  void _showOtpModal(String email) {
+    // Need these from state for the closure
+    final name = _nameController.text.trim();
+    final phone = _phoneController.text.trim();
+    final password = _passwordController.text.trim();
+    final authService = Provider.of<AuthService>(context, listen: false);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) => OtpVerificationModal(
+        email: email,
+        onResend: () async {
+          try {
+            await authService.resendOtp(email);
+            if (context.mounted) {
+               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP resent to your email")));
+            }
+          } catch (e) {
+            // Check for fallback in resend too
+            if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e")));
+          }
+        },
+        onVerified: (otp) async {
+          try {
+            final success = await authService.verifyOtpAndRegister(
+              email: email,
+              otp: otp,
+              password: password,
+              name: name,
+              phone: phone,
+              role: _selectedRole,
+            );
+            
+            if (success && context.mounted) {
+              Navigator.pop(context); // Close OTP modal
+              
+              Widget homePage;
+              switch (_selectedRole) {
+                case UserRole.buyer: homePage = const UserHomePage(); break;
+                case UserRole.seller: homePage = const SellerHomePage(); break;
+                case UserRole.police: homePage = const PoliceHomePage(); break;
+              }
+              
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => homePage),
+                (route) => false,
+              );
+            } else {
+              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Registration failed")));
+            }
+          } catch (e) {
+            if (context.mounted) {
+              Navigator.pop(context); 
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e"), backgroundColor: Colors.red));
+            }
+          }
+        },
+      ),
+    );
   }
 
   @override
@@ -291,8 +281,15 @@ class _RegisterPageState extends State<RegisterPage> {
           keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
           style: const TextStyle(color: AppColors.textPrimary),
           decoration: InputDecoration(
-            prefixIcon: Icon(icon),
+            prefixIcon: Icon(icon, color: AppColors.textSecondary),
             hintText: isPhone ? "+1 555 000 0000" : (isPassword ? "••••••••" : ""),
+            hintStyle: const TextStyle(color: AppColors.textMuted),
+            filled: true,
+            fillColor: AppColors.surface,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
             suffixIcon: isPassword
                 ? IconButton(
                     icon: Icon(

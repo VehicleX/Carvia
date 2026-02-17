@@ -16,7 +16,17 @@ class UserModel {
   final String uid;
   final String name;
   final String email;
+  final String phone;
+  final UserRole role;
+  final AccountType? accountType;
+  final String? profileImage;
+  final bool isVerified;
+  final bool isActive;
   final int credits;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final Map<String, dynamic> address;
+  final Map<String, dynamic> preferences;
 
   UserModel({
     required this.uid,

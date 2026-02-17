@@ -16,6 +16,7 @@ class ChallanModel {
   final ChallanStatus status;
   final String? evidenceImageUrl;
   final DateTime? paymentDueDate;
+  final String? paymentId;
 
   ChallanModel({
     required this.id,

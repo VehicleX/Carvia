@@ -22,7 +22,7 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final user = Provider.of<AuthService>(context, listen: false).currentUser;
       if (user != null) {
         final vehicleService = Provider.of<VehicleService>(context, listen: false);

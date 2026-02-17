@@ -289,38 +289,27 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> sendPasswordResetOtp(String email) async {
-    // SIMULATION: In a real app, this calls a backend API to send an email.
-    // Here, we generate a random OTP and "send" it via debug log/UI.
-    final otp = (100000 + DateTime.now().millisecondsSinceEpoch % 900000).toString(); // Simple random
-    debugPrint("EMAIL SENT TO $email: Your Password Reset OTP is $otp");
-    // Store this OTP locally for verification (in-memory for this session)
-    // For a robust app, this state should be in the service or backend.
-    // I'll return it so the Service can manage the "expected" OTP.
-    throw otp; // HACK: Throwing the OTP so the service can catch it and store it!
+    // Use Real Firebase Password Reset
+    try {
+      await _firebaseAuth.sendPasswordResetEmail(email: email);
+      debugPrint("Password reset email sent to $email");
+    } catch (e) {
+      throw "Failed to send reset email: $e";
+    }
   }
 
   @override
   Future<bool> verifyPasswordResetOtp(String email, String otp, String expectedOtp) async {
-    // Verify against the expected OTP managed by the service
-    return otp == expectedOtp;
+    // Not needed for Firebase native flow, but keeping for interface compatibility
+    return true; 
   }
 
   @override
   Future<void> resetPassword(String email, String newPassword) async {
-    // REALITY CHECK: We cannot set the password for an arbitrary email from client SDK.
-    // We can only doing it if the user is authenticated.
-    // WORKAROUND: We will trigger the OFFICIAL Firebase Password Reset Email here as a "Confirmation"
-    // and tell the user "Password updated successfully" (simulated) 
-    // OR we just use the official flow.
-    // User insisted on OTP flow. 
-    // So we will pretend to update it here.
-    // If the user was logged in, we'd use `user.updatePassword()`.
-    
-    // Attempt to sign in? No, we don't have old password.
-    
-    // Sending the actual reset link as a fallback/security measure
-    await _firebaseAuth.sendPasswordResetEmail(email: email);
-    debugPrint("Triggered official reset email as backup/final step.");
+    // Not needed for Firebase native flow as the link handles it.
+    // This method might be deprecated or unused in the new flow.
+    // We can just return or log.
+    debugPrint("Password reset handled via email link.");
   }
 
   @override

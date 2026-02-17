@@ -3,6 +3,7 @@ import 'package:carvia/core/theme/app_theme.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/presentation/auth/login_page.dart';
 import 'package:carvia/presentation/main_wrapper.dart';
+import 'package:carvia/presentation/seller/seller_main_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Import Provider
 import 'package:google_fonts/google_fonts.dart';
@@ -21,16 +22,18 @@ class SellerHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildHomeScaffold(context, "Seller Dashboard", Icons.storefront_outlined);
+    return const SellerMainWrapper();
   }
 }
+
+import 'package:carvia/presentation/police/police_main_wrapper.dart';
 
 class PoliceHomePage extends StatelessWidget {
   const PoliceHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return _buildHomeScaffold(context, "Police Portal", Icons.local_police_outlined);
+    return const PoliceMainWrapper();
   }
 }
 

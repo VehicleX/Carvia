@@ -48,7 +48,39 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
       {'icon': Iconsax.user, 'title': 'Profile'},
     ];
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        
+        if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
+          Navigator.of(context).pop();
+          return;
+        }
+
+        if (_currentIndex != 0) {
+          setState(() => _currentIndex = 0);
+          return;
+        }
+
+        // If on Dashboard (index 0), confirm exit
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Exit App"),
+            content: const Text("Are you sure you want to exit?"),
+            actions: [
+              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text("Cancel")),
+              TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text("Exit")),
+            ],
+          ),
+        );
+
+        if (shouldExit == true && context.mounted) {
+           Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(_menuItems[_currentIndex]['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -126,6 +158,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
         ),
       ),
       body: _pages[_currentIndex],
+    ),
     );
   }
 }

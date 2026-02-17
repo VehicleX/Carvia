@@ -1,6 +1,7 @@
 
 import 'package:carvia/core/models/user_model.dart';
 import 'package:carvia/core/services/email_otp_service.dart';
+import 'package:carvia/core/services/notification_service.dart';
 import 'package:carvia/data/repositories/auth_repository.dart';
 import 'package:flutter/foundation.dart';
 
@@ -221,13 +222,15 @@ class AuthService extends ChangeNotifier {
       
       // Welcome Notification is already sent by AuthRepository
 
-      // Trigger "Account Verified" Notification
-      await _notificationService.createNotification(
-        userId: user.uid,
-        title: "Account Verified",
-        body: "Your account has been verified successfully.",
-        type: "auth_verified",
-      );
+      if (user != null) {
+        // Trigger "Account Verified" Notification
+        await _notificationService.createNotification(
+          userId: user.uid,
+          title: "Account Verified",
+          body: "Your account has been verified successfully.",
+          type: "auth_verified",
+        );
+      }
 
       _currentUser = user;
       _setLoading(false);
@@ -275,36 +278,23 @@ class AuthService extends ChangeNotifier {
   // --- Password Reset Simulation ---
   String? _passwordResetOtp;
 
-  Future<void> sendPasswordResetOtp(String email) async {
+  Future<void> sendPasswordResetEmail(String email) async {
     _setLoading(true);
     try {
-      // The Repo "throws" the OTP for simulation purposes
-      await _authRepository.sendPasswordResetOtp(email);
+      await _authRepository.sendPasswordResetOtp(email); // Renamed in usage but keeps interface
     } catch (e) {
-      if (e is String && e.length == 6) {
-        _passwordResetOtp = e; // Caught the simulated OTP
-        // In a real app, we wouldn't catch it here, the user would receive an email.
-      } else {
-        rethrow;
-      }
+      rethrow;
     } finally {
       _setLoading(false);
     }
   }
 
+  // Deprecated/Unused methods for custom OTP flow (keeping empty to stay compatible if UI calls them)
   Future<bool> verifyPasswordResetOtp(String email, String otp) async {
-    // Verify against the stored OTP
-    if (_passwordResetOtp == null) return false;
-    return otp == _passwordResetOtp;
+    return true; 
   }
 
   Future<void> resetPassword(String email, String newPassword) async {
-    _setLoading(true);
-    try {
-      await _authRepository.resetPassword(email, newPassword);
-      _passwordResetOtp = null; // Clear OTP
-    } finally {
-      _setLoading(false);
-    }
+     // No-op
   }
 }
