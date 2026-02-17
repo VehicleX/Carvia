@@ -15,6 +15,9 @@ class VehicleModel {
   final String type; // Car, Bike, Truck, etc.
   final bool isExternal;
   final Map<String, dynamic> specs;
+  final int viewsCount;
+  final int wishlistCount;
+  final List<Map<String, dynamic>> fullImages; // Detailed image data
 
   VehicleModel({
     required this.id,
@@ -31,6 +34,9 @@ class VehicleModel {
     this.type = 'Car',
     this.specs = const {},
     this.isExternal = false,
+    this.viewsCount = 0,
+    this.wishlistCount = 0,
+    this.fullImages = const [],
   });
 
   factory VehicleModel.fromMap(Map<String, dynamic> map, String id) {
@@ -49,6 +55,9 @@ class VehicleModel {
       type: map['type'] ?? 'Car',
       specs: Map<String, dynamic>.from(map['specs'] ?? {}),
       isExternal: map['isExternal'] ?? false,
+      viewsCount: map['viewsCount'] ?? 0,
+      wishlistCount: map['wishlistCount'] ?? 0,
+      fullImages: List<Map<String, dynamic>>.from(map['fullImages'] ?? []),
     );
   }
 
@@ -67,6 +76,9 @@ class VehicleModel {
       'type': type,
       'specs': specs,
       'isExternal': isExternal,
+      'viewsCount': viewsCount,
+      'wishlistCount': wishlistCount,
+      'fullImages': fullImages,
     };
   }
 }

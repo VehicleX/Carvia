@@ -28,7 +28,6 @@ void main() async {
         ChangeNotifierProvider<AuthService>(
           create: (_) => AuthService(),
         ),
-        ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => VehicleService()),
         ChangeNotifierProvider(create: (_) => ChallanService()),

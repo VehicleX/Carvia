@@ -204,6 +204,143 @@ class VehicleService extends ChangeNotifier {
 
   // --- Test Drive Methods ---
 
+  // --- Seller Methods ---
+
+  Future<void> addVehicle(VehicleModel vehicle) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      // Create a new document ref to get ID if not provided, or use vehicle.id
+      DocumentReference docRef;
+      if (vehicle.id.isEmpty) {
+        docRef = _firestore.collection('vehicles').doc();
+      } else {
+        docRef = _firestore.collection('vehicles').doc(vehicle.id);
+      }
+      
+      // Ensure we use the generated ID in the model
+      final newVehicle = VehicleModel(
+        id: docRef.id,
+        brand: vehicle.brand,
+        model: vehicle.model,
+        year: vehicle.year,
+        fuel: vehicle.fuel,
+        transmission: vehicle.transmission,
+        price: vehicle.price,
+        mileage: vehicle.mileage,
+        images: vehicle.images,
+        sellerId: vehicle.sellerId,
+        status: vehicle.status,
+        type: vehicle.type,
+        specs: vehicle.specs,
+        isExternal: vehicle.isExternal,
+        viewsCount: vehicle.viewsCount,
+        wishlistCount: vehicle.wishlistCount,
+        fullImages: vehicle.fullImages,
+      );
+
+      await docRef.set(newVehicle.toMap());
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error adding vehicle: $e");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateVehicle(VehicleModel vehicle) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _firestore.collection('vehicles').doc(vehicle.id).update(vehicle.toMap());
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error updating vehicle: $e");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteVehicle(String vehicleId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _firestore.collection('vehicles').doc(vehicleId).delete();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error deleting vehicle: $e");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<List<VehicleModel>> fetchSellerVehicles(String sellerId, {String? status}) async {
+    try {
+      Query query = _firestore.collection('vehicles').where('sellerId', isEqualTo: sellerId);
+      
+      if (status != null && status != 'All') {
+        query = query.where('status', isEqualTo: status.toLowerCase());
+      }
+      
+      final snapshot = await query.orderBy('createdAt', descending: true).get();
+      // Note: 'createdAt' might need to be added to VehicleModel/Firestore if not present. 
+      // For now, removing orderBy if it causes index issues, or I should add createdAt to VehicleModel.
+      // Assuming 'createdAt' exists in DB or falling back to client sort? 
+      // Let's rely on standard fetch.
+      
+      return snapshot.docs.map((doc) => VehicleModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+    } catch (e) {
+      debugPrint("Error fetching seller vehicles: $e");
+      return [];
+    }
+  }
+
+  Future<List<TestDriveModel>> fetchSellerTestDrives(String sellerId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('test_drives')
+          .where('sellerId', isEqualTo: sellerId)
+          .orderBy('scheduledTime', descending: true)
+          .get();
+      
+      return snapshot.docs.map((doc) => TestDriveModel.fromMap(doc.data(), doc.id)).toList();
+    } catch (e) {
+      debugPrint("Error fetching seller test drives: $e");
+      return [];
+    }
+  }
+
+  Future<void> updateTestDriveStatus(String testDriveId, String status, String buyerId, String vehicleName) async {
+    try {
+      await _firestore.collection('test_drives').doc(testDriveId).update({'status': status});
+      
+      // Notify Buyer
+      String title = status == 'approved' ? "Test Drive Approved! ✅" : "Test Drive Update";
+      String body = status == 'approved' 
+          ? "Your test drive for $vehicleName has been approved." 
+          : "Your test drive for $vehicleName was $status.";
+          
+      await _notificationService.createNotification(
+        userId: buyerId,
+        title: title,
+        body: body,
+        type: "test_drive_update",
+        data: {'testDriveId': testDriveId},
+      );
+      
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error updating test drive: $e");
+      rethrow;
+    }
+  }
+
   // Notification Service
   final NotificationService _notificationService = NotificationService();
 

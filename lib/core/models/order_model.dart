@@ -22,7 +22,12 @@ class OrderModel {
     required this.date,
     required this.status,
     required this.paymentMethod,
+    this.creditsUsed = 0,
+    this.creditsEarned = 0,
   });
+
+  final int creditsUsed;
+  final int creditsEarned;
 
   factory OrderModel.fromMap(Map<String, dynamic> map, String id) {
     return OrderModel(
@@ -34,6 +39,8 @@ class OrderModel {
       date: map['date'] != null ? DateTime.parse(map['date']) : DateTime.now(),
       status: OrderStatus.values.firstWhere((e) => e.toString() == map['status'], orElse: () => OrderStatus.pending),
       paymentMethod: map['paymentMethod'] ?? 'Credit Card',
+      creditsUsed: map['creditsUsed'] ?? 0,
+      creditsEarned: map['creditsEarned'] ?? 0,
     );
   }
 
@@ -46,6 +53,8 @@ class OrderModel {
       'date': date.toIso8601String(),
       'status': status.toString(),
       'paymentMethod': paymentMethod,
+      'creditsUsed': creditsUsed,
+      'creditsEarned': creditsEarned,
     };
   }
 }

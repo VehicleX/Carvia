@@ -213,4 +213,111 @@ class ChallanService extends ChangeNotifier {
     // }
     return allChallans;
   }
+  // --- Police Methods ---
+
+  Future<void> issueChallan(ChallanModel challan) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final docRef = _firestore.collection('challans').doc(); // Auto ID
+      
+      // Ensure we use the generated ID if not passed (though model usually takes ID from doc)
+      // But typically we create model with empty ID then save. 
+      // Let's assume passed challan has fields but ID might be empty.
+      
+      await docRef.set(challan.toMap()); // Save to DB
+
+      // Notify Owner
+      final _notificationService = NotificationService();
+      await _notificationService.createNotification(
+        userId: challan.ownerId,
+        title: "E-Challan Issued 🚨",
+        body: "You have been fined \$${challan.fineAmount} for ${challan.violationType}. Vehicle: ${challan.vehicleNumber}",
+        type: "challan_issued",
+        data: {'challanId': docRef.id},
+      );
+      
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error issuing challan: $e");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<List<ChallanModel>> fetchAllChallans({String? status}) async {
+    try {
+      Query query = _firestore.collection('challans').orderBy('issuedAt', descending: true);
+      
+      if (status != null && status != 'All') {
+        query = query.where('status', isEqualTo: status.toLowerCase());
+      }
+      
+      final snapshot = await query.get();
+      return snapshot.docs.map((doc) => ChallanModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+    } catch (e) {
+      debugPrint("Error fetching all challans: $e");
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>?> searchVehicleDetails(String query) async {
+    try {
+      // Search by vehicle number (exact match for now)
+      final snapshot = await _firestore.collection('vehicles').where('vehicleNumber', isEqualTo: query).limit(1).get();
+      
+      if (snapshot.docs.isNotEmpty) {
+        final doc = snapshot.docs.first;
+        final data = doc.data();
+        
+        // Fetch Owner Name (optional, if not in vehicle doc)
+        String ownerName = "Unknown";
+        if (data['ownerId'] != null) {
+          final userSnap = await _firestore.collection('users').doc(data['ownerId']).get();
+          if (userSnap.exists) {
+            ownerName = userSnap.data()?['name'] ?? "Unknown";
+          }
+        }
+
+        return {
+          'id': doc.id,
+          'data': data,
+          'ownerName': ownerName,
+        };
+      }
+      return null;
+    } catch (e) {
+      debugPrint("Error searching vehicle: $e");
+      return null;
+    }
+  }
+
+  Future<Map<String, String>> verifyDocuments(String vehicleId) async {
+    // Mock Verification Logic
+    await Future.delayed(const Duration(seconds: 1));
+    return {
+      'rc_status': 'Valid',
+      'insurance_status': 'Expired', // Mock
+      'puc_status': 'Valid',
+    };
+  }
+
+  // Analytics Helpers
+  Future<Map<String, dynamic>> fetchDashboardStats() async {
+    // In a real app, use aggregation queries or cloud functions.
+    // Here we fetch all (costly in prod, okay for demo)
+    final allChallans = await fetchAllChallans();
+    
+    final totalIssued = allChallans.length;
+    final totalRevenue = allChallans.where((c) => c.status == ChallanStatus.paid).fold(0.0, (sum, c) => sum + c.fineAmount);
+    final pending = allChallans.where((c) => c.status == ChallanStatus.unpaid).length;
+    
+    return {
+      'total_issued': totalIssued,
+      'revenue': totalRevenue,
+      'pending': pending,
+    };
+  }
 }

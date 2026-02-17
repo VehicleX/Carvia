@@ -33,7 +33,10 @@ class UserModel {
     required this.updatedAt,
     this.address = const {},
     this.preferences = const {},
+    this.sellerDetails = const {},
   });
+
+  final Map<String, dynamic> sellerDetails;
 
   factory UserModel.fromMap(Map<String, dynamic> map, String id) {
     return UserModel(
@@ -59,6 +62,7 @@ class UserModel {
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       address: Map<String, dynamic>.from(map['address'] ?? {}),
       preferences: Map<String, dynamic>.from(map['preferences'] ?? {}),
+      sellerDetails: Map<String, dynamic>.from(map['sellerDetails'] ?? {}),
     );
   }
 
@@ -77,6 +81,7 @@ class UserModel {
       'updatedAt': Timestamp.fromDate(updatedAt),
       'address': address,
       'preferences': preferences,
+      'sellerDetails': sellerDetails,
     };
   }
   
@@ -94,6 +99,7 @@ class UserModel {
     DateTime? updatedAt,
     Map<String, dynamic>? address,
     Map<String, dynamic>? preferences,
+    Map<String, dynamic>? sellerDetails,
   }) {
     return UserModel(
       uid: uid,
@@ -110,6 +116,7 @@ class UserModel {
       updatedAt: updatedAt ?? this.updatedAt,
       address: address ?? this.address,
       preferences: preferences ?? this.preferences,
+      sellerDetails: sellerDetails ?? this.sellerDetails,
     );
   }
 }

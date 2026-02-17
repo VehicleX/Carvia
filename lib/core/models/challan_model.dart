@@ -14,7 +14,8 @@ class ChallanModel {
   final DateTime issuedAt;
   final Map<String, dynamic> location;
   final ChallanStatus status;
-  final String? paymentId;
+  final String? evidenceImageUrl;
+  final DateTime? paymentDueDate;
 
   ChallanModel({
     required this.id,
@@ -28,6 +29,8 @@ class ChallanModel {
     this.location = const {},
     required this.status,
     this.paymentId,
+    this.evidenceImageUrl,
+    this.paymentDueDate,
   });
 
   factory ChallanModel.fromMap(Map<String, dynamic> map, String id) {
@@ -46,6 +49,8 @@ class ChallanModel {
         orElse: () => ChallanStatus.unpaid
       ),
       paymentId: map['paymentId'],
+      evidenceImageUrl: map['evidenceImageUrl'],
+      paymentDueDate: (map['paymentDueDate'] as Timestamp?)?.toDate(),
     );
   }
 
@@ -61,6 +66,8 @@ class ChallanModel {
       'location': location,
       'status': status.name,
       'paymentId': paymentId,
+      'evidenceImageUrl': evidenceImageUrl,
+      'paymentDueDate': paymentDueDate != null ? Timestamp.fromDate(paymentDueDate!) : null,
     };
   }
 }

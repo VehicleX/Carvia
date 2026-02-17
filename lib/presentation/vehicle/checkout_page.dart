@@ -214,20 +214,45 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     try {
-      final double totalAmount = widget.vehicle.price + (widget.vehicle.price * 0.05) + 500 - (_useCredits ? 50 : 0); // Mock math
+       // Calculation Logic
+      final double price = widget.vehicle.price;
+      final double tax = price * 0.05;
+      final double delivery = 500;
+      double total = price + tax + delivery;
       
+      int creditsToUse = 0;
+      if (_useCredits) {
+         int availableCredits = user.credits;
+         // Discount logic: 10 credits = $1 discount
+         double maxDiscount = total * 0.1; // Cap at 10%
+         double potentialDiscount = availableCredits / 10;
+         
+         double actualDiscount = potentialDiscount < maxDiscount ? potentialDiscount : maxDiscount;
+         
+         creditsToUse = (actualDiscount * 10).toInt(); // Convert back to credits
+         total -= actualDiscount;
+      }
+      
+      final int earnedCredits = (price * 0.01).toInt();
+
       final order = OrderModel(
         id: "", // Generated
         userId: user.uid,
         vehicleId: widget.vehicle.id,
         vehicleName: "${widget.vehicle.brand} ${widget.vehicle.model} ${widget.vehicle.year}",
-        amount: totalAmount, 
+        amount: total, 
         date: DateTime.now(),
         status: OrderStatus.confirmed, 
         paymentMethod: _selectedPayment,
+        creditsUsed: creditsToUse,
+        creditsEarned: earnedCredits,
       );
 
-      await orderService.createOrder(order);
+      await orderService.createOrder(order); // Transaction automatically handles deduction/earning
+
+      if (!mounted) return;
+      
+      showDialog(
 
       // Award Credits Logic (Mock for now, would be in Cloud Function ideally)
       int earnedCredits = (widget.vehicle.price * 0.01).toInt();
