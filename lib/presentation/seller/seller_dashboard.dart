@@ -10,7 +10,8 @@ import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
 class SellerDashboard extends StatelessWidget {
-  const SellerDashboard({super.key});
+  final Function(int)? onTabChange;
+  const SellerDashboard({super.key, this.onTabChange});
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +33,8 @@ class SellerDashboard extends StatelessWidget {
               .animate().fadeIn(delay: 200.ms),
           const SizedBox(height: 20),
           
-          FutureBuilder<List<VehicleModel>>(
-            future: vehicleService.fetchSellerVehicles(user.uid),
+          StreamBuilder<List<VehicleModel>>(
+            stream: vehicleService.getSellerVehiclesStream(user.uid),
             builder: (context, snapshot) {
               // Calculate stats from real data
               int activeCount = 0;
@@ -59,14 +60,24 @@ class SellerDashboard extends StatelessWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.4,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.1, // Taller cards to prevent overflow
                 ),
                 itemCount: stats.length,
                 itemBuilder: (context, index) {
                   final stat = stats[index];
-                  return _buildStatCard(context, stat)
+                  return _buildStatCard(
+                    context, 
+                    stat,
+                    onTap: () {
+                      if (stat['title'] == 'Active Listings' || stat['title'] == 'Sold Vehicles') {
+                         onTabChange?.call(1); // Navigate to Inventory
+                      } else if (stat['title'] == 'Total Earnings') {
+                         onTabChange?.call(4); // Navigate to Analytics
+                      }
+                    }
+                  )
                       .animate().fadeIn(delay: (200 + (index * 100)).ms).slideY(begin: 0.2);
                 },
               );
@@ -83,12 +94,8 @@ class SellerDashboard extends StatelessWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Navigate to Add Vehicle (Parent wrapper handles logic, but direct nav works too contextually if pushed)
-                    // Since we are inside the pageview, we can't easily switch the parent tab index without a callback.
-                    // For now, we can push the AddVehiclePage directly on stack.
-                    // But typically better to switch tab. 
-                    // Let's just push it for simplicity here as it's quick action.
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const import_seller.AddVehiclePage()));
+                    // Switch to Add Vehicle Tab (Index 2)
+                    onTabChange?.call(2);
                   },
                   icon: const Icon(Iconsax.add),
                   label: const Text("Add Vehicle"),
@@ -105,34 +112,37 @@ class SellerDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildStatCard(BuildContext context, Map<String, dynamic> stat) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: (stat['color'] as Color).withOpacity(0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: (stat['color'] as Color).withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Icon(stat['icon'], color: stat['color'], size: 28),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(stat['value'], style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: stat['color'])),
-              Text(stat['title'], style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
-            ],
-          ),
-        ],
+  Widget _buildStatCard(BuildContext context, Map<String, dynamic> stat, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: (stat['color'] as Color).withOpacity(0.2)),
+          boxShadow: [
+            BoxShadow(
+              color: (stat['color'] as Color).withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(stat['icon'], color: stat['color'], size: 28),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(stat['value'], style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: stat['color'])),
+                Text(stat['title'], style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

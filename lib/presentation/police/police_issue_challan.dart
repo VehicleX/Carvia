@@ -144,7 +144,7 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
                 height: 150,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, style: BorderStyle.dashed),
+                  border: Border.all(color: Colors.grey, style: BorderStyle.solid),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Center(

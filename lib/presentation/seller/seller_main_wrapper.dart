@@ -24,13 +24,22 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _pages = [
-    const SellerDashboard(),
+    const SizedBox(), // Placeholder, will be initialized in initState
     const ManageListingsPage(),
-    const AddVehiclePage(), // Replaced placeholder
+    const AddVehiclePage(),
     const SellerTestDrivesPage(),
     const SellerAnalyticsPage(),
     const SellerProfilePage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize pages here to access setState
+    _pages[0] = SellerDashboard(onTabChange: (index) {
+      setState(() => _currentIndex = index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

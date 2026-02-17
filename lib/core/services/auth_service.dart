@@ -297,4 +297,19 @@ class AuthService extends ChangeNotifier {
   Future<void> resetPassword(String email, String newPassword) async {
      // No-op
   }
-}
+  Future<void> upgradeToOrganization(String uid) async {
+    _setLoading(true);
+    try {
+      await _authRepository.updateAccountType(uid, UserRole.company);
+      
+      // Update local user model
+      if (_currentUser != null) {
+        _currentUser = _currentUser!.copyWith(role: UserRole.company);
+        notifyListeners();
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      _setLoading(false);
+    }
+  }

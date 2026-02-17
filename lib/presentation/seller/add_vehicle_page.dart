@@ -179,7 +179,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         Container(
           height: 200,
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.textMuted, style: BorderStyle.dashed),
+            border: Border.all(color: AppColors.textMuted, style: BorderStyle.solid),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Center(

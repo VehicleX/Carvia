@@ -25,6 +25,15 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
   bool _isWishlisted = false;
 
   @override
+  void initState() {
+    super.initState();
+    // Increment view count when page loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<VehicleService>(context, listen: false).incrementVehicleView(widget.vehicle.id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,

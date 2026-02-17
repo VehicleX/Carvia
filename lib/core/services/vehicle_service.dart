@@ -33,19 +33,39 @@ class VehicleService extends ChangeNotifier {
   }
 
   Future<void> toggleWishlist(String userId, String vehicleId) async {
-    if (_wishlistIds.contains(vehicleId)) {
-      _wishlistIds.remove(vehicleId);
-    } else {
+    bool isAdding = !_wishlistIds.contains(vehicleId);
+    
+    if (isAdding) {
       _wishlistIds.add(vehicleId);
+    } else {
+      _wishlistIds.remove(vehicleId);
     }
     notifyListeners();
 
     try {
+      // 1. Update User Wishlist
       await _firestore.collection('users').doc(userId).collection('preferences').doc('wishlist').set({
         'vehicleIds': _wishlistIds,
       });
+
+      // 2. Update Vehicle Wishlist Count
+      await _firestore.collection('vehicles').doc(vehicleId).update({
+        'wishlistCount': FieldValue.increment(isAdding ? 1 : -1),
+      });
+      
     } catch (e) {
       debugPrint("Error syncing wishlist: $e");
+      // Revert local state if needed, but for now just log
+    }
+  }
+
+  Future<void> incrementVehicleView(String vehicleId) async {
+    try {
+      await _firestore.collection('vehicles').doc(vehicleId).update({
+        'viewsCount': FieldValue.increment(1),
+      });
+    } catch (e) {
+      debugPrint("Error incrementing view count: $e");
     }
   }
 
@@ -280,6 +300,16 @@ class VehicleService extends ChangeNotifier {
     }
   }
 
+  Stream<List<VehicleModel>> getSellerVehiclesStream(String sellerId) {
+    return _firestore
+        .collection('vehicles')
+        .where('sellerId', isEqualTo: sellerId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => VehicleModel.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
   Future<List<VehicleModel>> fetchSellerVehicles(String sellerId, {String? status}) async {
     try {
       Query query = _firestore.collection('vehicles').where('sellerId', isEqualTo: sellerId);
@@ -288,11 +318,7 @@ class VehicleService extends ChangeNotifier {
         query = query.where('status', isEqualTo: status.toLowerCase());
       }
       
-      final snapshot = await query.orderBy('createdAt', descending: true).get();
-      // Note: 'createdAt' might need to be added to VehicleModel/Firestore if not present. 
-      // For now, removing orderBy if it causes index issues, or I should add createdAt to VehicleModel.
-      // Assuming 'createdAt' exists in DB or falling back to client sort? 
-      // Let's rely on standard fetch.
+      final snapshot = await query.get();
       
       return snapshot.docs.map((doc) => VehicleModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
     } catch (e) {
@@ -424,6 +450,15 @@ class VehicleService extends ChangeNotifier {
       debugPrint("Error fetching test drives: $e");
       return []; // Return empty on error (or if index is missing)
     }
+  }
+  Stream<List<VehicleModel>> getAllVehiclesStream() {
+    return _firestore
+        .collection('vehicles')
+        .where('status', isEqualTo: 'active')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => VehicleModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
 }
 

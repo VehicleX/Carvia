@@ -30,20 +30,11 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // Fetch vehicles when home page loads
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchVehicles();
-    });
+    // No need to fetch manually, StreamBuilder handles it.
   }
 
-  void _fetchVehicles() {
-    Provider.of<VehicleService>(context, listen: false).fetchVehicles(
-      brand: _selectedBrand == "All" ? null : _selectedBrand,
-      type: _selectedType == "All" ? null : _selectedType, // Added type param
-      query: _searchController.text.trim(),
-      minPrice: _priceRange.start,
-      maxPrice: _priceRange.end,
-    );
+  void _applyFilters() {
+    setState(() {}); // This rebuilds the widget tree, re-running the filter logic inside StreamBuilders
   }
 
   @override
@@ -136,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                 borderSide: BorderSide.none,
               ),
             ),
-            onSubmitted: (_) => _fetchVehicles(),
+            onSubmitted: (_) => _applyFilters(),
           ),
         ),
         const SizedBox(width: 10),
@@ -187,7 +178,7 @@ class _HomePageState extends State<HomePage> {
           return GestureDetector(
             onTap: () {
               setState(() => _selectedBrand = brandName);
-              _fetchVehicles();
+              _applyFilters();
             },
             child: Column(
               children: [
@@ -215,33 +206,30 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFeaturedCarousel() {
-    return Consumer<VehicleService>(
-      builder: (context, vehicleService, child) {
-        if (vehicleService.isLoading) {
+    return StreamBuilder<List<VehicleModel>>(
+      stream: Provider.of<VehicleService>(context, listen: false).getAllVehiclesStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox(height: 250, child: Center(child: CircularProgressIndicator()));
         }
         
-        if (vehicleService.featuredVehicles.isEmpty) {
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
            return Container(
              height: 250,
              width: double.infinity,
              alignment: Alignment.center,
              decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(20)),
-             child: Column(
-               mainAxisAlignment: MainAxisAlignment.center,
-               children: [
-                 const Text("No vehicles found matching filters"),
-                 const SizedBox(height: 10),
-                 ElevatedButton(
-                   onPressed: _fetchVehicles,
-                   style: ElevatedButton.styleFrom(
-                     backgroundColor: AppColors.surface,
-                     foregroundColor: AppColors.primary,
-                   ),
-                   child: const Text("Refresh"),
-                 ),
-               ],
-             ),
+             child: const Center(child: Text("No vehicles found")),
+           );
+        }
+
+        final vehicles = _filterVehicles(snapshot.data!);
+        final featured = vehicles.take(5).toList();
+
+        if (featured.isEmpty) {
+           return Container(
+             height: 250,
+             child: const Center(child: Text("No featured vehicles matching filters")),
            );
         }
 
@@ -249,10 +237,10 @@ class _HomePageState extends State<HomePage> {
           height: 250,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemCount: vehicleService.featuredVehicles.length,
+            itemCount: featured.length,
             separatorBuilder: (_, __) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
-              return _buildFeaturedCard(vehicleService.featuredVehicles[index]);
+              return _buildFeaturedCard(featured[index]);
             },
           ),
         );
@@ -260,123 +248,71 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildFeaturedCard(VehicleModel vehicle) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicle: vehicle)));
-      },
-      child: Container(
-        width: 300,
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-                    ),
-                    child: vehicle.images.isNotEmpty 
-                      ? Image.network(vehicle.images.first, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.error))
-                      : const Center(child: Icon(Icons.directions_car, size: 50, color: Colors.white)),
-                  ),
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Consumer<VehicleService>(
-                      builder: (context, service, _) {
-                        final isWishlisted = service.isInWishlist(vehicle.id);
-                        return GestureDetector(
-                          onTap: () async {
-                              final authService = Provider.of<AuthService>(context, listen: false);
-                              if (authService.currentUser != null) {
-                                await service.toggleWishlist(authService.currentUser!.uid, vehicle.id);
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please login first")));
-                              }
-                          },
-                          child: CircleAvatar(
-                            backgroundColor: Colors.white.withOpacity(0.8),
-                            radius: 16,
-                            child: Icon(
-                              isWishlisted ? Iconsax.heart5 : Iconsax.heart, 
-                              color: isWishlisted ? Colors.red : Colors.black, 
-                              size: 18
-                            ),
-                          ),
-                        );
-                      }
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("${vehicle.year} ${vehicle.brand} ${vehicle.model}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), maxLines: 1, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      const Icon(Icons.speed, size: 14, color: AppColors.textMuted),
-                      Text(" ${vehicle.mileage} mi", style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                      const SizedBox(width: 10),
-                      const Icon(Icons.settings, size: 14, color: AppColors.textMuted),
-                      Text(" ${vehicle.transmission}", style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("\$${vehicle.price.toStringAsFixed(0)}", style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 18)),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text("Details", style: TextStyle(fontSize: 12)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  // Filter Logic Helper
+  List<VehicleModel> _filterVehicles(List<VehicleModel> allVehicles) {
+      var vehicles = allVehicles;
+      
+      // Brand Filter
+      if (_selectedBrand != "All") {
+        vehicles = vehicles.where((v) => v.brand == _selectedBrand).toList();
+      }
+      
+      // Type Filter
+      if (_selectedType != "All") {
+        vehicles = vehicles.where((v) => v.type == _selectedType).toList();
+      }
+
+      // Search Filter
+      final query = _searchController.text.toLowerCase().trim();
+      if (query.isNotEmpty) {
+        vehicles = vehicles.where((v) => 
+          v.brand.toLowerCase().contains(query) || 
+          v.model.toLowerCase().contains(query)
+        ).toList();
+      }
+
+      // Price Filter
+      vehicles = vehicles.where((v) => v.price >= _priceRange.start && v.price <= _priceRange.end).toList();
+
+      return vehicles;
   }
 
   Widget _buildRecommendedList() {
-    return Consumer<VehicleService>(
-      builder: (context, vehicleService, child) {
-        if (vehicleService.isLoading) {
+    return StreamBuilder<List<VehicleModel>>(
+      stream: Provider.of<VehicleService>(context, listen: false).getAllVehiclesStream(),
+      builder: (context, snapshot) {
+         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (vehicleService.recommendedVehicles.isEmpty) {
+        
+        if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text("No recommendations yet"));
         }
 
+        final vehicles = _filterVehicles(snapshot.data!);
+        final recommended = vehicles.skip(5).toList(); // Skip featured ones
+
+        if (recommended.isEmpty) {
+           // If fewer than 5 total, show what we have, or show "No more"
+           if (vehicles.isNotEmpty && vehicles.length <= 5) {
+             // If we have very few vehicles, show them in recommended too or just leave featured?
+             // Let's show them in recommended as well if user scrolls down, or just show nothing since they are up top.
+             // Standard pattern: Duplicate or show nothing. I'll show nothing unique to avoid duplication visually if desired, 
+             // but user asked for "Recommended". Check if we have enough.
+             return const Center(child: Text("Check out our featured deals above!"));
+           }
+           return const Center(child: Text("No recommendations matching filters"));
+        }
+
         return Column(
-          children: vehicleService.recommendedVehicles.map((v) => Column(
+          children: recommended.map((v) => Column(
             children: [
               _buildRecommendedCard(v),
               const SizedBox(height: 10),
             ],
           )).toList(),
         );
-      },
+      }
     );
   }
 
@@ -596,7 +532,7 @@ class _HomePageState extends State<HomePage> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                           _fetchVehicles(); // Apply filters
+                           _applyFilters(); // Apply filters
                            Navigator.pop(context);
                         },
                         child: const Text("Apply Filters"),

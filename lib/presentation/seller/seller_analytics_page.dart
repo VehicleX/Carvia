@@ -19,8 +19,8 @@ class SellerAnalyticsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Analytics", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
       ),
-      body: FutureBuilder<List<VehicleModel>>(
-        future: Provider.of<VehicleService>(context, listen: false).fetchSellerVehicles(user.uid),
+      body: StreamBuilder<List<VehicleModel>>(
+        stream: Provider.of<VehicleService>(context, listen: false).getSellerVehiclesStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -146,7 +146,7 @@ class SellerAnalyticsPage extends StatelessWidget {
 
   Widget _buildVehicleRow(BuildContext context, VehicleModel vehicle) {
     return Container(
-      margin: const EdgeInsets.bottom(12),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,

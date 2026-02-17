@@ -110,7 +110,7 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
       leading: const Icon(Iconsax.logout, color: Colors.red),
       title: _isSidebarExpanded ? const Text("Logout", style: TextStyle(color: Colors.red)) : null,
       onTap: () {
-        Provider.of<AuthService>(context, listen: false).signOut();
+        Provider.of<AuthService>(context, listen: false).logout();
       },
     );
   }

@@ -74,13 +74,17 @@ class _ListingsTabState extends State<_ListingsTab> {
     final user = Provider.of<AuthService>(context).currentUser;
     if (user == null) return const Center(child: Text("Please login"));
 
-    return FutureBuilder<List<VehicleModel>>(
-      future: Provider.of<VehicleService>(context, listen: false).fetchSellerVehicles(user.uid, status: widget.status),
+    return StreamBuilder<List<VehicleModel>>(
+      stream: Provider.of<VehicleService>(context, listen: false).getSellerVehiclesStream(user.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+        
+        final allVehicles = snapshot.data ?? [];
+        final vehicles = allVehicles.where((v) => v.status == widget.status).toList();
+
+        if (vehicles.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -93,7 +97,6 @@ class _ListingsTabState extends State<_ListingsTab> {
           );
         }
 
-        final vehicles = snapshot.data!;
         return ListView.separated(
           padding: const EdgeInsets.all(16),
           itemCount: vehicles.length,
@@ -108,6 +111,37 @@ class _ListingsTabState extends State<_ListingsTab> {
   }
 
   Widget _buildVehicleCard(BuildContext context, VehicleModel vehicle) {
+    // Helper to handle actions
+    void _handleAction(String value) {
+      final vehicleService = Provider.of<VehicleService>(context, listen: false);
+      if (value == 'edit') {
+         Navigator.push(context, MaterialPageRoute(builder: (_) => AddVehiclePage(vehicle: vehicle)));
+      } else if (value == 'delete') {
+         // Show delete confirmation
+         showDialog(
+           context: context,
+           builder: (context) => AlertDialog(
+             title: const Text("Delete Vehicle"),
+             content: const Text("Are you sure you want to delete this listing?"),
+             actions: [
+               TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+               TextButton(
+                 onPressed: () { 
+                   vehicleService.deleteVehicle(vehicle.id);
+                   Navigator.pop(context);
+                 }, 
+                 child: const Text("Delete", style: TextStyle(color: Colors.red)),
+               ),
+             ],
+           ),
+         );
+      } else if (value == 'mark_sold') {
+         vehicleService.updateVehicle(vehicle.copyWith(status: 'sold'));
+      } else if (value == 'mark_active') {
+         vehicleService.updateVehicle(vehicle.copyWith(status: 'active'));
+      }
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
@@ -149,7 +183,20 @@ class _ListingsTabState extends State<_ListingsTab> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("${vehicle.brand} ${vehicle.model}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const Icon(Icons.more_vert, size: 20, color: AppColors.textMuted), // Could be a popup menu
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: AppColors.textMuted),
+                      onSelected: _handleAction,
+                      itemBuilder: (BuildContext context) {
+                        return [
+                          const PopupMenuItem(value: 'edit', child: Text("Edit")),
+                          if (vehicle.status == 'active')
+                            const PopupMenuItem(value: 'mark_sold', child: Text("Mark as Sold")),
+                           if (vehicle.status == 'sold')
+                            const PopupMenuItem(value: 'mark_active', child: Text("Mark as Active")),
+                          const PopupMenuItem(value: 'delete', child: Text("Delete", style: TextStyle(color: Colors.red))),
+                        ];
+                      },
+                    ),
                   ],
                 ),
                 Text("${vehicle.year} • ${vehicle.mileage} km", style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
@@ -163,7 +210,7 @@ class _ListingsTabState extends State<_ListingsTab> {
                     if (widget.status == 'active')
                        ElevatedButton(
                         onPressed: () {
-                           // Navigate to Edit or Mark Sold
+                           Navigator.push(context, MaterialPageRoute(builder: (_) => AddVehiclePage(vehicle: vehicle)));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.surface,

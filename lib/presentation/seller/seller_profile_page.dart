@@ -81,13 +81,28 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                   color: isOrg ? Colors.purple.withOpacity(0.1) : Colors.blue.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(
-                  isOrg ? "Organization Account" : "Individual Seller",
-                  style: TextStyle(
-                    color: isOrg ? Colors.purple : Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      isOrg ? "Organization Account" : "Individual Seller",
+                      style: TextStyle(
+                        color: isOrg ? Colors.purple : Colors.blue,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                    if (!isOrg && _isEditing) ...[
+                      const SizedBox(width: 8),
+                      InkWell(
+                        onTap: () {
+                           // Logic to upgrade to Organization
+                           _showUpgradeDialog();
+                        },
+                        child: const Text(" (Upgrade)", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                      )
+                    ]
+                  ],
                 ),
               ),
               const SizedBox(height: 30),
@@ -170,5 +185,44 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
       }
     }
+  }
+
+  void _showUpgradeDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Upgrade to Organization"),
+        content: const Text("This will enable business features like adding GST, Business Name, and Address. Continue?"),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          if (_isLoading)
+            const CircularProgressIndicator()
+          else
+            TextButton(
+              onPressed: () async {
+                setState(() => _isLoading = true);
+                try {
+                  final user = Provider.of<AuthService>(context, listen: false).currentUser;
+                  if (user != null) {
+                    await Provider.of<AuthService>(context, listen: false).upgradeToOrganization(user.uid);
+                    if (mounted) {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Upgraded to Organization Account!")));
+                    }
+                  }
+                } catch (e) {
+                  if (mounted) {
+                    Navigator.pop(context); // Close dialog even on error or show in dialog? Better to close and show snackbar.
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Upgrade Failed: $e")));
+                  }
+                } finally {
+                  if (mounted) setState(() => _isLoading = false);
+                }
+              }, 
+              child: const Text("Upgrade"),
+            ),
+        ],
+      ),
+    );
   }
 }
