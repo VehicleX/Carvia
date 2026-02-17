@@ -5,6 +5,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:carvia/presentation/vehicle/compare_page.dart';
 import 'package:carvia/core/services/compare_service.dart';
 import 'package:carvia/presentation/vehicle/checkout_page.dart';
+import 'package:carvia/presentation/vehicle/book_test_drive_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:carvia/core/services/auth_service.dart';
@@ -120,6 +121,10 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
   }
 
   Widget _buildContent() {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
+    final isOwnerOrExternal = widget.vehicle.isExternal || (user != null && widget.vehicle.sellerId == user.uid);
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
@@ -138,37 +143,64 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                   style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary)),
-                  const Text("Fixed Price", style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                ],
-              ),
+              if (!isOwnerOrExternal)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                    const Text("Fixed Price", style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                  ],
+                ),
             ],
           ),
           const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Text("Stock: #CV-992-01", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
-          ),
+          
+          if (isOwnerOrExternal) ...[
+             Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.success.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                widget.vehicle.specs['licensePlate'] != null ? "Plate: ${widget.vehicle.specs['licensePlate']}" : "Your Vehicle",
+                style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 12)
+              ),
+             ),
+          ] else ...[
+             Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text("Stock: #CV-992-01", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
+             ),
+          ],
+          
           const SizedBox(height: 24),
           _buildSpecGrid(),
           const SizedBox(height: 24),
-          _buildAIAnalysis(),
-          const SizedBox(height: 24),
+          
+          // Hide AI and Seller for owners
+          if (!isOwnerOrExternal) ...[
+            _buildAIAnalysis(),
+            const SizedBox(height: 24),
+          ],
+          
           const Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Text(
-            widget.vehicle.specs['description'] ?? "This is a masterpiece of engineering. One-owner, garage-kept, and maintained exclusively by certified technicians. Finished in GT Silver Metallic with a Black leather interior. Features include the Sport Chrono Package, Premium Package, and Bose Surround Sound.",
+            // If external and no description, show generic owner text
+            (widget.vehicle.isExternal && widget.vehicle.specs['description'] == null) 
+                ? "Manage your vehicle details, insurance, and challans here."
+                : (widget.vehicle.specs['description'] ?? "This is a masterpiece of engineering. One-owner, garage-kept, and maintained exclusively by certified technicians."),
             style: const TextStyle(color: AppColors.textMuted, height: 1.5),
           ),
           const SizedBox(height: 24),
-          _buildSellerCard(),
+          
+          if (!isOwnerOrExternal)
+            _buildSellerCard(),
         ],
       ),
     );
@@ -302,6 +334,48 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
   }
 
   Widget _buildBottomBar() {
+    // If vehicle is external (manually added), don't show buy/test drive options
+    if (widget.vehicle.isExternal) {
+       return Container(
+         padding: const EdgeInsets.all(20),
+         decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -5))],
+         ),
+         child: Row(
+           children: [
+             Expanded(
+               child: ElevatedButton.icon(
+                 onPressed: () {
+                   // Navigate to service history or maintenance (Future feature)
+                 },
+                 icon: const Icon(Iconsax.setting_2),
+                 label: const Text("Manage Vehicle"),
+                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
+               ),
+             ),
+           ],
+         ),
+       );
+    }
+
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
+    final isOwner = user != null && widget.vehicle.sellerId == user.uid;
+
+    if (isOwner) {
+       return Container(
+         padding: const EdgeInsets.all(20),
+         decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -5))],
+         ),
+         child: const Center(child: Text("You own this vehicle", style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.success))),
+       );
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -359,19 +433,10 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
   }
 
   void _showBookTestDriveDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Theme.of(context).cardColor,
-        title: const Text("Book Test Drive"),
-        content: const Text("Schedule a test drive for this vehicle."),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-          ElevatedButton(onPressed: () {
-             Navigator.pop(context);
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Test Drive Requested!")));
-          }, child: const Text("Confirm")),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BookTestDrivePage(vehicle: widget.vehicle),
       ),
     );
   }

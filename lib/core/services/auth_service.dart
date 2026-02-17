@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 class AuthService extends ChangeNotifier {
   final AuthRepository _authRepository = AuthRepositoryImpl();
   final EmailOtpService _emailOtpService = EmailOtpService();
+  final NotificationService _notificationService = NotificationService(); // Direct instantiation or GetIt/Provider
   UserModel? _currentUser;
   bool _isLoading = false;
 
@@ -17,6 +18,10 @@ class AuthService extends ChangeNotifier {
   AuthService() {
     _authRepository.authStateChanges.listen((user) {
       _currentUser = user;
+      // Initialize notifications if user logs in
+      if (user != null) {
+        _notificationService.init(user.uid);
+      }
       notifyListeners();
     });
   }
@@ -214,6 +219,16 @@ class AuthService extends ChangeNotifier {
         email: _authRepository.currentFirebaseUser?.email ?? "",
       );
       
+      // Welcome Notification is already sent by AuthRepository
+
+      // Trigger "Account Verified" Notification
+      await _notificationService.createNotification(
+        userId: user.uid,
+        title: "Account Verified",
+        body: "Your account has been verified successfully.",
+        type: "auth_verified",
+      );
+
       _currentUser = user;
       _setLoading(false);
       notifyListeners();

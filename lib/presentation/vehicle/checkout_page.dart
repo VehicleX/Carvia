@@ -130,31 +130,70 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget _buildPriceBreakdown() {
     final price = widget.vehicle.price;
     final tax = price * 0.05;
-    final total = price + tax + 500; // 500 delivery fee
+    double total = price + tax + 500; // 500 delivery fee
+    
+    if (_useCredits) {
+      // Logic: 100 Credits = $10 discount (Example)
+      // Cap discount at 10% of total or total credits value
+      int availableCredits = Provider.of<AuthService>(context, listen: false).currentUser?.credits ?? 0;
+      // In real app: final availableCredits = Provider.of<AuthService>(context).currentUser?.credits ?? 0;
+      
+      double discount = (availableCredits / 10).clamp(0, total * 0.1); 
+      total -= discount;
+    }
 
     return Column(
       children: [
         _row("Vehicle Price", "\$${price.toStringAsFixed(0)}"),
         _row("Taxes (5%)", "\$${tax.toStringAsFixed(0)}"),
         _row("Delivery Fee", "\$500"),
+        
+        // Credit Toggle
+        SwitchListTile(
+          title: const Text("Use Canvas Credits", style: TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: const Text("Redeem 10% max discount"),
+          value: _useCredits,
+          onChanged: (val) => setState(() => _useCredits = val),
+          activeColor: AppColors.primary,
+          contentPadding: EdgeInsets.zero,
+        ),
+        
+        if (_useCredits)
+           _row("Credits Discount", "-\$${(500/10).toStringAsFixed(0)}", color: Colors.green), // Mock calc
+
         const Divider(height: 24),
         _row("Total Amount", "\$${total.toStringAsFixed(0)}", isBold: true),
+        
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+          child: Row(
+            children: [
+              const Icon(Iconsax.coin, color: Colors.green, size: 20),
+              const SizedBox(width: 8),
+              Text("You will earn ${(price * 0.01).toInt()} Credits!", style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        )
       ],
     );
   }
 
-  Widget _row(String label, String value, {bool isBold = false}) {
+  Widget _row(String label, String value, {bool isBold = false, Color? color}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: isBold ? null : AppColors.textMuted)),
-          Text(value, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? (isBold ? null : AppColors.textMuted))),
+          Text(value, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color)),
         ],
       ),
     );
   }
+  
+  bool _useCredits = false;
 
   Future<void> _processOrder() async {
     setState(() => _isProcessing = true);
@@ -175,18 +214,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     try {
+      final double totalAmount = widget.vehicle.price + (widget.vehicle.price * 0.05) + 500 - (_useCredits ? 50 : 0); // Mock math
+      
       final order = OrderModel(
         id: "", // Generated
         userId: user.uid,
         vehicleId: widget.vehicle.id,
         vehicleName: "${widget.vehicle.brand} ${widget.vehicle.model} ${widget.vehicle.year}",
-        amount: widget.vehicle.price + (widget.vehicle.price * 0.05) + 500,
+        amount: totalAmount, 
         date: DateTime.now(),
-        status: OrderStatus.confirmed, // Auto-confirm for demo
+        status: OrderStatus.confirmed, 
         paymentMethod: _selectedPayment,
       );
 
       await orderService.createOrder(order);
+
+      // Award Credits Logic (Mock for now, would be in Cloud Function ideally)
+      int earnedCredits = (widget.vehicle.price * 0.01).toInt();
+      // await authService.updateCredits(user.uid, earnedCredits); 
 
       if (!mounted) return;
       
@@ -201,7 +246,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               Text("Order Placed!"),
             ],
           ),
-          content: const Text("Your order has been confirmed. You can track it in the Orders section."),
+          content: Text("Your order has been confirmed. You earned $earnedCredits Credits!"),
           actions: [
             ElevatedButton(
               onPressed: () {

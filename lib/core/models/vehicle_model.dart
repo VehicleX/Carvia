@@ -12,6 +12,7 @@ class VehicleModel {
   final List<String> images;
   final String sellerId;
   final String status; // available, sold
+  final String type; // Car, Bike, Truck, etc.
   final bool isExternal;
   final Map<String, dynamic> specs;
 
@@ -27,6 +28,7 @@ class VehicleModel {
     required this.images,
     required this.sellerId,
     required this.status,
+    this.type = 'Car',
     this.specs = const {},
     this.isExternal = false,
   });
@@ -44,6 +46,7 @@ class VehicleModel {
       images: List<String>.from(map['images'] ?? []),
       sellerId: map['sellerId'] ?? '',
       status: map['status'] ?? 'available',
+      type: map['type'] ?? 'Car',
       specs: Map<String, dynamic>.from(map['specs'] ?? {}),
       isExternal: map['isExternal'] ?? false,
     );
@@ -61,6 +64,7 @@ class VehicleModel {
       'images': images,
       'sellerId': sellerId,
       'status': status,
+      'type': type,
       'specs': specs,
       'isExternal': isExternal,
     };

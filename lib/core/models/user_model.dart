@@ -16,16 +16,7 @@ class UserModel {
   final String uid;
   final String name;
   final String email;
-  final String phone;
-  final UserRole role;
-  final AccountType? accountType; // Only for sellers
-  final String? profileImage;
-  final bool isVerified;
-  final bool isActive;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final Map<String, dynamic> address;
-  final Map<String, dynamic> preferences;
+  final int credits;
 
   UserModel({
     required this.uid,
@@ -37,6 +28,7 @@ class UserModel {
     this.profileImage,
     this.isVerified = false,
     this.isActive = true,
+    this.credits = 0,
     required this.createdAt,
     required this.updatedAt,
     this.address = const {},
@@ -62,6 +54,7 @@ class UserModel {
       profileImage: map['profileImage'],
       isVerified: map['isVerified'] ?? false,
       isActive: map['isActive'] ?? true,
+      credits: map['credits'] ?? 0,
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       address: Map<String, dynamic>.from(map['address'] ?? {}),
@@ -79,12 +72,14 @@ class UserModel {
       'profileImage': profileImage,
       'isVerified': isVerified,
       'isActive': isActive,
+      'credits': credits,
       'createdAt': Timestamp.fromDate(createdAt),
       'updatedAt': Timestamp.fromDate(updatedAt),
       'address': address,
       'preferences': preferences,
     };
   }
+  
   UserModel copyWith({
     String? name,
     String? email,
@@ -94,6 +89,7 @@ class UserModel {
     String? profileImage,
     bool? isVerified,
     bool? isActive,
+    int? credits,
     DateTime? createdAt,
     DateTime? updatedAt,
     Map<String, dynamic>? address,
@@ -109,6 +105,7 @@ class UserModel {
       profileImage: profileImage ?? this.profileImage,
       isVerified: isVerified ?? this.isVerified,
       isActive: isActive ?? this.isActive,
+      credits: credits ?? this.credits,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       address: address ?? this.address,

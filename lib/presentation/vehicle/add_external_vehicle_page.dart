@@ -20,10 +20,12 @@ class _AddExternalVehiclePageState extends State<AddExternalVehiclePage> {
   final _licensePlateController = TextEditingController();
   bool _isLoading = false;
 
+  String _selectedType = 'Car';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Your Vehicle")),
+      appBar: AppBar(title: const Text("Add My Vehicle")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -36,10 +38,23 @@ class _AddExternalVehiclePageState extends State<AddExternalVehiclePage> {
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 20),
+              const Text("Vehicle Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              
+              DropdownButtonFormField<String>(
+                value: _selectedType,
+                decoration: const InputDecoration(labelText: "Vehicle Type", prefixIcon: Icon(Iconsax.category)),
+                items: ['Car', 'Bike', 'Truck', 'Auto'].map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedType = val);
+                },
+              ),
+              const SizedBox(height: 16),
+              
               TextFormField(
                 controller: _brandController,
-                decoration: const InputDecoration(labelText: "Brand", prefixIcon: Icon(Iconsax.car)),
-                validator: (v) => v!.isEmpty ? "Required" : null,
+                decoration: const InputDecoration(labelText: "Brand", hintText: "e.g. Toyota, Honda", prefixIcon: Icon(Iconsax.verify)),
+                validator: (val) => val!.isEmpty ? "Brand is required" : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -92,7 +107,8 @@ class _AddExternalVehiclePageState extends State<AddExternalVehiclePage> {
         images: [],
         sellerId: authService.currentUser!.uid,
         status: 'sold', 
-        specs: {'licensePlate': _licensePlateController.text},
+        type: _selectedType, // Added type
+        specs: {'licensePlate': _licensePlateController.text.trim().toUpperCase()},
         mileage: 0,
         fuel: "Petrol",
         transmission: "Manual",

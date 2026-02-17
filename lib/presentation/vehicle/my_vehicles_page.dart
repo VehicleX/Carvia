@@ -4,6 +4,8 @@ import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:carvia/presentation/vehicle/add_external_vehicle_page.dart';
 import 'package:carvia/presentation/challan/e_challan_page.dart';
+import 'package:carvia/presentation/vehicle/insurance_page.dart';
+import 'package:carvia/presentation/vehicle/transfer_ownership_page.dart';
 import 'package:carvia/presentation/vehicle/vehicle_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -18,8 +20,22 @@ class MyVehiclesPage extends StatefulWidget {
 
 class _MyVehiclesPageState extends State<MyVehiclesPage> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = Provider.of<AuthService>(context, listen: false).currentUser;
+      if (user != null) {
+        final vehicleService = Provider.of<VehicleService>(context, listen: false);
+        await vehicleService.fetchUserVehicles(user.uid);
+        // Check for insurance expiry
+        await vehicleService.checkInsuranceExpiry(user.uid);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final authService = Provider.of<AuthService>(context, listen: false);
+    final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
 
     if (user == null) {
@@ -31,16 +47,13 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
         title: const Text("My Vehicles"),
         centerTitle: true,
       ),
-      body: FutureBuilder<List<VehicleModel>>(
-        future: Provider.of<VehicleService>(context, listen: false).fetchUserVehicles(user.uid),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+      body: Consumer<VehicleService>(
+        builder: (context, vehicleService, child) {
+          if (vehicleService.isLoading) {
+             return const Center(child: CircularProgressIndicator());
           }
-          if (snapshot.hasError) {
-             return Center(child: Text("Error: ${snapshot.error}"));
-          }
-          final vehicles = snapshot.data ?? [];
+          
+          final vehicles = vehicleService.userVehicles;
 
           if (vehicles.isEmpty) {
             return Center(
@@ -51,12 +64,6 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
                    const SizedBox(height: 16),
                    const Text("You don't own any vehicles yet.", style: TextStyle(color: AppColors.textMuted)),
                    const SizedBox(height: 16),
-                   ElevatedButton(onPressed: (){
-                     // Navigation Logic to go to explore (Home)
-                     // Since we are in MainWrapper, we can just switch tab or pop if pushed.
-                     // But MyVehicles is a tab.
-                     // We can't easily switch tab from here without context of MainWrapper.
-                   }, child: const Text("Explore Vehicles")),
                 ],
               ),
             );
@@ -72,8 +79,12 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const AddExternalVehiclePage()));
+        onPressed: () async {
+          await Navigator.push(context, MaterialPageRoute(builder: (_) => const AddExternalVehiclePage()));
+          // Refresh list on return
+          if (mounted) {
+            Provider.of<VehicleService>(context, listen: false).fetchUserVehicles(user.uid);
+          }
         },
         label: const Text("Add Vehicle", style: TextStyle(color: Colors.white)),
         icon: const Icon(Iconsax.add, color: Colors.white),
@@ -141,10 +152,23 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _actionButton(Iconsax.receipt, "Challans", () {
-                         Navigator.push(context, MaterialPageRoute(builder: (_) => const EChallanPage()));
+                         Navigator.push(context, MaterialPageRoute(builder: (_) => EChallanPage(
+                           filterVehicleNumber: vehicle.specs['licensePlate']
+                         )));
                       }),
-                      _actionButton(Iconsax.document, "Insurance", () {}),
-                      _actionButton(Iconsax.refresh, "Transfer", () {}),
+                      _actionButton(Iconsax.document, "Insurance", () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => InsurancePage(
+                          vehicleName: "${vehicle.brand} ${vehicle.model}", 
+                          vehicleNumber: vehicle.specs['licensePlate'] ?? "Unknown",
+                          isExternal: vehicle.isExternal,
+                        )));
+                      }),
+                      _actionButton(Iconsax.refresh, "Transfer", () {
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => TransferOwnershipPage(
+                          vehicleName: "${vehicle.brand} ${vehicle.model}", 
+                          vehicleNumber: vehicle.specs['licensePlate'] ?? "Unknown"
+                        )));
+                      }),
                     ],
                   ),
                 ],

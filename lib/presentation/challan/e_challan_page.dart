@@ -1,13 +1,16 @@
 import 'package:carvia/core/models/challan_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/challan_service.dart';
+import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
 class EChallanPage extends StatefulWidget {
-  const EChallanPage({super.key});
+  final String? filterVehicleNumber; // Optional filter
+
+  const EChallanPage({super.key, this.filterVehicleNumber});
 
   @override
   State<EChallanPage> createState() => _EChallanPageState();
@@ -31,6 +34,16 @@ class _EChallanPageState extends State<EChallanPage> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    // If filtering by specific vehicle, show simpler UI without tabs
+    if (widget.filterVehicleNumber != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text("Challans - ${widget.filterVehicleNumber}"),
+        ),
+        body: _buildMyChallansTab(),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("E-Challan"),
@@ -61,32 +74,79 @@ class _EChallanPageState extends State<EChallanPage> with SingleTickerProviderSt
 
     if (user == null) return const Center(child: Text("Please login first"));
 
-    return FutureBuilder<List<ChallanModel>>(
-      future: Provider.of<ChallanService>(context, listen: false).fetchOwnedChallans(user.uid),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
-        }
-        final challans = snapshot.data ?? [];
-        if (challans.isEmpty) {
-          return const Center(child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Iconsax.tick_circle, size: 60, color: AppColors.success),
-              SizedBox(height: 16),
-              Text("No pending challans!"),
-            ],
-          ));
-        }
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: challans.length,
-          itemBuilder: (context, index) => _buildChallanCard(challans[index]),
-        );
-      },
+    // If filtering, use that number directly
+    if (widget.filterVehicleNumber != null) {
+       return FutureBuilder<List<ChallanModel>>(
+          future: Provider.of<ChallanService>(context, listen: false).fetchChallansForVehicles([widget.filterVehicleNumber!]),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text("Error: ${snapshot.error}"));
+            }
+            final challans = snapshot.data ?? [];
+            if (challans.isEmpty) {
+              return const Center(child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                   Icon(Iconsax.tick_circle, size: 60, color: AppColors.success),
+                   SizedBox(height: 16),
+                   Text("No pending challans found for this vehicle."),
+                ],
+              ));
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: challans.length,
+              itemBuilder: (context, index) => _buildChallanCard(challans[index]),
+            );
+          },
+       );
+    }
+
+    // Otherwise, fetch for all user vehicles
+    return Consumer<VehicleService>(
+      builder: (context, vehicleService, _) {
+         final vehicles = vehicleService.userVehicles;
+         final vehicleNumbers = vehicles
+             .map((v) => v.specs['licensePlate'] as String?)
+             .where((s) => s != null && s.isNotEmpty)
+             .cast<String>()
+             .toList();
+
+         if (vehicleNumbers.isEmpty) {
+            return const Center(child: Text("No vehicles found. Add a vehicle first."));
+         }
+
+         return FutureBuilder<List<ChallanModel>>(
+            future: Provider.of<ChallanService>(context, listen: false).fetchChallansForVehicles(vehicleNumbers),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              }
+              final challans = snapshot.data ?? [];
+              if (challans.isEmpty) {
+                return const Center(child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Iconsax.tick_circle, size: 60, color: AppColors.success),
+                    SizedBox(height: 16),
+                    Text("No pending challans for your vehicles!"),
+                  ],
+                ));
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: challans.length,
+                itemBuilder: (context, index) => _buildChallanCard(challans[index]),
+              );
+            },
+         );
+      }
     );
   }
 

@@ -1,4 +1,6 @@
 import 'package:carvia/core/models/vehicle_model.dart';
+import 'package:carvia/core/models/test_drive_model.dart';
+import 'package:carvia/core/services/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -44,7 +46,6 @@ class VehicleService extends ChangeNotifier {
       });
     } catch (e) {
       debugPrint("Error syncing wishlist: $e");
-      // Rollback on error? For now, we keep local state optimistic.
     }
   }
 
@@ -53,21 +54,9 @@ class VehicleService extends ChangeNotifier {
   Future<List<VehicleModel>> fetchWishlistVehicles() async {
     if (_wishlistIds.isEmpty) return [];
     
-    // Firestore 'where in' is limited to 10. We might need to batch or fetch individually if list is huge.
-    // For simplicity, we'll fetch individually or use 'whereIn' batches.
-    // Hack for short list:
-    if (_wishlistIds.length > 10) {
-       // Just fetch first 10 for now or implement batching logic
-       // A better approach for production is fetching all and filtering, or separate collection.
-       // Let's implement a simple fetch-by-id loop or "where documentId in ..."
-    }
-
     try {
-      // Fetching individually guarantees we get them all (though n reads)
-      // Optimazation: split into chunks of 10
       List<VehicleModel> vehicles = [];
-      
-      // Simple loop for now (assuming not too many for this demo)
+      // Fetch individually for now. In prod, use whereIn with batches of 10.
       for(String id in _wishlistIds) {
         final v = await getVehicleById(id);
         if(v != null) vehicles.add(v);
@@ -79,18 +68,63 @@ class VehicleService extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchVehicles() async {
+  Future<void> fetchVehicles({
+    String? brand, 
+    String? type, // Added type
+    String? query, 
+    double? minPrice, 
+    double? maxPrice,
+    String? fuelType,
+    String? transmission,
+    int? minYear,
+    int? maxYear,
+    double? maxKms,
+  }) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final snapshot = await _firestore
-          .collection('vehicles')
-          .where('status', isEqualTo: 'available')
-          .limit(20)
-          .get();
+      Query queryRef = _firestore.collection('vehicles').where('status', isEqualTo: 'available');
 
-      final allVehicles = snapshot.docs.map((doc) => VehicleModel.fromMap(doc.data(), doc.id)).toList();
+      if (brand != null && brand.isNotEmpty && brand != 'All') {
+        queryRef = queryRef.where('brand', isEqualTo: brand);
+      }
+
+      if (type != null && type.isNotEmpty && type != 'All') {
+        queryRef = queryRef.where('type', isEqualTo: type);
+      }
+      
+      // Basic filtering on server side for simple fields if indexes exist. 
+      // For this demo/prototype without creating complex composite indexes manually, 
+      // we fetch a larger set (limited) and filter on client.
+      
+      final snapshot = await queryRef.limit(100).get(); // Increased limit for client-side filtering
+      List<VehicleModel> allVehicles = snapshot.docs.map((doc) => VehicleModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+
+      // Client-side filtering
+      if (query != null && query.isNotEmpty) {
+        final lowerQuery = query.toLowerCase();
+        allVehicles = allVehicles.where((v) => 
+          v.brand.toLowerCase().contains(lowerQuery) || 
+          v.model.toLowerCase().contains(lowerQuery)
+        ).toList();
+      }
+
+      if (minPrice != null) allVehicles = allVehicles.where((v) => v.price >= minPrice).toList();
+      if (maxPrice != null) allVehicles = allVehicles.where((v) => v.price <= maxPrice).toList();
+
+      if (fuelType != null && fuelType != 'All') {
+        allVehicles = allVehicles.where((v) => v.fuel.toLowerCase() == fuelType.toLowerCase()).toList();
+      }
+
+      if (transmission != null && transmission != 'All') {
+        allVehicles = allVehicles.where((v) => v.transmission.toLowerCase() == transmission.toLowerCase()).toList();
+      }
+
+      if (minYear != null) allVehicles = allVehicles.where((v) => v.year >= minYear).toList();
+      if (maxYear != null) allVehicles = allVehicles.where((v) => v.year <= maxYear).toList();
+
+      if (maxKms != null) allVehicles = allVehicles.where((v) => v.mileage <= maxKms).toList();
 
       if (allVehicles.isNotEmpty) {
         _featuredVehicles = allVehicles.take(5).toList();
@@ -108,7 +142,12 @@ class VehicleService extends ChangeNotifier {
     }
   }
 
-  Future<List<VehicleModel>> fetchUserVehicles(String userId) async {
+  List<VehicleModel> _userVehicles = [];
+  List<VehicleModel> get userVehicles => _userVehicles;
+
+  Future<void> fetchUserVehicles(String userId) async {
+    _isLoading = true;
+    notifyListeners();
     try {
       // 1. Fetch Purchased
       final purchasedSnapshot = await _firestore
@@ -127,10 +166,13 @@ class VehicleService extends ChangeNotifier {
       
       final externalList = externalSnapshot.docs.map((doc) => VehicleModel.fromMap(doc.data(), doc.id)).toList();
 
-      return [...purchased, ...externalList];
+      _userVehicles = [...purchased, ...externalList];
     } catch (e) {
       debugPrint("Error fetching user vehicles: $e");
-      return [];
+      _userVehicles = [];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 
@@ -159,4 +201,92 @@ class VehicleService extends ChangeNotifier {
     }
     return null;
   }
+
+  // --- Test Drive Methods ---
+
+  // Notification Service
+  final NotificationService _notificationService = NotificationService();
+
+  Future<void> bookTestDrive(TestDriveModel booking) async {
+    try {
+      await _firestore.collection('test_drives').add(booking.toMap());
+      
+      // Notify User
+      await _notificationService.createNotification(
+        userId: booking.userId,
+        title: "Test Drive Requested",
+        body: "Your request for ${booking.vehicleName} on ${booking.scheduledTime.toString().split('.')[0]} has been submitted.",
+        type: "test_drive_booked",
+        data: {'vehicleId': booking.vehicleId},
+      );
+
+    } catch (e) {
+      debugPrint("Error booking test drive: $e");
+      rethrow;
+    }
+  }
+
+  // Check Insurance Expiry for User Vehicles
+  Future<void> checkInsuranceExpiry(String userId) async {
+    // Ensure vehicles are fetched
+    if (_userVehicles.isEmpty) {
+      await fetchUserVehicles(userId);
+    }
+
+    final now = DateTime.now();
+    for (var vehicle in _userVehicles) {
+      // Check if insurance expiry exists in specs
+      if (vehicle.specs.containsKey('insuranceExpiry')) {
+        try {
+          // Assuming stored as ISO string or Timestamp
+          DateTime expiry;
+          final val = vehicle.specs['insuranceExpiry'];
+          if (val is Timestamp) {
+            expiry = val.toDate();
+          } else if (val is String) {
+            expiry = DateTime.parse(val);
+          } else {
+            continue;
+          }
+
+          final difference = expiry.difference(now).inDays;
+          
+          // Notify if expiring within 7 days and future
+          if (difference >= 0 && difference <= 7) {
+            final plate = vehicle.specs['licensePlate'] ?? "Vehicle";
+            
+            // Check if we already sent this notification today (Mock Check)
+            // In real app, we'd query notifications or check local prefs.
+            // For now, we just send it. logic to prevent duplicates handled by backend usually.
+            
+            await _notificationService.createNotification(
+              userId: userId,
+              title: "Insurance Expiring Soon!",
+              body: "Insurance for $plate expires in $difference days.",
+              type: "insurance_expiry",
+              data: {'vehicleId': vehicle.id},
+            );
+          }
+        } catch (e) {
+          debugPrint("Error checking insurance for ${vehicle.id}: $e");
+        }
+      }
+    }
+  }
+
+  Future<List<TestDriveModel>> fetchUserTestDrives(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('test_drives')
+          .where('userId', isEqualTo: userId)
+          .orderBy('scheduledTime', descending: true)
+          .get();
+      
+      return snapshot.docs.map((doc) => TestDriveModel.fromMap(doc.data(), doc.id)).toList();
+    } catch (e) {
+      debugPrint("Error fetching test drives: $e");
+      return []; // Return empty on error (or if index is missing)
+    }
+  }
 }
+

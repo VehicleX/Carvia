@@ -5,6 +5,9 @@ import 'package:carvia/presentation/auth/login_page.dart';
 import 'package:carvia/presentation/challan/e_challan_page.dart';
 import 'package:carvia/presentation/vehicle/my_vehicles_page.dart';
 import 'package:carvia/presentation/profile/orders_page.dart';
+import 'package:carvia/presentation/profile/settings_page.dart';
+import 'package:carvia/presentation/vehicle/test_drives_page.dart';
+import 'package:carvia/presentation/vehicle/wishlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
@@ -114,11 +117,10 @@ class ProfilePage extends StatelessWidget {
                  Navigator.push(context, MaterialPageRoute(builder: (_) => const OrdersPage()));
               }),
               _buildMenuOption(context, "Wishlist", Iconsax.heart, () {
-                // Navigate to Wishlist (Mock or Page)
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Wishlist Feature Coming Soon!")));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const WishlistPage()));
               }),
               _buildMenuOption(context, "Test Drives", Iconsax.calendar, () {
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Test Drives Feature Coming Soon!")));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const TestDrivesPage()));
               }),
               _buildMenuOption(context, "E-Challan", Iconsax.receipt, () {
                  Navigator.push(context, MaterialPageRoute(builder: (_) => const EChallanPage()));
@@ -129,7 +131,9 @@ class ProfilePage extends StatelessWidget {
               _buildMenuOption(context, themeService.isDarkMode ? "Light Mode" : "Dark Mode", themeService.isDarkMode ? Iconsax.sun_1 : Iconsax.moon, () {
                 themeService.toggleTheme();
               }),
-              _buildMenuOption(context, "Settings", Iconsax.setting, () {}),
+              _buildMenuOption(context, "Settings", Iconsax.setting, () {
+                 Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
+              }),
               
               const SizedBox(height: 20),
               _buildMenuOption(context, "Logout", Iconsax.logout, () {

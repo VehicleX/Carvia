@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:carvia/core/models/challan_model.dart';
+import 'package:carvia/core/services/notification_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
@@ -75,6 +76,16 @@ class ChallanService extends ChangeNotifier {
 
       // 3. Mock Email Send
       debugPrint("EMAIL SENT TO $ownerEmail: Your OTP is $otp");
+
+      // 4. Send Notification to Owner
+      final _notificationService = NotificationService(); // In real app, inject via Provider/GetIt
+      await _notificationService.createNotification(
+        userId: ownerId,
+        title: "Access Request",
+        body: "Someone requested access to view challans of $vehicleNumber.",
+        type: "challan_access_request",
+        data: {'requestId': requestId, 'vehicleNumber': vehicleNumber},
+      );
 
       return {'status': 'otp_sent', 'requestId': requestId, 'email': ownerEmail};
 
@@ -158,12 +169,48 @@ class ChallanService extends ChangeNotifier {
     
     final vehicleId = snapshot.docs.first.id;
     
-    // Now fetch challans for this vehicle
     final challanSnap = await _firestore
         .collection('challans')
         .where('vehicleId', isEqualTo: vehicleId)
         .get();
 
     return challanSnap.docs.map((doc) => ChallanModel.fromMap(doc.data(), doc.id)).toList();
+  }
+
+  // New method to fetch for a list of vehicles (both external and internal)
+  Future<List<ChallanModel>> fetchChallansForVehicles(List<String> vehicleNumbers) async {
+    if (vehicleNumbers.isEmpty) return [];
+
+    // _isLoading = true; 
+    // notifyListeners(); // Removed to prevent setState during build in FutureBuilder
+    
+    List<ChallanModel> allChallans = [];
+
+    try {
+      for (var number in vehicleNumbers) {
+         // Query challans directly by vehicleNumber
+         // Ensure number is uppercased if your DB stores them that way
+         // final normalizedNumber = number.toUpperCase().replaceAll(' ', ''); 
+         
+         // Try exact match first (as entered by user)
+         var snap = await _firestore.collection('challans').where('vehicleNumber', isEqualTo: number).get();
+         
+         if (snap.docs.isEmpty) {
+            debugPrint("No challans found for $number (exact match)");
+         } else {
+            debugPrint("Found ${snap.docs.length} challans for $number");
+         }
+
+         allChallans.addAll(snap.docs.map((d) => ChallanModel.fromMap(d.data(), d.id)));
+      }
+      
+    } catch (e) {
+      debugPrint("Error fetching vehicle challans: $e");
+    } 
+    // finally {
+    //   _isLoading = false;
+    //   notifyListeners();
+    // }
+    return allChallans;
   }
 }

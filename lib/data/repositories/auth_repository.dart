@@ -106,11 +106,16 @@ class AuthRepositoryImpl implements AuthRepository {
         role: role,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
-        isVerified: true, // Set to true since they verified via OTP
-
+        isVerified: true, 
+        credits: 500, // Welcome Bonus
       );
 
+      // Save User
       await _firestore.collection('users').doc(newUser.uid).set(newUser.toMap());
+
+      // Send Welcome Notification
+      await _sendWelcomeNotification(newUser.uid, 500);
+
       return newUser;
     } on firebase_auth.FirebaseAuthException catch (e) {
       switch (e.code) {
@@ -228,12 +233,37 @@ class AuthRepositoryImpl implements AuthRepository {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isVerified: true, 
+        credits: 500, // Welcome Bonus
       );
 
       await _firestore.collection('users').doc(user.uid).set(newUser.toMap());
+      
+      // Send Welcome Notification
+      await _sendWelcomeNotification(user.uid, 500);
+
       return newUser;
     } catch (e) {
       rethrow;
+    }
+  }
+
+  // Helper to send welcome notification
+  Future<void> _sendWelcomeNotification(String userId, int credits) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .add({
+            'title': 'Welcome to Carvia! 🎉',
+            'body': 'You have received $credits Canvas Credits as a welcome bonus. Use them to get discounts on your purchases!',
+            'isRead': false,
+            'createdAt': FieldValue.serverTimestamp(),
+            'type': 'credit_earned',
+            'data': {'amount': credits},
+          });
+    } catch (e) {
+      debugPrint("Failed to send welcome notification: $e");
     }
   }
 

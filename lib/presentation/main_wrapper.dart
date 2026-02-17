@@ -8,6 +8,7 @@ import 'package:carvia/presentation/challan/e_challan_page.dart';
 import 'package:carvia/presentation/ai/ai_chat_page.dart';
 import 'package:carvia/presentation/auth/login_page.dart';
 import 'package:carvia/presentation/vehicle/wishlist_page.dart';
+import 'package:carvia/presentation/profile/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
@@ -106,7 +107,10 @@ class _MainWrapperState extends State<MainWrapper> {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const EChallanPage()));
           }),
           const Divider(),
-          _drawerItem(icon: Iconsax.setting, title: "Settings", onTap: () {}),
+          _drawerItem(icon: Iconsax.setting, title: "Settings", onTap: () {
+            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
+          }),
           _drawerItem(icon: isDark ? Iconsax.sun_1 : Iconsax.moon, title: isDark ? "Light Mode" : "Dark Mode", onTap: () {
             themeService.toggleTheme();
           }),
