@@ -276,8 +276,6 @@ class AuthService extends ChangeNotifier {
   }
 
   // --- Password Reset Simulation ---
-  String? _passwordResetOtp;
-
   Future<void> sendPasswordResetEmail(String email) async {
     _setLoading(true);
     try {
@@ -300,11 +298,11 @@ class AuthService extends ChangeNotifier {
   Future<void> upgradeToOrganization(String uid) async {
     _setLoading(true);
     try {
-      await _authRepository.updateAccountType(uid, UserRole.company);
+      await _authRepository.updateAccountType(uid, AccountType.company);
       
       // Update local user model
       if (_currentUser != null) {
-        _currentUser = _currentUser!.copyWith(role: UserRole.company);
+        _currentUser = _currentUser!.copyWith(accountType: AccountType.company);
         notifyListeners();
       }
     } catch (e) {
@@ -313,3 +311,4 @@ class AuthService extends ChangeNotifier {
       _setLoading(false);
     }
   }
+}

@@ -22,7 +22,7 @@ abstract class AuthRepository {
   Future<UserModel?> completeProfile({required UserRole role, required String phone, required String name, required String email});
   Future<bool> checkEmailExists(String email);
   Future<void> updateProfile({required String uid, required String name, required String phone, String? profileImage});
-  Future<void> updateAccountType(String uid, UserRole role);
+  Future<void> updateAccountType(String uid, AccountType accountType);
 
   
   // Helper
@@ -282,7 +282,6 @@ class AuthRepositoryImpl implements AuthRepository {
           .limit(1)
           .get();
       return querySnapshot.docs.isNotEmpty;
-      return querySnapshot.docs.isNotEmpty;
     } catch (e) {
       return false;
     }
@@ -333,18 +332,17 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       throw "Failed to update profile: $e";
     }
-    }
+  }
 
   @override
-  Future<void> updateAccountType(String uid, UserRole role) async {
+  Future<void> updateAccountType(String uid, AccountType accountType) async {
     try {
       await _firestore.collection('users').doc(uid).update({
-        'role': role.toString().split('.').last, // Store as string 'company' or 'individual'
+        'accountType': accountType.name,
         'updatedAt': FieldValue.serverTimestamp(),
       });
     } catch (e) {
       throw "Failed to update account type: $e";
     }
   }
-}
 }

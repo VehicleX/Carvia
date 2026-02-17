@@ -81,4 +81,44 @@ class VehicleModel {
       'fullImages': fullImages,
     };
   }
+
+  VehicleModel copyWith({
+    String? id,
+    String? brand,
+    String? model,
+    int? year,
+    String? fuel,
+    String? transmission,
+    double? price,
+    int? mileage,
+    List<String>? images,
+    String? sellerId,
+    String? status,
+    String? type,
+    bool? isExternal,
+    Map<String, dynamic>? specs,
+    int? viewsCount,
+    int? wishlistCount,
+    List<Map<String, dynamic>>? fullImages,
+  }) {
+    return VehicleModel(
+      id: id ?? this.id,
+      brand: brand ?? this.brand,
+      model: model ?? this.model,
+      year: year ?? this.year,
+      fuel: fuel ?? this.fuel,
+      transmission: transmission ?? this.transmission,
+      price: price ?? this.price,
+      mileage: mileage ?? this.mileage,
+      images: images ?? this.images,
+      sellerId: sellerId ?? this.sellerId,
+      status: status ?? this.status,
+      type: type ?? this.type,
+      isExternal: isExternal ?? this.isExternal,
+      specs: specs ?? this.specs,
+      viewsCount: viewsCount ?? this.viewsCount,
+      wishlistCount: wishlistCount ?? this.wishlistCount,
+      fullImages: fullImages ?? this.fullImages,
+    );
+  }
 }

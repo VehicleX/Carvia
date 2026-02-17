@@ -277,6 +277,89 @@ class _HomePageState extends State<HomePage> {
       return vehicles;
   }
 
+  Widget _buildFeaturedCard(VehicleModel vehicle) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicle: vehicle)));
+      },
+      child: Container(
+        width: 300,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: vehicle.images.isNotEmpty
+                  ? Image.network(
+                      vehicle.images.first,
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        color: Colors.grey,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.error, color: Colors.white),
+                      ),
+                    )
+                  : Container(
+                      color: Colors.grey,
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.electric_car, color: Colors.white, size: 42),
+                    ),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [Colors.black87, Colors.transparent],
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "${vehicle.brand} ${vehicle.model}",
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          Text(
+                            "${vehicle.year} • ${vehicle.fuel}",
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "\$${vehicle.price.toStringAsFixed(0)}",
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildRecommendedList() {
     return StreamBuilder<List<VehicleModel>>(
       stream: Provider.of<VehicleService>(context, listen: false).getAllVehiclesStream(),
