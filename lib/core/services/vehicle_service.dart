@@ -332,14 +332,31 @@ class VehicleService extends ChangeNotifier {
       final snapshot = await _firestore
           .collection('test_drives')
           .where('sellerId', isEqualTo: sellerId)
-          .orderBy('scheduledTime', descending: true)
           .get();
-      
-      return snapshot.docs.map((doc) => TestDriveModel.fromMap(doc.data(), doc.id)).toList();
+
+      final drives = snapshot.docs
+          .map((doc) => TestDriveModel.fromMap(doc.data(), doc.id))
+          .toList();
+      drives.sort((a, b) => b.scheduledTime.compareTo(a.scheduledTime));
+      return drives;
     } catch (e) {
       debugPrint("Error fetching seller test drives: $e");
       return [];
     }
+  }
+
+  Stream<List<TestDriveModel>> getSellerTestDrivesStream(String sellerId) {
+    return _firestore
+        .collection('test_drives')
+        .where('sellerId', isEqualTo: sellerId)
+        .snapshots()
+        .map((snapshot) {
+          final drives = snapshot.docs
+              .map((doc) => TestDriveModel.fromMap(doc.data(), doc.id))
+              .toList();
+          drives.sort((a, b) => b.scheduledTime.compareTo(a.scheduledTime));
+          return drives;
+        });
   }
 
   Future<void> updateTestDriveStatus(String testDriveId, String status, String buyerId, String vehicleName) async {
@@ -442,15 +459,33 @@ class VehicleService extends ChangeNotifier {
       final snapshot = await _firestore
           .collection('test_drives')
           .where('userId', isEqualTo: userId)
-          .orderBy('scheduledTime', descending: true)
           .get();
-      
-      return snapshot.docs.map((doc) => TestDriveModel.fromMap(doc.data(), doc.id)).toList();
+
+      final drives = snapshot.docs
+          .map((doc) => TestDriveModel.fromMap(doc.data(), doc.id))
+          .toList();
+      drives.sort((a, b) => b.scheduledTime.compareTo(a.scheduledTime));
+      return drives;
     } catch (e) {
       debugPrint("Error fetching test drives: $e");
       return []; // Return empty on error (or if index is missing)
     }
   }
+
+  Stream<List<TestDriveModel>> getUserTestDrivesStream(String userId) {
+    return _firestore
+        .collection('test_drives')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          final drives = snapshot.docs
+              .map((doc) => TestDriveModel.fromMap(doc.data(), doc.id))
+              .toList();
+          drives.sort((a, b) => b.scheduledTime.compareTo(a.scheduledTime));
+          return drives;
+        });
+  }
+
   Stream<List<VehicleModel>> getAllVehiclesStream() {
     return _firestore
         .collection('vehicles')

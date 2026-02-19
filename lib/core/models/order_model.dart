@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 enum OrderStatus { pending, confirmed, delivered, cancelled }
@@ -6,6 +5,7 @@ enum OrderStatus { pending, confirmed, delivered, cancelled }
 class OrderModel {
   final String id;
   final String userId;
+  final String sellerId;
   final String vehicleId;
   final String vehicleName;
   final double amount;
@@ -16,6 +16,7 @@ class OrderModel {
   OrderModel({
     required this.id,
     required this.userId,
+    this.sellerId = '',
     required this.vehicleId,
     required this.vehicleName,
     required this.amount,
@@ -33,10 +34,11 @@ class OrderModel {
     return OrderModel(
       id: id,
       userId: map['userId'] ?? '',
+      sellerId: map['sellerId'] ?? '',
       vehicleId: map['vehicleId'] ?? '',
       vehicleName: map['vehicleName'] ?? '',
       amount: (map['amount'] ?? 0).toDouble(),
-      date: map['date'] != null ? DateTime.parse(map['date']) : DateTime.now(),
+      date: _parseOrderDate(map['date']),
       status: OrderStatus.values.firstWhere((e) => e.toString() == map['status'], orElse: () => OrderStatus.pending),
       paymentMethod: map['paymentMethod'] ?? 'Credit Card',
       creditsUsed: map['creditsUsed'] ?? 0,
@@ -44,9 +46,20 @@ class OrderModel {
     );
   }
 
+  static DateTime _parseOrderDate(dynamic rawDate) {
+    if (rawDate is Timestamp) {
+      return rawDate.toDate();
+    }
+    if (rawDate is String && rawDate.isNotEmpty) {
+      return DateTime.tryParse(rawDate) ?? DateTime.now();
+    }
+    return DateTime.now();
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
+      'sellerId': sellerId,
       'vehicleId': vehicleId,
       'vehicleName': vehicleName,
       'amount': amount,

@@ -17,44 +17,37 @@ class TestDrivesPage extends StatefulWidget {
 }
 
 class _TestDrivesPageState extends State<TestDrivesPage> {
-  bool _isLoading = true;
-  List<TestDriveModel> _bookings = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadBookings();
-  }
-
-  Future<void> _loadBookings() async {
-    final user = Provider.of<AuthService>(context, listen: false).currentUser;
-    if (user == null) return;
-
-    final bookings = await Provider.of<VehicleService>(context, listen: false).fetchUserTestDrives(user.uid);
-    if (mounted) {
-      setState(() {
-        _bookings = bookings;
-        _isLoading = false;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    if (user == null) {
+      return const Scaffold(body: Center(child: Text("Please login")));
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("My Test Drives", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
-        : _bookings.isEmpty
-          ? _buildEmptyState()
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: _bookings.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 16),
-              itemBuilder: (context, index) => _buildBookingCard(_bookings[index]),
-            ),
+      body: StreamBuilder<List<TestDriveModel>>(
+        stream: Provider.of<VehicleService>(context, listen: false).getUserTestDrivesStream(user.uid),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final bookings = snapshot.data ?? [];
+          if (bookings.isEmpty) {
+            return _buildEmptyState();
+          }
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(16),
+            itemCount: bookings.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            itemBuilder: (context, index) => _buildBookingCard(bookings[index]),
+          );
+        },
+      ),
     );
   }
 
@@ -110,7 +103,14 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
                   children: [
                     const Icon(Iconsax.calendar_1, size: 14, color: AppColors.textMuted),
                     const SizedBox(width: 4),
-                    Text(DateFormat('MMM d, y • h:mm a').format(booking.scheduledTime), style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    Expanded(
+                      child: Text(
+                        DateFormat('MMM d, y • h:mm a').format(booking.scheduledTime),
+                        style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),

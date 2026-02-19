@@ -20,8 +20,8 @@ class SellerTestDrivesPage extends StatelessWidget {
       appBar: AppBar(
         title: Text("Test Drive Requests", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
       ),
-      body: FutureBuilder<List<TestDriveModel>>(
-        future: Provider.of<VehicleService>(context, listen: false).fetchSellerTestDrives(user.uid),
+      body: StreamBuilder<List<TestDriveModel>>(
+        stream: Provider.of<VehicleService>(context, listen: false).getSellerTestDrivesStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -77,12 +77,16 @@ class SellerTestDrivesPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                DateFormat('MMM dd, yyyy • hh:mm a').format(request.scheduledTime),
-                style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+              Expanded(
+                child: Text(
+                  DateFormat('MMM dd, yyyy • hh:mm a').format(request.scheduledTime),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
@@ -97,9 +101,25 @@ class SellerTestDrivesPage extends StatelessWidget {
             children: [
               const Icon(Iconsax.user, size: 14, color: AppColors.textMuted),
               const SizedBox(width: 4),
-              Text("Buyer ID: ${request.userId.substring(0, 5)}...", style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              Expanded(
+                child: Text(
+                  "Buyer: ${request.buyerName}",
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
+          if (request.buyerPhone.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Iconsax.call, size: 14, color: AppColors.textMuted),
+                const SizedBox(width: 4),
+                Text(request.buyerPhone, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
           if (request.status == 'pending')
             Row(
@@ -134,10 +154,6 @@ class SellerTestDrivesPage extends StatelessWidget {
       await service.updateTestDriveStatus(request.id, status, request.userId, request.vehicleName);
       if (context.mounted) {
          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Request $status")));
-         // In a real app we'd refresh the list, but FutureBuilder re-builds if we call setState or if we used a specific Provider stream. 
-         // For now simpler to just pop or let user check. Ideally wrap in StreamBuilder.
-         // Or force rebuild:
-         (context as Element).markNeedsBuild();
       }
     } catch (e) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));

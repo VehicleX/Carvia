@@ -28,7 +28,7 @@ class _RegisterPageState extends State<RegisterPage> {
   void _handleRegister() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
-    final phone = _phoneController.text.trim();
+    _phoneController.text.trim();
     final password = _passwordController.text.trim();
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {

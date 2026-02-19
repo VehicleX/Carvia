@@ -298,6 +298,9 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         type: _selectedType,
         specs: {
           'description': _descriptionController.text,
+          'sellerName': user.name,
+          'sellerPhone': user.phone,
+          'sellerEmail': user.email,
         },
         viewsCount: 0,
         wishlistCount: 0,

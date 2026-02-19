@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class TestDriveModel {
   final String id;
   final String userId;
+  final String sellerId;
+  final String buyerName;
+  final String buyerPhone;
   final String vehicleId;
   final String vehicleName;
   final String vehicleImage;
@@ -13,6 +16,9 @@ class TestDriveModel {
   TestDriveModel({
     required this.id,
     required this.userId,
+    required this.sellerId,
+    required this.buyerName,
+    required this.buyerPhone,
     required this.vehicleId,
     required this.vehicleName,
     required this.vehicleImage,
@@ -24,6 +30,9 @@ class TestDriveModel {
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
+      'sellerId': sellerId,
+      'buyerName': buyerName,
+      'buyerPhone': buyerPhone,
       'vehicleId': vehicleId,
       'vehicleName': vehicleName,
       'vehicleImage': vehicleImage,
@@ -38,6 +47,9 @@ class TestDriveModel {
     return TestDriveModel(
       id: id,
       userId: map['userId'] ?? '',
+      sellerId: map['sellerId'] ?? '',
+      buyerName: map['buyerName'] ?? 'Unknown Buyer',
+      buyerPhone: map['buyerPhone'] ?? '',
       vehicleId: map['vehicleId'] ?? '',
       vehicleName: map['vehicleName'] ?? 'Unknown Vehicle',
       vehicleImage: map['vehicleImage'] ?? '',

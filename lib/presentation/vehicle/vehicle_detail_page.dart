@@ -1,5 +1,6 @@
 import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:carvia/presentation/vehicle/compare_page.dart';
@@ -300,45 +301,85 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
   }
 
   Widget _buildSellerCard() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            backgroundImage: NetworkImage("https://randomuser.me/api/portraits/men/32.jpg"), // Placeholder
-            radius: 25,
+    return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.vehicle.sellerId)
+          .snapshots(),
+      builder: (context, snapshot) {
+        final sellerData = snapshot.data?.data() ?? <String, dynamic>{};
+        final sellerName = (sellerData['name']?.toString().trim().isNotEmpty ?? false)
+            ? sellerData['name'].toString()
+            : ((widget.vehicle.specs['sellerName']?.toString().trim().isNotEmpty ?? false)
+                ? widget.vehicle.specs['sellerName'].toString()
+                : 'Verified Seller');
+
+        final sellerPhone = (sellerData['phone']?.toString().trim().isNotEmpty ?? false)
+            ? sellerData['phone'].toString()
+            : (widget.vehicle.specs['sellerPhone']?.toString() ?? '');
+        final sellerEmail = (sellerData['email']?.toString().trim().isNotEmpty ?? false)
+            ? sellerData['email'].toString()
+            : (widget.vehicle.specs['sellerEmail']?.toString() ?? '');
+
+        final contactText = sellerPhone.isNotEmpty
+            ? sellerPhone
+            : (sellerEmail.isNotEmpty ? sellerEmail : 'Contact details unavailable');
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(20),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
+          child: Row(
+            children: [
+              const CircleAvatar(
+                backgroundImage: NetworkImage("https://randomuser.me/api/portraits/men/32.jpg"),
+                radius: 25,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Marcus Prestige Autos", style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(width: 4),
-                    Icon(Icons.verified, size: 16, color: AppColors.success),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            sellerName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        const Icon(Icons.verified, size: 16, color: AppColors.success),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        const Icon(Iconsax.call, size: 14, color: AppColors.textMuted),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            contactText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
-                Row(
-                  children: [
-                    const Icon(Icons.star, size: 14, color: Colors.amber),
-                    const Text(" 4.9", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                    Text(" (128 reviews)", style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                  ],
-                ),
-              ],
-            ),
+              ),
+              IconButton(onPressed: () {}, icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.message, size: 20))),
+              const SizedBox(width: 8),
+              IconButton(onPressed: () {}, icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.call, size: 20))),
+            ],
           ),
-          IconButton(onPressed: () {}, icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.message, size: 20))),
-          const SizedBox(width: 8),
-          IconButton(onPressed: () {}, icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.call, size: 20))),
-        ],
-      ),
+        );
+      },
     );
   }
 

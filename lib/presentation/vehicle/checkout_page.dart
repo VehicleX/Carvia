@@ -238,6 +238,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       final order = OrderModel(
         id: "", // Generated
         userId: user.uid,
+        sellerId: widget.vehicle.sellerId,
         vehicleId: widget.vehicle.id,
         vehicleName: "${widget.vehicle.brand} ${widget.vehicle.model} ${widget.vehicle.year}",
         amount: total, 

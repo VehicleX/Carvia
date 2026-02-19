@@ -72,13 +72,44 @@ class OrderService extends ChangeNotifier {
       final snapshot = await _firestore
           .collection('orders')
           .where('userId', isEqualTo: userId)
-          .orderBy('date', descending: true)
           .get();
 
-      return snapshot.docs.map((doc) => OrderModel.fromMap(doc.data(), doc.id)).toList();
+      final orders = snapshot.docs
+          .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+          .toList();
+      orders.sort((a, b) => b.date.compareTo(a.date));
+      return orders;
     } catch (e) {
       debugPrint("Error fetching orders: $e");
       return [];
     }
+  }
+
+  Stream<List<OrderModel>> getMyOrdersStream(String userId) {
+    return _firestore
+        .collection('orders')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          final orders = snapshot.docs
+              .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+              .toList();
+          orders.sort((a, b) => b.date.compareTo(a.date));
+          return orders;
+        });
+  }
+
+  Stream<List<OrderModel>> getSellerOrdersStream(String sellerId) {
+    return _firestore
+        .collection('orders')
+        .where('sellerId', isEqualTo: sellerId)
+        .snapshots()
+        .map((snapshot) {
+          final orders = snapshot.docs
+              .map((doc) => OrderModel.fromMap(doc.data(), doc.id))
+              .toList();
+          orders.sort((a, b) => b.date.compareTo(a.date));
+          return orders;
+        });
   }
 }

@@ -224,7 +224,8 @@ class _HomePageState extends State<HomePage> {
         }
 
         final vehicles = _filterVehicles(snapshot.data!);
-        final featured = vehicles.take(5).toList();
+        final featuredCount = _featuredCountFor(vehicles.length);
+        final featured = vehicles.take(featuredCount).toList();
 
         if (featured.isEmpty) {
            return Container(
@@ -275,6 +276,16 @@ class _HomePageState extends State<HomePage> {
       vehicles = vehicles.where((v) => v.price >= _priceRange.start && v.price <= _priceRange.end).toList();
 
       return vehicles;
+  }
+
+  int _featuredCountFor(int total) {
+    if (total <= 0) return 0;
+    if (total == 1) return 1;
+
+    int count = (total / 2).ceil();
+    if (count > 5) count = 5;
+    if (count >= total) count = total - 1;
+    return count;
   }
 
   Widget _buildFeaturedCard(VehicleModel vehicle) {
@@ -373,15 +384,11 @@ class _HomePageState extends State<HomePage> {
         }
 
         final vehicles = _filterVehicles(snapshot.data!);
-        final recommended = vehicles.skip(5).toList(); // Skip featured ones
+        final featuredCount = _featuredCountFor(vehicles.length);
+        final recommended = vehicles.skip(featuredCount).toList();
 
         if (recommended.isEmpty) {
-           // If fewer than 5 total, show what we have, or show "No more"
-           if (vehicles.isNotEmpty && vehicles.length <= 5) {
-             // If we have very few vehicles, show them in recommended too or just leave featured?
-             // Let's show them in recommended as well if user scrolls down, or just show nothing since they are up top.
-             // Standard pattern: Duplicate or show nothing. I'll show nothing unique to avoid duplication visually if desired, 
-             // but user asked for "Recommended". Check if we have enough.
+           if (vehicles.isNotEmpty) {
              return const Center(child: Text("Check out our featured deals above!"));
            }
            return const Center(child: Text("No recommendations matching filters"));

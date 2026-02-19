@@ -1,4 +1,5 @@
 import 'package:carvia/core/models/order_model.dart';
+import 'package:carvia/core/models/user_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/order_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
@@ -19,8 +20,10 @@ class OrdersPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text("My Orders")),
-      body: FutureBuilder<List<OrderModel>>(
-        future: Provider.of<OrderService>(context, listen: false).fetchMyOrders(user.uid),
+      body: StreamBuilder<List<OrderModel>>(
+        stream: user.role == UserRole.seller
+            ? Provider.of<OrderService>(context, listen: false).getSellerOrdersStream(user.uid)
+            : Provider.of<OrderService>(context, listen: false).getMyOrdersStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -64,12 +67,16 @@ class OrdersPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                 DateFormat('MMM dd, yyyy').format(order.date),
-                 style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+              Expanded(
+                child: Text(
+                  DateFormat('MMM dd, yyyy').format(order.date),
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
@@ -91,7 +98,12 @@ class OrdersPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(order.vehicleName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text("\$${order.amount.toStringAsFixed(0)} • ${order.paymentMethod}", style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    Text(
+                      "\$${order.amount.toStringAsFixed(0)} • ${order.paymentMethod}",
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ],
                 ),
               ),
