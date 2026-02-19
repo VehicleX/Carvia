@@ -144,11 +144,9 @@ class AuthRepositoryImpl implements AuthRepository {
       
       // If silent sign-in returns null, fall back to interactive sign-in
       // On web, this may trigger a popup (which is now deprecated but still works as fallback)
-      googleUser??= await _googleSignIn.signIn();
+      googleUser ??= await _googleSignIn.signIn();
       
       if (googleUser == null) return null; // Cancelled
-      googleUser ??= await _googleSignIn.signIn();
-      if (googleUser == null) return null;
 
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final firebase_auth.AuthCredential credential = firebase_auth.GoogleAuthProvider.credential(

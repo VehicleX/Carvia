@@ -12,6 +12,7 @@ class AIMessage {
 }
 
 class AIService extends ChangeNotifier {
+  static const String _defaultModel = 'gemini-2.5-flash';
   final List<AIMessage> _messages = [
     AIMessage(text: "Hi! I'm Carvia AI. I can help you find the perfect car, compare models, or check financing options. What are you looking for today?", isUser: false, timestamp: DateTime.now()),
   ];
@@ -26,17 +27,24 @@ class AIService extends ChangeNotifier {
     _initModel();
   }
 
+  bool get _hasValidApiKey {
+    final key = ApiKeys.geminiApiKey.trim();
+    if (key.isEmpty) return false;
+    final upperKey = key.toUpperCase();
+    return !upperKey.contains('YOUR_') && !upperKey.contains('PLACEHOLDER');
+  }
+
   void _initModel() {
-    if (ApiKeys.geminiApiKey == "YOUR_API_KEY_HERE") {
+    if (!_hasValidApiKey) {
       debugPrint("Warning: Gemini API Key not set.");
       return;
     }
-    
+
     _model = GenerativeModel(
-      model: 'gemini-pro',
+      model: _defaultModel,
       apiKey: ApiKeys.geminiApiKey,
     );
-    _chatSession = _model!.startChat();
+    _chatSession = _model?.startChat();
   }
 
   Future<void> sendMessage(String text) async {
@@ -47,7 +55,7 @@ class AIService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      if (_model == null) {
+      if (_model == null || _chatSession == null) {
         // Fallback or Error if API Key is missing
         await Future.delayed(const Duration(seconds: 1));
         _messages.add(AIMessage(text: "I'm currently in demo mode because my API Key isn't configured. Please add a valid Gemini API Key in `lib/core/constants/api_keys.dart` to unlock my full potential!", isUser: false, timestamp: DateTime.now()));
