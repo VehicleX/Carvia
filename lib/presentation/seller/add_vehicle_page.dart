@@ -9,8 +9,9 @@ import 'package:provider/provider.dart';
 
 class AddVehiclePage extends StatefulWidget {
   final VehicleModel? vehicle;
+  final VoidCallback? onSuccess;
 
-  const AddVehiclePage({super.key, this.vehicle});
+  const AddVehiclePage({super.key, this.vehicle, this.onSuccess});
 
   @override
   State<AddVehiclePage> createState() => _AddVehiclePageState();
@@ -26,6 +27,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   final _yearController = TextEditingController();
   final _priceController = TextEditingController();
   final _mileageController = TextEditingController();
+  final _engineCcController = TextEditingController();
   final _descriptionController = TextEditingController();
   
   String _selectedType = 'Car';
@@ -48,6 +50,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       _yearController.text = vehicle.year.toString();
       _priceController.text = vehicle.price.toStringAsFixed(0);
       _mileageController.text = vehicle.mileage.toString();
+      _engineCcController.text = vehicle.specs['engineCc']?.toString() ?? '';
       _descriptionController.text = vehicle.specs['description']?.toString() ?? '';
       _selectedType = vehicle.type;
       _selectedFuel = vehicle.fuel;
@@ -174,17 +177,70 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   }
 
   Widget _buildSpecsStep() {
+    final isBike = _selectedType == "Bike";
+    final isCar = _selectedType == "Car";
+    
+    // Define fuel options based on vehicle type
+    List<String> fuelOptions;
+    if (isBike) {
+      fuelOptions = ["Petrol", "EV"];
+    } else if (isCar) {
+      fuelOptions = ["Petrol", "Diesel", "EV", "Hybrid"];
+    } else {
+      fuelOptions = ["Petrol", "Diesel", "Electric", "Hybrid"];
+    }
+
+    // Ensure selected fuel is valid for current vehicle type
+    if (!fuelOptions.contains(_selectedFuel)) {
+      _selectedFuel = fuelOptions.first;
+    }
+
     return Column(
       children: [
-        _buildDropdown("Fuel Type", ["Petrol", "Diesel", "Electric", "Hybrid"], _selectedFuel, (val) => setState(() => _selectedFuel = val!)),
-        const SizedBox(height: 16),
-        _buildDropdown("Transmission", ["Automatic", "Manual"], _selectedTransmission, (val) => setState(() => _selectedTransmission = val!)),
-        const SizedBox(height: 16),
-        TextFormField(
-          controller: _mileageController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: "Mileage (km)", prefixIcon: Icon(Iconsax.speedometer), border: OutlineInputBorder()),
-        ),
+        // For Bike: Show Engine (cc), Type, Mileage (NO Transmission)
+        if (isBike) ...[
+          TextFormField(
+            controller: _engineCcController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Engine (cc)", prefixIcon: Icon(Iconsax.flash), border: OutlineInputBorder()),
+          ),
+          const SizedBox(height: 16),
+          _buildDropdown("Type", fuelOptions, _selectedFuel, (val) => setState(() => _selectedFuel = val!)),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _mileageController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Mileage (km)", prefixIcon: Icon(Iconsax.speedometer), border: OutlineInputBorder()),
+          ),
+        ],
+        
+        // For Car: Show Engine (cc), Type, Transmission, Mileage
+        if (isCar) ...[
+          const SizedBox(height: 16),
+          _buildDropdown("Type", fuelOptions, _selectedFuel, (val) => setState(() => _selectedFuel = val!)),
+          const SizedBox(height: 16),
+          _buildDropdown("Transmission", ["Automatic", "Manual"], _selectedTransmission, (val) => setState(() => _selectedTransmission = val!)),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _mileageController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Mileage (km)", prefixIcon: Icon(Iconsax.speedometer), border: OutlineInputBorder()),
+          ),
+        ],
+        
+        // For other types (Truck, Auto, etc): Standard fields
+        if (!isBike && !isCar) ...[
+          _buildDropdown("Fuel Type", fuelOptions, _selectedFuel, (val) => setState(() => _selectedFuel = val!)),
+          const SizedBox(height: 16),
+          _buildDropdown("Transmission", ["Automatic", "Manual"], _selectedTransmission, (val) => setState(() => _selectedTransmission = val!)),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _mileageController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: "Mileage (km)", prefixIcon: Icon(Iconsax.speedometer), border: OutlineInputBorder()),
+          ),
+        ],
+        
         const SizedBox(height: 16),
         TextFormField(
           controller: _descriptionController,
@@ -297,6 +353,8 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         status: 'active',
         type: _selectedType,
         specs: {
+          if (_engineCcController.text.trim().isNotEmpty)
+            'engineCc': _engineCcController.text.trim(),
           'description': _descriptionController.text,
           'sellerName': user.name,
           'sellerPhone': user.phone,
@@ -315,7 +373,11 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           await vehicleService.addVehicle(vehicle);
         }
         if (mounted) {
-           Navigator.pop(context);
+           if (widget.onSuccess != null) {
+             widget.onSuccess!.call();
+           } else if (Navigator.of(context).canPop()) {
+             Navigator.pop(context);
+           }
            ScaffoldMessenger.of(context).showSnackBar(
              SnackBar(content: Text(_isEditMode ? "Vehicle Updated Successfully! 🚀" : "Vehicle Published Successfully! 🚀")),
            );
