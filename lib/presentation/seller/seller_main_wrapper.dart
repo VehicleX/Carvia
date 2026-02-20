@@ -26,7 +26,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
   final List<Widget> _pages = [
     const SizedBox(), // Placeholder, will be initialized in initState
     const ManageListingsPage(),
-    const SizedBox(), // Placeholder, will be initialized in initState
+    const AddVehiclePage(),
     const SellerTestDrivesPage(),
     const SellerAnalyticsPage(),
     const SellerProfilePage(),
@@ -39,12 +39,6 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
     _pages[0] = SellerDashboard(onTabChange: (index) {
       setState(() => _currentIndex = index);
     });
-    _pages[2] = AddVehiclePage(
-      onSuccess: () {
-        if (!mounted) return;
-        setState(() => _currentIndex = 0);
-      },
-    );
   }
 
   @override
