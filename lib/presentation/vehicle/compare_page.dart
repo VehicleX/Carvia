@@ -3,7 +3,6 @@ import 'package:carvia/core/services/compare_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
 class ComparePage extends StatelessWidget {
@@ -101,7 +100,7 @@ class ComparePage extends StatelessWidget {
                   height: 120,
                   width: 160,
                   fit: BoxFit.cover,
-                  errorBuilder: (_,__,___) => Container(height: 120, color: Colors.grey, child: const Icon(Icons.directions_car)),
+                  errorBuilder: (context, error, stackTrace) => Container(height: 120, color: Colors.grey, child: const Icon(Icons.directions_car)),
                 ),
               ),
               Positioned(

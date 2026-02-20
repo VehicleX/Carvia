@@ -78,7 +78,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isOrg ? Colors.purple.withOpacity(0.1) : Colors.blue.withOpacity(0.1),
+                  color: isOrg ? Colors.purple.withValues(alpha:0.1) : Colors.blue.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -158,19 +158,8 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
     setState(() => _isLoading = true);
     
     try {
-      final auth = Provider.of<AuthService>(context, listen: false);
-      final user = auth.currentUser!;
-      
-      final updatedDetails = {
-        ...?user.sellerDetails,
-        'businessName': _businessNameController.text,
-        'gstNumber': _gstController.text,
-        'businessAddress': _addressController.text,
-      };
-
       // Mock Update (In reality, AuthService needs updateProfile method, or we mock it)
-      // await auth.updateProfile(...); 
-      // For now we just allow the UI toggle back since we don't have updateProfile exposed fully in AuthService for map fields yet.
+      // await Provider.of<AuthService>(context, listen: false).updateProfile(...);
       
       if (mounted) {
          setState(() {
@@ -201,19 +190,23 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
             TextButton(
               onPressed: () async {
                 setState(() => _isLoading = true);
+                final navigator = Navigator.of(context);
+                final messenger = ScaffoldMessenger.of(context);
+                final authService = Provider.of<AuthService>(context, listen: false);
+
                 try {
-                  final user = Provider.of<AuthService>(context, listen: false).currentUser;
+                  final user = authService.currentUser;
                   if (user != null) {
-                    await Provider.of<AuthService>(context, listen: false).upgradeToOrganization(user.uid);
+                    await authService.upgradeToOrganization(user.uid);
                     if (mounted) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Upgraded to Organization Account!")));
+                      navigator.pop();
+                      messenger.showSnackBar(const SnackBar(content: Text("Upgraded to Organization Account!")));
                     }
                   }
                 } catch (e) {
                   if (mounted) {
-                    Navigator.pop(context); // Close dialog even on error or show in dialog? Better to close and show snackbar.
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Upgrade Failed: $e")));
+                    navigator.pop(); 
+                    messenger.showSnackBar(SnackBar(content: Text("Upgrade Failed: $e")));
                   }
                 } finally {
                   if (mounted) setState(() => _isLoading = false);

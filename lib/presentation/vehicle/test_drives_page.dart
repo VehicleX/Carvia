@@ -43,7 +43,7 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: bookings.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) => _buildBookingCard(bookings[index]),
           );
         },
@@ -56,7 +56,7 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Iconsax.calendar_remove, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
+          Icon(Iconsax.calendar_remove, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text("No Test Drives Booked", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
@@ -81,7 +81,7 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -89,7 +89,7 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: booking.vehicleImage.isNotEmpty
-              ? Image.network(booking.vehicleImage, width: 70, height: 70, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: Colors.grey, width: 70, height: 70))
+              ? Image.network(booking.vehicleImage, width: 70, height: 70, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey, width: 70, height: 70))
               : Container(color: Colors.grey, width: 70, height: 70, child: const Icon(Icons.directions_car)),
           ),
           const SizedBox(width: 16),
@@ -117,9 +117,9 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
+                    color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     booking.status.toUpperCase(),

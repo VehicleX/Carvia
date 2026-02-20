@@ -12,7 +12,7 @@ class PoliceAnalyticsPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.bar_chart, size: 100, color: AppColors.primary.withOpacity(0.3)),
+            Icon(Icons.bar_chart, size: 100, color: AppColors.primary.withValues(alpha:0.3)),
             const SizedBox(height: 20),
             Text("Advanced Analytics", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
             const SizedBox(height: 10),

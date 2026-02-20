@@ -1,9 +1,7 @@
 import 'package:carvia/core/models/challan_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/challan_service.dart';
-import 'package:carvia/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 
@@ -113,6 +111,7 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
               const SizedBox(height: 20),
               
               DropdownButtonFormField<String>(
+                // ignore: deprecated_member_use
                 value: _selectedViolation,
                 decoration: const InputDecoration(
                   labelText: "Violation Type",
@@ -127,7 +126,7 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
               
               Container(
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.red.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(color: Colors.red.withValues(alpha:0.1), borderRadius: BorderRadius.circular(12)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

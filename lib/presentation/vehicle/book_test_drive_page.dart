@@ -71,7 +71,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha:0.05),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -82,7 +82,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: widget.vehicle.images.isNotEmpty
-                ? Image.network(widget.vehicle.images.first, width: 80, height: 80, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: Colors.grey, width: 80, height: 80))
+                ? Image.network(widget.vehicle.images.first, width: 80, height: 80, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey, width: 80, height: 80))
                 : Container(width: 80, height: 80, color: Colors.grey),
           ),
           const SizedBox(width: 16),
@@ -117,7 +117,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.textMuted.withOpacity(0.3)),
+          border: Border.all(color: AppColors.textMuted.withValues(alpha:0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -148,7 +148,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.textMuted.withOpacity(0.3)),
+          border: Border.all(color: AppColors.textMuted.withValues(alpha:0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(

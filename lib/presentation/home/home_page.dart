@@ -11,6 +11,7 @@ import 'package:carvia/core/services/location_service.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/presentation/home/map_location_picker.dart';
 import 'package:carvia/presentation/home/notifications_page.dart';
+import 'package:carvia/presentation/home/vehicle_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,17 +25,24 @@ class _HomePageState extends State<HomePage> {
   
   // Filter States
   String _selectedBrand = "All";
-  String _selectedType = "All"; // Added Type State
+  String _selectedType = "All"; 
   RangeValues _priceRange = const RangeValues(0, 300000);
 
   @override
   void initState() {
     super.initState();
-    // No need to fetch manually, StreamBuilder handles it.
+    _searchController.addListener(_applyFilters);
+  }
+
+  @override
+  void dispose() {
+    _searchController.removeListener(_applyFilters);
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _applyFilters() {
-    setState(() {}); // This rebuilds the widget tree, re-running the filter logic inside StreamBuilders
+    setState(() {}); 
   }
 
   @override
@@ -50,15 +58,21 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 20),
               _buildSearchBar(),
               const SizedBox(height: 20),
-              _buildSectionHeader("Popular Brands", () {}),
+              _buildSectionHeader("Popular Brands", () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const VehicleListPage(title: "All Vehicles")));
+              }),
               const SizedBox(height: 10),
               _buildBrandsList(),
               const SizedBox(height: 20),
-              _buildSectionHeader("Featured Deals", () {}),
+              _buildSectionHeader("Featured Deals", () {
+                _navigateToSeeAll("Featured Deals", (v) => _featuredCountFor(v.length));
+              }),
               const SizedBox(height: 10),
               _buildFeaturedCarousel(),
               const SizedBox(height: 20),
-              _buildSectionHeader("Recommended for You", () {}),
+              _buildSectionHeader("Recommended for You", () {
+                _navigateToSeeAll("Recommended For You", (v) => 0, skipFeatured: true);
+              }),
               const SizedBox(height: 10),
               _buildRecommendedList(),
             ],
@@ -66,6 +80,10 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _navigateToSeeAll(String title, int Function(List<VehicleModel>) getCount, {bool skipFeatured = false}) {
+     Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleListPage(title: title)));
   }
 
   Widget _buildTopBar() {
@@ -127,7 +145,7 @@ class _HomePageState extends State<HomePage> {
                 borderSide: BorderSide.none,
               ),
             ),
-            onSubmitted: (_) => _applyFilters(),
+            // onChanged added implicitly by controller listener
           ),
         ),
         const SizedBox(width: 10),
@@ -170,7 +188,7 @@ class _HomePageState extends State<HomePage> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: brands.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 16),
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final brandName = brands[index]["name"] as String;
           final isSelected = _selectedBrand == brandName;
@@ -192,7 +210,7 @@ class _HomePageState extends State<HomePage> {
                   child: Icon(
                     brands[index]["icon"] as IconData, 
                     size: 30,
-                    color: isSelected ? Colors.white : null,
+                    color: isSelected ? Colors.white : AppColors.primary, // Changed to allow visibility in light mode if not selected
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -228,7 +246,7 @@ class _HomePageState extends State<HomePage> {
         final featured = vehicles.take(featuredCount).toList();
 
         if (featured.isEmpty) {
-           return Container(
+           return SizedBox(
              height: 250,
              child: const Center(child: Text("No featured vehicles matching filters")),
            );
@@ -239,7 +257,7 @@ class _HomePageState extends State<HomePage> {
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: featured.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 16),
+            separatorBuilder: (context, index) => const SizedBox(width: 16),
             itemBuilder: (context, index) {
               return _buildFeaturedCard(featured[index]);
             },
@@ -253,6 +271,21 @@ class _HomePageState extends State<HomePage> {
   List<VehicleModel> _filterVehicles(List<VehicleModel> allVehicles) {
       var vehicles = allVehicles;
       
+      // Location Filter
+      final locationService = Provider.of<LocationService>(context, listen: false);
+      final currentLocation = locationService.currentLocation;
+      
+      if (currentLocation != "Current Location" && currentLocation.isNotEmpty) {
+        // Simple string match - if vehicle location contains the selected location (e.g. City name)
+        // or if selected location contains vehicle location.
+        // Assuming "New York, USA" vs "New York"
+        vehicles = vehicles.where((v) {
+          if (v.location.isEmpty) return true; // Show all if location not set? Or hide? Let's show all for now to avoid empty screens
+          return v.location.toLowerCase().contains(currentLocation.toLowerCase()) || 
+                 currentLocation.toLowerCase().contains(v.location.toLowerCase());
+        }).toList();
+      }
+
       // Brand Filter
       if (_selectedBrand != "All") {
         vehicles = vehicles.where((v) => v.brand == _selectedBrand).toList();
@@ -309,7 +342,7 @@ class _HomePageState extends State<HomePage> {
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey,
                         alignment: Alignment.center,
                         child: const Icon(Icons.error, color: Colors.white),
@@ -427,7 +460,7 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: vehicle.images.isNotEmpty 
-                  ? Image.network(vehicle.images.first, fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.error))
+                  ? Image.network(vehicle.images.first, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.error))
                   : const Icon(Icons.electric_car, color: Colors.white),
             ),
             const SizedBox(width: 16),
@@ -491,6 +524,7 @@ class _HomePageState extends State<HomePage> {
                   );
                   if (result != null && result is String) {
                     locationService.setLocation(result);
+                    setState(() {}); // Trigger filter update
                   }
                 },
               ),
@@ -505,6 +539,7 @@ class _HomePageState extends State<HomePage> {
                   if (value.isNotEmpty) {
                     locationService.setLocation(value);
                     Navigator.pop(context);
+                    setState(() {}); // Trigger filter update
                   }
                 },
               ),
@@ -515,6 +550,7 @@ class _HomePageState extends State<HomePage> {
                 onTap: () {
                   locationService.setLocation("Current Location"); 
                   Navigator.pop(context);
+                  setState(() {}); // Trigger filter update
                 },
               ),
             ],
@@ -549,7 +585,7 @@ class _HomePageState extends State<HomePage> {
                             setModalState(() {
                               _selectedBrand = "All";
                               _priceRange = const RangeValues(0, 300000);
-                              // Reset logic for other filters would go here
+                              _selectedType = "All";
                             });
                           }, 
                           child: const Text("Reset")
@@ -604,17 +640,6 @@ class _HomePageState extends State<HomePage> {
                       onChanged: (values) {
                         setModalState(() => _priceRange = values);
                       },
-                    ),
-                    const SizedBox(height: 20),
-                    const Text("Fuel Type", style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 10),
-                    Wrap(
-                      spacing: 10,
-                      children: ["All", "Petrol", "Diesel", "Electric", "Hybrid"].map((fuel) {
-                         // Logic for Fuel Filter state management would be here
-                         // For now, visual only as I need to update state variables in HomePage
-                         return ChoiceChip(label: Text(fuel), selected: false, onSelected: (v){}); 
-                      }).toList(),
                     ),
                     const SizedBox(height: 30),
                     SizedBox(

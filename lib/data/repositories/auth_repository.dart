@@ -108,14 +108,14 @@ class AuthRepositoryImpl implements AuthRepository {
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isVerified: true, 
-        credits: 500, // Welcome Bonus
+        credits: 100, // Welcome Bonus
       );
 
       // Save User
       await _firestore.collection('users').doc(newUser.uid).set(newUser.toMap());
 
       // Send Welcome Notification
-      await _sendWelcomeNotification(newUser.uid, 500);
+      await _sendWelcomeNotification(newUser.uid, 100);
 
       return newUser;
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -269,11 +269,8 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<bool> checkEmailExists(String email) async {
     try {
-      // Check Firebase Auth
-      final methods = await _firebaseAuth.fetchSignInMethodsForEmail(email);
-      if (methods.isNotEmpty) return true;
-      
-      // Also check Firestore (in case auth and firestore are out of sync)
+      // Check Firestore for existing user with this email
+      // (fetchSignInMethodsForEmail is deprecated for security reasons)
       final querySnapshot = await _firestore
           .collection('users')
           .where('email', isEqualTo: email)
@@ -316,6 +313,7 @@ class AuthRepositoryImpl implements AuthRepository {
       await _firestore.collection('users').doc(uid).update({
         'name': name,
         'phone': phone,
+        // ignore: use_null_aware_elements
         if (profileImage != null) 'profileImage': profileImage,
         'updatedAt': FieldValue.serverTimestamp(),
       });

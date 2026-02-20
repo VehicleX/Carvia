@@ -1,6 +1,5 @@
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 
 class InsurancePage extends StatefulWidget {
@@ -20,8 +19,6 @@ class InsurancePage extends StatefulWidget {
 }
 
 class _InsurancePageState extends State<InsurancePage> {
-  bool _isProcessing = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +39,7 @@ class _InsurancePageState extends State<InsurancePage> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: AppColors.primary.withValues(alpha:0.1), shape: BoxShape.circle),
                     child: const Icon(Iconsax.shield_tick, color: AppColors.primary),
                   ),
                   const SizedBox(width: 16),
@@ -63,9 +60,9 @@ class _InsurancePageState extends State<InsurancePage> {
                Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha:0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3))
+                  border: Border.all(color: Colors.orange.withValues(alpha:0.3))
                 ),
                 child: const Column(
                   children: [
@@ -110,7 +107,7 @@ class _InsurancePageState extends State<InsurancePage> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.primary, AppColors.primary.withOpacity(0.8)]),
+        gradient: LinearGradient(colors: [AppColors.primary, AppColors.primary.withValues(alpha:0.8)]),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -122,7 +119,7 @@ class _InsurancePageState extends State<InsurancePage> {
               Text(plan, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha:0.2), borderRadius: BorderRadius.circular(20)),
                 child: Text(status, style: const TextStyle(color: Colors.white, fontSize: 12)),
               )
             ],

@@ -42,6 +42,7 @@ class _AddExternalVehiclePageState extends State<AddExternalVehiclePage> {
               const SizedBox(height: 20),
               
               DropdownButtonFormField<String>(
+                // ignore: deprecated_member_use
                 value: _selectedType,
                 decoration: const InputDecoration(labelText: "Vehicle Type", prefixIcon: Icon(Iconsax.category)),
                 items: ['Car', 'Bike', 'Truck', 'Auto'].map((type) => DropdownMenuItem(value: type, child: Text(type))).toList(),

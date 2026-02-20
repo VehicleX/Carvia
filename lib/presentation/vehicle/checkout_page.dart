@@ -89,7 +89,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               width: 100,
               height: 70,
               fit: BoxFit.cover,
-              errorBuilder: (_,__,___) => Container(width: 100, height: 70, color: Colors.grey),
+              errorBuilder: (context, error, stackTrace) => Container(width: 100, height: 70, color: Colors.grey),
             ),
           ),
           const SizedBox(width: 16),
@@ -116,14 +116,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _buildPaymentOption(String label, IconData icon) {
-    return RadioListTile<String>(
-      value: label,
+    return RadioGroup<String>(
       groupValue: _selectedPayment,
       onChanged: (val) => setState(() => _selectedPayment = val!),
-      title: Text(label),
-      secondary: Icon(icon, color: AppColors.primary),
-      activeColor: AppColors.primary,
-      contentPadding: EdgeInsets.zero,
+      child: RadioListTile<String>(
+        value: label,
+        title: Text(label),
+        secondary: Icon(icon, color: AppColors.primary),
+        activeColor: AppColors.primary,
+        contentPadding: EdgeInsets.zero,
+      ),
     );
   }
 
@@ -154,7 +156,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
           subtitle: const Text("Redeem 10% max discount"),
           value: _useCredits,
           onChanged: (val) => setState(() => _useCredits = val),
-          activeColor: AppColors.primary,
           contentPadding: EdgeInsets.zero,
         ),
         
@@ -167,7 +168,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: Colors.green.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+          decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
           child: Row(
             children: [
               const Icon(Iconsax.coin, color: Colors.green, size: 20),

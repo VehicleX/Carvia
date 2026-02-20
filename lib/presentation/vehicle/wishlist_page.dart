@@ -69,7 +69,7 @@ class _WishlistPageState extends State<WishlistPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Iconsax.heart_slash, size: 64, color: AppColors.textMuted.withOpacity(0.5)),
+          Icon(Iconsax.heart_slash, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
           const SizedBox(height: 16),
           Text("Traffic is clear here!", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
@@ -83,7 +83,7 @@ class _WishlistPageState extends State<WishlistPage> {
     return ListView.separated(
       padding: const EdgeInsets.all(16),
       itemCount: _vehicles.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final vehicle = _vehicles[index];
         return _buildVehicleCard(vehicle);
@@ -94,7 +94,7 @@ class _WishlistPageState extends State<WishlistPage> {
   Widget _buildVehicleCard(VehicleModel vehicle) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicle: vehicle)));
+        Navigator.push(context, MaterialPageRoute(builder: (context) => VehicleDetailPage(vehicle: vehicle)));
       },
       child: Container(
         height: 120,
@@ -102,7 +102,7 @@ class _WishlistPageState extends State<WishlistPage> {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-             BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+             BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
           ],
         ),
         child: Row(
@@ -115,7 +115,7 @@ class _WishlistPageState extends State<WishlistPage> {
                 width: 120,
                 height: 120,
                 fit: BoxFit.cover,
-                errorBuilder: (_,__,___) => Container(width: 120, color: Colors.grey[300], child: const Icon(Icons.broken_image)),
+                errorBuilder: (context, error, stackTrace) => Container(width: 120, color: Colors.grey[300], child: const Icon(Icons.broken_image)),
               ),
             ),
             

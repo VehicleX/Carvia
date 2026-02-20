@@ -29,41 +29,138 @@ class OrderService extends ChangeNotifier {
         int newBalance = currentCredits - order.creditsUsed + order.creditsEarned;
 
         // 3. Update User Credits
-        transaction.update(userRef, {'credits': newBalance});
+        transaction.update(userRef, {'credits': newBalance, 'updatedAt': FieldValue.serverTimestamp()});
 
-        // 4. Update Vehicle Status
+        // 4. Update Vehicle Status to sold
         final vehicleRef = _firestore.collection('vehicles').doc(order.vehicleId);
         transaction.update(vehicleRef, {'status': 'sold'});
 
-        // 5. Create Order
-        final orderRef = _firestore.collection('orders').doc(); // Auto-ID
-        transaction.set(orderRef, order.toMap());
-
-        // 6. Create Notification (Optional inside transaction or after)
-        // We'll do it after to keep transaction fast and simple, 
-        // effectively handled by the fact that if this fails, we catch it.
+        // 5. Create Order with auto-ID
+        final orderRef = _firestore.collection('orders').doc();
+        transaction.set(orderRef, {
+          ...order.toMap(),
+          'orderId': orderRef.id,
+          'date': FieldValue.serverTimestamp(),
+        });
       });
 
-      // Notification (Post-Transaction)
-      // We can't inject NotificationService easily here without circular dependency or service locator,
-      // so we'll just do a direct firestore add for now or return success and let UI handle it.
-      // Better: Use a lightweight firestore add here.
-       await _firestore.collection('users').doc(order.userId).collection('notifications').add({
-            'title': 'Order Confirmed! 🎉',
-            'body': 'Your order for ${order.vehicleName} has been placed. You earned ${order.creditsEarned} credits!',
-            'type': 'order',
-            'isRead': false,
-            'createdAt': FieldValue.serverTimestamp(),
-            'data': {'orderId': order.id}, // Note: ID won't match auto-id above exactly unless we generated it first.
-                                          // For now, it's fine.
-          });
-      
+      // Post-transaction: send notification
+      await _firestore.collection('users').doc(order.userId).collection('notifications').add({
+        'title': 'Order Confirmed! 🎉',
+        'body': 'Your order for ${order.vehicleName} has been placed. You earned ${order.creditsEarned} credits!',
+        'type': 'order',
+        'isRead': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
     } catch (e) {
       debugPrint("Error creating order: $e");
       rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  /// Seller calls this when the physical vehicle has been handed to the buyer.
+  /// Atomically:
+  ///   1. Marks the order as delivered
+  ///   2. Stores the vehicle under the buyer's owned_vehicles subcollection
+  ///   3. Awards delivery credits to the buyer
+  ///   4. Sends a delivery notification
+  Future<void> deliverOrder({
+    required String orderId,
+    required String buyerId,
+    required String sellerId,
+    required String vehicleId,
+    required String vehicleName,
+    int deliveryCredits = 50,
+  }) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      // -- Fetch vehicle data first (outside transaction to keep it short) --
+      final vehicleDoc = await _firestore.collection('vehicles').doc(vehicleId).get();
+      if (!vehicleDoc.exists) throw "Vehicle not found";
+      final vehicleData = vehicleDoc.data()!;
+
+      await _firestore.runTransaction((transaction) async {
+        final orderRef = _firestore.collection('orders').doc(orderId);
+        final orderDoc = await transaction.get(orderRef);
+        if (!orderDoc.exists) throw "Order not found";
+
+        final currentStatus = orderDoc.data()!['status'] ?? '';
+        if (currentStatus == OrderStatus.delivered.toString()) {
+          throw "Order already delivered";
+        }
+
+        final userRef = _firestore.collection('users').doc(buyerId);
+        final userDoc = await transaction.get(userRef);
+        int currentCredits = userDoc.data()?['credits'] ?? 0;
+
+        // 1. Update order status
+        transaction.update(orderRef, {
+          'status': OrderStatus.delivered.toString(),
+          'deliveredAt': FieldValue.serverTimestamp(),
+          'creditsEarned': FieldValue.increment(deliveryCredits),
+        });
+
+        // 2. Add to buyer's owned_vehicles subcollection
+        final ownedRef = _firestore
+            .collection('users')
+            .doc(buyerId)
+            .collection('owned_vehicles')
+            .doc(vehicleId);
+        transaction.set(ownedRef, {
+          ...vehicleData,
+          'id': vehicleId,
+          'ownerId': buyerId,
+          'purchasedAt': FieldValue.serverTimestamp(),
+          'orderId': orderId,
+        });
+
+        // 3. Award delivery credits to buyer
+        transaction.update(userRef, {
+          'credits': currentCredits + deliveryCredits,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      });
+
+      // 4. Send delivery notification (outside transaction)
+      await _firestore
+          .collection('users')
+          .doc(buyerId)
+          .collection('notifications')
+          .add({
+        'title': '🚗 Vehicle Delivered!',
+        'body':
+            'Your $vehicleName has been delivered! You earned $deliveryCredits credits. Check My Vehicles.',
+        'type': 'delivery',
+        'isRead': false,
+        'createdAt': FieldValue.serverTimestamp(),
+        'data': {'vehicleId': vehicleId, 'orderId': orderId},
+      });
+
+      debugPrint("Order $orderId delivered. $deliveryCredits credits awarded to $buyerId.");
+    } catch (e) {
+      debugPrint("Error delivering order: $e");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Updates order status (e.g., pending → confirmed)
+  Future<void> updateOrderStatus(String orderId, OrderStatus status) async {
+    try {
+      await _firestore.collection('orders').doc(orderId).update({
+        'status': status.toString(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      debugPrint("Error updating order status: $e");
+      rethrow;
     }
   }
 

@@ -1,16 +1,24 @@
 
+import 'dart:async';
 import 'package:carvia/core/models/user_model.dart';
 import 'package:carvia/core/services/email_otp_service.dart';
 import 'package:carvia/core/services/notification_service.dart';
 import 'package:carvia/data/repositories/auth_repository.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class AuthService extends ChangeNotifier {
   final AuthRepository _authRepository = AuthRepositoryImpl();
   final EmailOtpService _emailOtpService = EmailOtpService();
-  final NotificationService _notificationService = NotificationService(); // Direct instantiation or GetIt/Provider
+  final NotificationService _notificationService = NotificationService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   UserModel? _currentUser;
   bool _isLoading = false;
+
+  // Real-time subscription to the user Firestore document
+  StreamSubscription<DocumentSnapshot>? _userDocSubscription;
 
   UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
@@ -19,12 +27,40 @@ class AuthService extends ChangeNotifier {
   AuthService() {
     _authRepository.authStateChanges.listen((user) {
       _currentUser = user;
-      // Initialize notifications if user logs in
       if (user != null) {
         _notificationService.init(user.uid);
+        // Start real-time listener so credits & profile update instantly
+        _startUserDocListener(user.uid);
+      } else {
+        _stopUserDocListener();
       }
       notifyListeners();
     });
+  }
+
+  void _startUserDocListener(String uid) {
+    _userDocSubscription?.cancel();
+    _userDocSubscription = _firestore
+        .collection('users')
+        .doc(uid)
+        .snapshots()
+        .listen((doc) {
+      if (doc.exists && doc.data() != null) {
+        _currentUser = UserModel.fromMap(doc.data()!, doc.id);
+        notifyListeners();
+      }
+    }, onError: (e) => debugPrint('User doc listener error: $e'));
+  }
+
+  void _stopUserDocListener() {
+    _userDocSubscription?.cancel();
+    _userDocSubscription = null;
+  }
+
+  @override
+  void dispose() {
+    _stopUserDocListener();
+    super.dispose();
   }
 
   // Login with Email & Password

@@ -164,7 +164,7 @@ class AppTheme {
         secondary: AppColors.secondary,
         surface: Colors.white,
         error: AppColors.error,
-        background: Color(0xFFF5F8FC),
+        // surface: Color(0xFFF5F8FC), // Duplicate removed
       ),
     );
   }

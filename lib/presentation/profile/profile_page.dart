@@ -96,7 +96,7 @@ class ProfilePage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("1,250 pts", style: GoogleFonts.outfit(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+                        Text("${user.credits} pts", style: GoogleFonts.outfit(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
                         const Icon(Iconsax.wallet_2, color: Colors.white, size: 32),
                       ],
                     ),

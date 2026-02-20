@@ -18,7 +18,7 @@ class PoliceMainWrapper extends StatefulWidget {
 
 class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
   int _selectedIndex = 0;
-  bool _isSidebarExpanded = true;
+  final bool _isSidebarExpanded = true;
 
   final List<Widget> _pages = [
     const PoliceDashboard(),

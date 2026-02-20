@@ -165,28 +165,44 @@ class VehicleService extends ChangeNotifier {
   List<VehicleModel> _userVehicles = [];
   List<VehicleModel> get userVehicles => _userVehicles;
 
+  /// Real-time stream of a buyer's owned vehicles (purchased via app)
+  Stream<List<VehicleModel>> getUserOwnedVehiclesStream(String userId) {
+    return _firestore
+        .collection('users')
+        .doc(userId)
+        .collection('owned_vehicles')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => VehicleModel.fromMap(doc.data(), doc.id))
+            .toList());
+  }
+
+  /// One-shot fetch combining owned (purchased) + external (manually added) vehicles
   Future<void> fetchUserVehicles(String userId) async {
     _isLoading = true;
     notifyListeners();
     try {
-      // 1. Fetch Purchased
-      final purchasedSnapshot = await _firestore
-          .collection('vehicles')
-          .where('sellerId', isEqualTo: userId)
+      // 1. Fetch vehicles purchased through the app (owned_vehicles subcollection)
+      final ownedSnapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('owned_vehicles')
           .get();
-      
-      final purchased = purchasedSnapshot.docs.map((doc) => VehicleModel.fromMap(doc.data(), doc.id)).toList();
+      final owned = ownedSnapshot.docs
+          .map((doc) => VehicleModel.fromMap(doc.data(), doc.id))
+          .toList();
 
-      // 2. Fetch External
+      // 2. Fetch manually added external vehicles
       final externalSnapshot = await _firestore
           .collection('users')
           .doc(userId)
           .collection('external_vehicles')
           .get();
-      
-      final externalList = externalSnapshot.docs.map((doc) => VehicleModel.fromMap(doc.data(), doc.id)).toList();
+      final externalList = externalSnapshot.docs
+          .map((doc) => VehicleModel.fromMap(doc.data(), doc.id))
+          .toList();
 
-      _userVehicles = [...purchased, ...externalList];
+      _userVehicles = [...owned, ...externalList];
     } catch (e) {
       debugPrint("Error fetching user vehicles: $e");
       _userVehicles = [];

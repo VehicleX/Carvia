@@ -78,8 +78,8 @@ class ChallanService extends ChangeNotifier {
       debugPrint("EMAIL SENT TO $ownerEmail: Your OTP is $otp");
 
       // 4. Send Notification to Owner
-      final _notificationService = NotificationService(); // In real app, inject via Provider/GetIt
-      await _notificationService.createNotification(
+      final notificationService = NotificationService(); // In real app, inject via Provider/GetIt
+      await notificationService.createNotification(
         userId: ownerId,
         title: "Access Request",
         body: "Someone requested access to view challans of $vehicleNumber.",
@@ -228,8 +228,8 @@ class ChallanService extends ChangeNotifier {
       await docRef.set(challan.toMap()); // Save to DB
 
       // Notify Owner
-      final _notificationService = NotificationService();
-      await _notificationService.createNotification(
+      final notificationService = NotificationService();
+      await notificationService.createNotification(
         userId: challan.ownerId,
         title: "E-Challan Issued 🚨",
         body: "You have been fined \$${challan.fineAmount} for ${challan.violationType}. Vehicle: ${challan.vehicleNumber}",
@@ -311,7 +311,7 @@ class ChallanService extends ChangeNotifier {
     final allChallans = await fetchAllChallans();
     
     final totalIssued = allChallans.length;
-    final totalRevenue = allChallans.where((c) => c.status == ChallanStatus.paid).fold(0.0, (sum, c) => sum + c.fineAmount);
+    final totalRevenue = allChallans.where((c) => c.status == ChallanStatus.paid).fold(0.0, (total, c) => total + c.fineAmount);
     final pending = allChallans.where((c) => c.status == ChallanStatus.unpaid).length;
     
     return {

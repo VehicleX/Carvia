@@ -47,7 +47,7 @@ class _MainWrapperState extends State<MainWrapper> {
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
         backgroundColor: isDark ? AppColors.surface : Colors.white,
-        indicatorColor: AppColors.primary.withOpacity(0.2),
+        indicatorColor: AppColors.primary.withValues(alpha:0.2),
         elevation: 10,
         destinations: const [
           NavigationDestination(

@@ -23,7 +23,6 @@ class VehicleDetailPage extends StatefulWidget {
 
 class _VehicleDetailPageState extends State<VehicleDetailPage> {
   int _currentImageIndex = 0;
-  bool _isWishlisted = false;
 
   @override
   void initState() {
@@ -102,7 +101,7 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
               if (widget.vehicle.images.isEmpty) {
                 return Container(color: Colors.grey.shade900, child: const Center(child: Icon(Icons.directions_car, size: 80, color: Colors.white54)));
               }
-              return Image.network(widget.vehicle.images[index], fit: BoxFit.cover, errorBuilder: (_,__,___) => const Icon(Icons.error));
+              return Image.network(widget.vehicle.images[index], fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.error));
             },
           ),
           Positioned(

@@ -44,7 +44,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Iconsax.notification, size: 80, color: AppColors.textMuted.withOpacity(0.5)),
+                  Icon(Iconsax.notification, size: 80, color: AppColors.textMuted.withValues(alpha:0.5)),
                   const SizedBox(height: 16),
                   Text("No notifications yet", style: GoogleFonts.outfit(fontSize: 18, color: AppColors.textMuted)),
                 ],
@@ -55,7 +55,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           return ListView.separated(
             padding: const EdgeInsets.all(20),
             itemCount: notificationService.notifications.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               final notification = notificationService.notifications[index];
               return _buildNotificationCard(notification);
@@ -123,9 +123,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: notification.isRead ? Theme.of(context).cardColor.withOpacity(0.5) : Theme.of(context).cardColor,
+          color: notification.isRead ? Theme.of(context).cardColor.withValues(alpha:0.5) : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: notification.isRead ? null : Border.all(color: iconColor.withOpacity(0.3)),
+          border: notification.isRead ? null : Border.all(color: iconColor.withValues(alpha:0.3)),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +133,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: iconColor.withOpacity(0.1),
+                color: iconColor.withValues(alpha:0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(iconData, color: iconColor, size: 24),

@@ -125,7 +125,7 @@ class _PoliceSearchVehicleState extends State<PoliceSearchVehicle> {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -208,7 +208,7 @@ class _PoliceSearchVehicleState extends State<PoliceSearchVehicle> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: isInvalid ? Colors.red.withOpacity(0.1) : Colors.green.withOpacity(0.1),
+            color: isInvalid ? Colors.red.withValues(alpha:0.1) : Colors.green.withValues(alpha:0.1),
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(status, style: TextStyle(color: isInvalid ? Colors.red : Colors.green, fontWeight: FontWeight.bold)),

@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 
 class VehicleModel {
   final String id;
@@ -14,10 +14,11 @@ class VehicleModel {
   final String status; // available, sold
   final String type; // Car, Bike, Truck, etc.
   final bool isExternal;
+  final String location;
   final Map<String, dynamic> specs;
   final int viewsCount;
   final int wishlistCount;
-  final List<Map<String, dynamic>> fullImages; // Detailed image data
+  final List<Map<String, dynamic>> fullImages;
 
   VehicleModel({
     required this.id,
@@ -33,6 +34,7 @@ class VehicleModel {
     required this.status,
     this.type = 'Car',
     this.specs = const {},
+    this.location = '',
     this.isExternal = false,
     this.viewsCount = 0,
     this.wishlistCount = 0,
@@ -54,6 +56,7 @@ class VehicleModel {
       status: map['status'] ?? 'available',
       type: map['type'] ?? 'Car',
       specs: Map<String, dynamic>.from(map['specs'] ?? {}),
+      location: map['location'] ?? '',
       isExternal: map['isExternal'] ?? false,
       viewsCount: map['viewsCount'] ?? 0,
       wishlistCount: map['wishlistCount'] ?? 0,
@@ -75,6 +78,7 @@ class VehicleModel {
       'status': status,
       'type': type,
       'specs': specs,
+      'location': location,
       'isExternal': isExternal,
       'viewsCount': viewsCount,
       'wishlistCount': wishlistCount,
@@ -95,6 +99,7 @@ class VehicleModel {
     String? sellerId,
     String? status,
     String? type,
+    String? location,
     bool? isExternal,
     Map<String, dynamic>? specs,
     int? viewsCount,
@@ -114,6 +119,7 @@ class VehicleModel {
       sellerId: sellerId ?? this.sellerId,
       status: status ?? this.status,
       type: type ?? this.type,
+      location: location ?? this.location,
       isExternal: isExternal ?? this.isExternal,
       specs: specs ?? this.specs,
       viewsCount: viewsCount ?? this.viewsCount,

@@ -49,7 +49,7 @@ class AboutCreditsPage extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Text("Your Balance", style: TextStyle(color: AppColors.primary.withOpacity(0.8), fontWeight: FontWeight.bold)),
+                    Text("Your Balance", style: TextStyle(color: AppColors.primary.withValues(alpha:0.8), fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text("$credits Credits", style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.primary)),
                   ],
@@ -85,7 +85,7 @@ class AboutCreditsPage extends StatelessWidget {
               color: AppColors.surface,
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5),
+                BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 5),
               ],
             ),
             child: Icon(icon, color: AppColors.primary),

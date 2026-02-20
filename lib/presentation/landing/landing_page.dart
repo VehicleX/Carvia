@@ -14,15 +14,14 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  final PageController _pageController = PageController();
   // int _currentPage = 0; // Removed unused
 
-  void _scrollToNext() {
-    _pageController.nextPage(
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeOutCubic,
-    );
-  }
+  // void _scrollToNext() {
+  //   _pageController.nextPage(
+  //     duration: const Duration(milliseconds: 800),
+  //     curve: Curves.easeOutCubic,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -12,7 +12,6 @@ class MapLocationPicker extends StatefulWidget {
 }
 
 class _MapLocationPickerState extends State<MapLocationPicker> {
-  GoogleMapController? _mapController;
   LatLng _currentPosition = const LatLng(37.7749, -122.4194); // Default SF
   LatLng? _selectedPosition;
   String _address = "Searching...";
@@ -93,7 +92,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
             ? const Center(child: CircularProgressIndicator())
             : GoogleMap(
                 initialCameraPosition: CameraPosition(target: _currentPosition, zoom: 14),
-                onMapCreated: (controller) => _mapController = controller,
+                onMapCreated: (controller) {},
                 onCameraMove: _onCameraMove,
                 onCameraIdle: _onCameraIdle,
                 myLocationEnabled: true,

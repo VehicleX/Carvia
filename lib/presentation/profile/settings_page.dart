@@ -15,7 +15,7 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool _pushNotifications = true;
   bool _emailNotifications = true;
-  bool _darkMode = false; // Sync with ThemeService if needed, but ThemeService handles it globally
+  // bool _darkMode = false; // Sync with ThemeService if needed, but ThemeService handles it globally
 
   @override
   void initState() {
@@ -99,7 +99,6 @@ class _SettingsPageState extends State<SettingsPage> {
     return SwitchListTile(
       value: value,
       onChanged: onChanged,
-      activeColor: AppColors.primary,
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
       contentPadding: EdgeInsets.zero,

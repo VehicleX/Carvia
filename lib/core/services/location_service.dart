@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationService extends ChangeNotifier {
   String _currentLocation = "New York, USA"; // Default
-  List<String> _recentLocations = ["New York, USA", "Los Angeles, CA", "Chicago, IL"];
+  final List<String> _recentLocations = ["New York, USA", "Los Angeles, CA", "Chicago, IL"];
 
   String get currentLocation => _currentLocation;
   List<String> get recentLocations => _recentLocations;

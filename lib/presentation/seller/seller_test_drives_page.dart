@@ -31,7 +31,7 @@ class SellerTestDrivesPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Iconsax.calendar_remove, size: 60, color: AppColors.textMuted.withOpacity(0.3)),
+                  Icon(Iconsax.calendar_remove, size: 60, color: AppColors.textMuted.withValues(alpha:0.3)),
                   const SizedBox(height: 16),
                   const Text("No pending test drives", style: TextStyle(color: AppColors.textMuted)),
                 ],
@@ -43,7 +43,7 @@ class SellerTestDrivesPage extends StatelessWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: requests.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 16),
+            separatorBuilder: (context, index) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               return _buildRequestCard(context, requests[index]);
             },
@@ -70,7 +70,7 @@ class SellerTestDrivesPage extends StatelessWidget {
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -89,7 +89,7 @@ class SellerTestDrivesPage extends StatelessWidget {
               const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(color: statusColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: statusColor.withValues(alpha:0.1), borderRadius: BorderRadius.circular(8)),
                 child: Text(request.status.toUpperCase(), style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 10)),
               ),
             ],

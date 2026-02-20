@@ -5,9 +5,11 @@ import 'package:carvia/presentation/auth/login_page.dart';
 import 'package:carvia/presentation/seller/seller_dashboard.dart';
 import 'package:carvia/presentation/seller/manage_listings_page.dart';
 import 'package:carvia/presentation/seller/add_vehicle_page.dart';
+import 'package:carvia/presentation/seller/seller_orders_page.dart';
 import 'package:carvia/presentation/seller/seller_test_drives_page.dart';
 import 'package:carvia/presentation/seller/seller_analytics_page.dart';
 import 'package:carvia/presentation/seller/seller_profile_page.dart';
+
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
@@ -27,10 +29,12 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
     const SizedBox(), // Placeholder, will be initialized in initState
     const ManageListingsPage(),
     const AddVehiclePage(),
+    const SellerOrdersPage(),
     const SellerTestDrivesPage(),
     const SellerAnalyticsPage(),
     const SellerProfilePage(),
   ];
+
 
   @override
   void initState() {
@@ -48,18 +52,20 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
     final authService = Provider.of<AuthService>(context);
 
     // Sidebar Items
-    final List<Map<String, dynamic>> _menuItems = [
+    final List<Map<String, dynamic>> menuItems = [
       {'icon': Iconsax.home, 'title': 'Dashboard'},
       {'icon': Iconsax.car, 'title': 'Inventory'},
       {'icon': Iconsax.add_circle, 'title': 'Add Vehicle'},
+      {'icon': Iconsax.box, 'title': 'Orders'},
       {'icon': Iconsax.calendar, 'title': 'Test Drives'},
       {'icon': Iconsax.chart_2, 'title': 'Analytics'},
       {'icon': Iconsax.user, 'title': 'Profile'},
     ];
 
+
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
         
         if (_scaffoldKey.currentState?.isDrawerOpen ?? false) {
@@ -92,7 +98,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
       child: Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(_menuItems[_currentIndex]['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(menuItems[_currentIndex]['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: const Icon(Iconsax.menu_1),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
@@ -133,7 +139,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
               accountName: Text(authService.currentUser?.name ?? "Seller", style: const TextStyle(fontWeight: FontWeight.bold)),
               accountEmail: Text(authService.currentUser?.email ?? ""),
             ),
-             ..._menuItems.asMap().entries.map((entry) {
+             ...menuItems.asMap().entries.map((entry) {
               final idx = entry.key;
               final item = entry.value;
               final isSelected = _currentIndex == idx;
@@ -144,13 +150,13 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 )),
                 selected: isSelected,
-                selectedTileColor: AppColors.primary.withOpacity(0.1),
+                selectedTileColor: AppColors.primary.withValues(alpha:0.1),
                 onTap: () {
                   setState(() => _currentIndex = idx);
                   Navigator.pop(context);
                 },
               );
-            }).toList(),
+            }),
             const Divider(),
             ListTile(
               leading: const Icon(Iconsax.logout, color: AppColors.error),
