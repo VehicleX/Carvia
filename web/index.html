@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="carvia">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
+
+  <!-- Google Sign-In Client ID for Web -->
+  <meta name="google-signin-client_id"
+    content="90676120528-2o23gpsvk6ssnovv61ut2c57kukj2215.apps.googleusercontent.com">
+
+  <!-- Google Identity Services (GIS) for modern OAuth -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Google Maps JavaScript API (required for google_maps_flutter on Web) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDH8BkWGHia-ozRuYO2glqCb0JJCQsAghw"></script>
+
+  <!-- Suppress Google Sign-In console logs -->
+  <script>
+    // Override console methods to filter out GSI_LOGGER messages
+    (function () {
+      const originalLog = console.log;
+      const originalWarn = console.warn;
+      const originalInfo = console.info;
+
+      console.log = function () {
+        if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('GSI_LOGGER')) {
+          return;
+        }
+        originalLog.apply(console, arguments);
+      };
+
+      console.warn = function () {
+        if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('GSI_LOGGER')) {
+          return;
+        }
+        originalWarn.apply(console, arguments);
+      };
+
+      console.info = function () {
+        if (arguments[0] && typeof arguments[0] === 'string' && arguments[0].includes('GSI_LOGGER')) {
+          return;
+        }
+        originalInfo.apply(console, arguments);
+      };
+    })();
+  </script>
+
+  <title>carvia</title>
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <!-- reCAPTCHA container for phone authentication -->
+  <div id="recaptcha-container"></div>
+
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+
+</html>

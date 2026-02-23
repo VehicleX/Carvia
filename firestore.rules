@@ -1,0 +1,47 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ========================================
+    // AUTHENTICATION RULES (users collection)
+    // ========================================
+    match /users/{userId} {
+      // Anyone authenticated can read any user profile
+      allow read: if request.auth != null;
+      
+      // Users can create their own profile (during registration/Google login)
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Users can update their own profile
+      allow update: if request.auth != null && request.auth.uid == userId;
+      
+      // Cannot delete user documents
+      allow delete: if false;
+    }
+    
+    // ========================================
+    // EMAIL OTP COLLECTION (temporary storage)
+    // ========================================
+    match /email_otps/{email} {
+      // Allow anyone to create OTP (for registration)
+      allow create: if true;
+      
+      // Allow anyone to read OTP (for verification)
+      allow read: if true;
+      
+      // Allow update for resending
+      allow update: if true;
+      
+      // Allow delete after verification
+      allow delete: if true;
+    }
+    
+    // ========================================
+    // OTHER COLLECTIONS (Add rules as you build features)
+    // ========================================
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

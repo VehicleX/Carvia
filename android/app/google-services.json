@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "90676120528",
+    "project_id": "carvia-88040",
+    "storage_bucket": "carvia-88040.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90676120528:android:49cf24ea42c8970f3a87d5",
+        "android_client_info": {
+          "package_name": "com.example.carvia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "90676120528-2o23gpsvk6ssnovv61ut2c57kukj2215.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyABQo5MpCfx3XkET2MDYdZ_pS2-JQj6u-0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "90676120528-2o23gpsvk6ssnovv61ut2c57kukj2215.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "90676120528-5ql0uo2pacrsmb6p9d4ds7o9rb2e8849.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.carvia"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
