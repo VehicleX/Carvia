@@ -1,6 +1,7 @@
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:carvia/core/models/vehicle_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
@@ -71,12 +72,21 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       _selectedColor = vehicle.specs['color']?.toString() ?? 'White';
       _uploadedImageUrls.addAll(vehicle.images);
     } else {
-      final user = Provider.of<AuthService>(context, listen: false).currentUser;
-      if (user != null) {
-        final businessAddress = user.sellerDetails['businessAddress'] as String?;
-        final personalAddress = user.address['city'] as String?;
-        _locationController.text = businessAddress ?? personalAddress ?? '';
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final user = Provider.of<AuthService>(context, listen: false).currentUser;
+        if (user != null && _locationController.text.isEmpty) {
+          final businessAddress = user.sellerDetails['businessAddress']?.toString().trim();
+          final city = user.address['city']?.toString().trim();
+          final street = user.address['street']?.toString().trim();
+          final state = user.address['state']?.toString().trim();
+          _locationController.text =
+              (businessAddress?.isNotEmpty == true ? businessAddress! : null) ??
+              (city?.isNotEmpty == true ? city! : null) ??
+              (street?.isNotEmpty == true ? street! : null) ??
+              (state?.isNotEmpty == true ? state! : null) ??
+              '';
+        }
+      });
     }
   }
 
@@ -176,6 +186,9 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   // ── Base64 Conversion (stored directly in Firestore) ─────────────────────
 
   Future<List<String>> _uploadPendingFiles() async {
+    const cloudName = 'dxo7rced3';
+    const uploadPreset = 'Carvia';
+    final uri = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
     final urls = <String>[];
 
     for (int i = 0; i < _pendingFiles.length; i++) {
@@ -183,10 +196,19 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           ? _pendingBytesCache[i]
           : await _pendingFiles[i].readAsBytes();
 
-      final base64String = base64Encode(bytes);
-      final dataUrl = 'data:image/jpeg;base64,$base64String';
-      urls.add(dataUrl);
-      debugPrint('Image ${i + 1} converted to base64 (${(bytes.length / 1024).toStringAsFixed(1)} KB)');
+      final request = http.MultipartRequest('POST', uri)
+        ..fields['upload_preset'] = uploadPreset
+        ..files.add(http.MultipartFile.fromBytes('file', bytes, filename: 'vehicle_$i.jpg'));
+
+      final response = await request.send();
+      final body = jsonDecode(await response.stream.bytesToString());
+
+      if (response.statusCode == 200) {
+        urls.add(body['secure_url'] as String);
+        debugPrint('Image ${i + 1} uploaded to Cloudinary: ${body['secure_url']}');
+      } else {
+        throw Exception('Cloudinary upload failed: ${body['error']?['message'] ?? response.statusCode}');
+      }
     }
 
     return urls;
@@ -335,7 +357,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
             ],
           ),
           const SizedBox(height: 16),
-          _field(_locationController, "Location", Iconsax.location),
+          _field(_locationController, "Location (shown to buyers for test drives)", Iconsax.location),
           const SizedBox(height: 16),
           _field(_licensePlateController, "License Plate (optional)", Iconsax.receipt,
               required: false),

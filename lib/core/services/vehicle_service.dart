@@ -242,6 +242,24 @@ class VehicleService extends ChangeNotifier {
 
   // --- Seller Methods ---
 
+  /// Removes base64 image blobs from all vehicle documents to speed up fetching.
+  /// Call this once from the seller page or a settings page.
+  Future<void> purgeBase64Images() async {
+    final snap = await _firestore.collection('vehicles').get();
+    final batch = _firestore.batch();
+    for (final doc in snap.docs) {
+      final images = List<String>.from(doc.data()['images'] ?? []);
+      final fullImages = List<dynamic>.from(doc.data()['fullImages'] ?? []);
+      final cleanImages = images.where((img) => !img.startsWith('data:image')).toList();
+      final cleanFull = fullImages.where((img) => !((img['url'] ?? '').toString().startsWith('data:image'))).toList();
+      if (cleanImages.length != images.length || cleanFull.length != fullImages.length) {
+        batch.update(doc.reference, {'images': cleanImages, 'fullImages': cleanFull});
+      }
+    }
+    await batch.commit();
+    debugPrint('Base64 purge complete');
+  }
+
   Future<void> addVehicle(VehicleModel vehicle) async {
     _isLoading = true;
     notifyListeners();
@@ -269,6 +287,7 @@ class VehicleService extends ChangeNotifier {
         status: vehicle.status,
         type: vehicle.type,
         specs: vehicle.specs,
+        location: vehicle.location,
         isExternal: vehicle.isExternal,
         viewsCount: vehicle.viewsCount,
         wishlistCount: vehicle.wishlistCount,

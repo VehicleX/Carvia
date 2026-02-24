@@ -51,7 +51,9 @@ class VehicleModel {
       transmission: map['transmission'] ?? 'Automatic',
       price: (map['price'] ?? 0).toDouble(),
       mileage: map['mileage'] ?? 0,
-      images: List<String>.from(map['images'] ?? []),
+      images: List<String>.from(map['images'] ?? [])
+          .where((img) => !img.startsWith('data:image'))  // strip base64 blobs
+          .toList(),
       sellerId: map['sellerId'] ?? '',
       status: map['status'] ?? 'available',
       type: map['type'] ?? 'Car',
