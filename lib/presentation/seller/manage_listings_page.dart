@@ -2,6 +2,7 @@ import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:carvia/presentation/seller/add_vehicle_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -155,7 +156,7 @@ class _ListingsTabState extends State<_ListingsTab> {
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                 child: vehicle.images.isNotEmpty
-                    ? Image.network(vehicle.images.first, height: 180, width: double.infinity, fit: BoxFit.cover)
+                    ? VehicleImage(src: vehicle.images.first, height: 180, width: double.infinity)
                     : Container(height: 180, color: Colors.grey[800], child: const Icon(Icons.directions_car, color: Colors.white, size: 50)),
               ),
               Positioned(

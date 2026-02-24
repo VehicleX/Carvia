@@ -2,6 +2,7 @@ import 'package:carvia/core/models/test_drive_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,6 +18,17 @@ class TestDrivesPage extends StatefulWidget {
 }
 
 class _TestDrivesPageState extends State<TestDrivesPage> {
+  final Map<String, String> _locationCache = {};
+
+  Future<String> _resolveLocation(TestDriveModel booking) async {
+    if (booking.sellerLocation.trim().isNotEmpty) return booking.sellerLocation;
+    if (_locationCache.containsKey(booking.vehicleId)) return _locationCache[booking.vehicleId]!;
+    final vehicle = await Provider.of<VehicleService>(context, listen: false).getVehicleById(booking.vehicleId);
+    final loc = vehicle?.location ?? '';
+    _locationCache[booking.vehicleId] = loc;
+    return loc;
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
@@ -89,7 +101,7 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: booking.vehicleImage.isNotEmpty
-              ? Image.network(booking.vehicleImage, width: 70, height: 70, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey, width: 70, height: 70))
+              ? VehicleImage(src: booking.vehicleImage, width: 70, height: 70)
               : Container(color: Colors.grey, width: 70, height: 70, child: const Icon(Icons.directions_car)),
           ),
           const SizedBox(width: 16),
@@ -112,6 +124,30 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
                       ),
                     ),
                   ],
+                ),
+                FutureBuilder<String>(
+                  future: _resolveLocation(booking),
+                  builder: (context, snap) {
+                    final loc = snap.data ?? '';
+                    if (loc.trim().isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Row(
+                        children: [
+                          const Icon(Iconsax.location, size: 14, color: AppColors.textMuted),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              loc,
+                              style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
                 Container(

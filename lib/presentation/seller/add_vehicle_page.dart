@@ -1,9 +1,10 @@
-import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
@@ -32,6 +33,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   final _descriptionController = TextEditingController();
   final _locationController = TextEditingController();
   final _licensePlateController = TextEditingController();
+  final _engineCcController = TextEditingController();
 
   String _selectedType = 'Car';
   String _selectedFuel = 'Petrol';
@@ -40,7 +42,8 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
 
   // Images: keeps both File (for new picks) and URL (already uploaded / existing)
   final List<String> _uploadedImageUrls = [];   // existing URLs (edit mode / uploaded)
-  final List<File> _pendingFiles = [];           // newly picked, not yet uploaded
+  final List<XFile> _pendingFiles = [];           // newly picked, not yet uploaded
+  final List<Uint8List> _pendingBytesCache = [];  // bytes for web-safe preview
   bool _isUploading = false;
   bool _isSubmitLoading = false;
 
@@ -61,6 +64,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       _descriptionController.text = vehicle.specs['description']?.toString() ?? '';
       _locationController.text = vehicle.location;
       _licensePlateController.text = vehicle.specs['licensePlate']?.toString() ?? '';
+      _engineCcController.text = vehicle.specs['engineCc']?.toString() ?? '';
       _selectedType = vehicle.type;
       _selectedFuel = vehicle.fuel;
       _selectedTransmission = vehicle.transmission;
@@ -86,6 +90,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     _descriptionController.dispose();
     _locationController.dispose();
     _licensePlateController.dispose();
+    _engineCcController.dispose();
     super.dispose();
   }
 
@@ -96,12 +101,20 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       if (source == ImageSource.gallery) {
         final List<XFile> picked = await _picker.pickMultiImage(imageQuality: 80);
         if (picked.isNotEmpty) {
-          setState(() => _pendingFiles.addAll(picked.map((x) => File(x.path))));
+          final List<Uint8List> bytesList = await Future.wait(picked.map((x) => x.readAsBytes()));
+          setState(() {
+            _pendingFiles.addAll(picked);
+            _pendingBytesCache.addAll(bytesList);
+          });
         }
       } else {
         final XFile? picked = await _picker.pickImage(source: source, imageQuality: 80);
         if (picked != null) {
-          setState(() => _pendingFiles.add(File(picked.path)));
+          final bytes = await picked.readAsBytes();
+          setState(() {
+            _pendingFiles.add(picked);
+            _pendingBytesCache.add(bytes);
+          });
         }
       }
     } catch (e) {
@@ -160,16 +173,22 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     );
   }
 
-  // ── Firebase Storage Upload ───────────────────────────────────────────────
+  // ── Base64 Conversion (stored directly in Firestore) ─────────────────────
 
   Future<List<String>> _uploadPendingFiles() async {
     final urls = <String>[];
-    for (final file in _pendingFiles) {
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
-      final ref = FirebaseStorage.instance.ref('vehicle_images/$fileName');
-      await ref.putFile(file);
-      urls.add(await ref.getDownloadURL());
+
+    for (int i = 0; i < _pendingFiles.length; i++) {
+      final bytes = i < _pendingBytesCache.length
+          ? _pendingBytesCache[i]
+          : await _pendingFiles[i].readAsBytes();
+
+      final base64String = base64Encode(bytes);
+      final dataUrl = 'data:image/jpeg;base64,$base64String';
+      urls.add(dataUrl);
+      debugPrint('Image ${i + 1} converted to base64 (${(bytes.length / 1024).toStringAsFixed(1)} KB)');
     }
+
     return urls;
   }
 
@@ -328,25 +347,64 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
   // ── Step 2: Specs ─────────────────────────────────────────────────────────
 
   Widget _buildSpecsStep() {
+    // Determine if the selected type is a bike
+    final isBike = _selectedType.toLowerCase() == 'bike';
+    
+    // Fuel options based on vehicle type
+    final fuelOptions = isBike 
+        ? ["Petrol", "Electric"] 
+        : ["Petrol", "Diesel", "Electric", "Hybrid"];
+    
+    // Ensure selected fuel is valid for current type
+    if (!fuelOptions.contains(_selectedFuel)) {
+      _selectedFuel = fuelOptions.first;
+    }
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Engine CC (only for bikes)
+        if (isBike) ...[
+          _sectionLabel("Engine Capacity"),
+          const SizedBox(height: 8),
+          TextFormField(
+            controller: _engineCcController,
+            keyboardType: TextInputType.number,
+            decoration: _dec("Engine (cc)", Iconsax.cpu),
+            validator: (val) => val!.isEmpty ? "Required" : null,
+          ),
+          const SizedBox(height: 16),
+        ],
+        
         _sectionLabel("Fuel Type"),
         const SizedBox(height: 8),
         _ChipSelector(
-          options: const ["Petrol", "Diesel", "Electric", "Hybrid", "CNG"],
+          options: fuelOptions,
           selected: _selectedFuel,
           onChanged: (v) => setState(() => _selectedFuel = v),
         ),
         const SizedBox(height: 16),
-        _sectionLabel("Transmission"),
-        const SizedBox(height: 8),
-        _ChipSelector(
-          options: const ["Automatic", "Manual", "CVT"],
-          selected: _selectedTransmission,
-          onChanged: (v) => setState(() => _selectedTransmission = v),
+        
+        // Transmission (only for cars)
+        if (!isBike) ...[
+          _sectionLabel("Transmission"),
+          const SizedBox(height: 8),
+          _ChipSelector(
+            options: const ["Automatic", "Manual"],
+            selected: _selectedTransmission,
+            onChanged: (v) => setState(() => _selectedTransmission = v),
+          ),
+          const SizedBox(height: 16),
+        ],
+        
+        TextFormField(
+          controller: _mileageController,
+          keyboardType: TextInputType.number,
+          decoration: _dec("Mileage (km)", Iconsax.speedometer),
+          validator: (val) => val!.isEmpty ? "Required" : null,
         ),
         const SizedBox(height: 16),
+        
         _sectionLabel("Color"),
         const SizedBox(height: 8),
         _ChipSelector(
@@ -355,12 +413,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           onChanged: (v) => setState(() => _selectedColor = v),
         ),
         const SizedBox(height: 16),
-        TextFormField(
-          controller: _mileageController,
-          keyboardType: TextInputType.number,
-          decoration: _dec("Mileage (km)", Iconsax.speedometer),
-        ),
-        const SizedBox(height: 16),
+        
         TextFormField(
           controller: _descriptionController,
           maxLines: 4,
@@ -444,18 +497,19 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
                 // Already uploaded URLs
                 ..._uploadedImageUrls.asMap().entries.map((e) => _imageThumb(
                       onRemove: () => setState(() => _uploadedImageUrls.removeAt(e.key)),
-                      child: Image.network(e.value,
-                          width: 110, height: 110, fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                              const Icon(Iconsax.car, color: AppColors.textMuted)),
-
+                      child: VehicleImage(src: e.value, width: 110, height: 110),
                     )),
                 // Pending local files
                 ..._pendingFiles.asMap().entries.map((e) => _imageThumb(
                       isNew: true,
-                      onRemove: () => setState(() => _pendingFiles.removeAt(e.key)),
-                      child: Image.file(e.value,
-                          width: 110, height: 110, fit: BoxFit.cover),
+                      onRemove: () => setState(() {
+                        _pendingFiles.removeAt(e.key);
+                        if (e.key < _pendingBytesCache.length) _pendingBytesCache.removeAt(e.key);
+                      }),
+                      child: e.key < _pendingBytesCache.length
+                          ? Image.memory(_pendingBytesCache[e.key],
+                              width: 110, height: 110, fit: BoxFit.cover)
+                          : Container(width: 110, height: 110, color: Colors.grey),
                     )),
               ],
             ),
@@ -465,6 +519,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         if (_isUploading) ...[
           const SizedBox(height: 16),
           const Row(
+
             children: [
               SizedBox(
                   width: 16,
@@ -585,7 +640,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         model: _modelController.text.trim(),
         year: int.tryParse(_yearController.text) ?? DateTime.now().year,
         fuel: _selectedFuel,
-        transmission: _selectedTransmission,
+        transmission: _selectedType.toLowerCase() == 'bike' ? 'Manual' : _selectedTransmission,
         price: double.tryParse(_priceController.text) ?? 0,
         mileage: int.tryParse(_mileageController.text) ?? 0,
         images: allUrls,
@@ -600,6 +655,8 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           'sellerName': user.name,
           'sellerPhone': user.phone,
           'sellerEmail': user.email,
+          if (_selectedType.toLowerCase() == 'bike' && _engineCcController.text.isNotEmpty)
+            'engineCc': int.tryParse(_engineCcController.text) ?? 0,
         },
         viewsCount: widget.vehicle?.viewsCount ?? 0,
         wishlistCount: widget.vehicle?.wishlistCount ?? 0,

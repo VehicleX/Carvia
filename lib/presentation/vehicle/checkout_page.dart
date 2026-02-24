@@ -3,6 +3,7 @@ import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/order_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
@@ -84,13 +85,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: Image.network(
-              widget.vehicle.images.isNotEmpty ? widget.vehicle.images.first : "",
-              width: 100,
-              height: 70,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(width: 100, height: 70, color: Colors.grey),
-            ),
+            child: VehicleImage(
+            src: widget.vehicle.images.isNotEmpty ? widget.vehicle.images.first : "",
+            width: 100,
+            height: 70,
+          ),
           ),
           const SizedBox(width: 16),
           Expanded(

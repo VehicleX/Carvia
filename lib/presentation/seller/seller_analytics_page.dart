@@ -2,6 +2,7 @@ import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -387,14 +388,7 @@ class _TopVehicleRow extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: vehicle.images.isNotEmpty
-                ? Image.network(vehicle.images.first,
-                    width: 56, height: 40, fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(
-
-                        width: 56,
-                        height: 40,
-                        color: AppColors.surface,
-                        child: const Icon(Iconsax.car, size: 20)))
+                ? VehicleImage(src: vehicle.images.first, width: 56, height: 40)
                 : Container(
                     width: 56,
                     height: 40,

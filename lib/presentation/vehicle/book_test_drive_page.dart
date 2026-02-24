@@ -3,6 +3,7 @@ import 'package:carvia/core/models/test_drive_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
@@ -21,6 +22,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
   bool _isLoading = false;
+
 
   @override
   Widget build(BuildContext context) {
@@ -82,7 +84,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: widget.vehicle.images.isNotEmpty
-                ? Image.network(widget.vehicle.images.first, width: 80, height: 80, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey, width: 80, height: 80))
+                ? VehicleImage(src: widget.vehicle.images.first, width: 80, height: 80)
                 : Container(width: 80, height: 80, color: Colors.grey),
           ),
           const SizedBox(width: 16),
@@ -200,6 +202,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
         scheduledTime: scheduledDateTime,
         status: 'pending',
         createdAt: DateTime.now(),
+        sellerLocation: widget.vehicle.location,
       );
 
       await Provider.of<VehicleService>(context, listen: false).bookTestDrive(booking);

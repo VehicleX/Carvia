@@ -1,6 +1,7 @@
 import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:carvia/presentation/vehicle/vehicle_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -65,7 +66,7 @@ class VehicleListPage extends StatelessWidget {
                   child: AspectRatio(
                     aspectRatio: 16/9,
                     child: vehicle.images.isNotEmpty
-                      ? Image.network(vehicle.images.first, fit: BoxFit.cover)
+                      ? VehicleImage(src: vehicle.images.first, fit: BoxFit.cover)
                       : Container(color: Colors.grey[300], child: const Icon(Icons.car_repair, size: 50)),
                   ),
                 ),

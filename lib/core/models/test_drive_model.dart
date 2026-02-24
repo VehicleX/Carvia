@@ -12,6 +12,7 @@ class TestDriveModel {
   final DateTime scheduledTime;
   final String status; // 'pending', 'confirmed', 'completed', 'cancelled'
   final DateTime createdAt;
+  final String sellerLocation; // The seller's pickup / meetup location
 
   TestDriveModel({
     required this.id,
@@ -25,6 +26,7 @@ class TestDriveModel {
     required this.scheduledTime,
     required this.status,
     required this.createdAt,
+    this.sellerLocation = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -39,7 +41,7 @@ class TestDriveModel {
       'scheduledTime': Timestamp.fromDate(scheduledTime),
       'status': status,
       'createdAt': Timestamp.fromDate(createdAt),
-      // 'id' is checking document ID, so typically not stored in the map unless needed
+      'sellerLocation': sellerLocation,
     };
   }
 
@@ -56,6 +58,7 @@ class TestDriveModel {
       scheduledTime: (map['scheduledTime'] as Timestamp?)?.toDate() ?? DateTime.now(),
       status: map['status'] ?? 'pending',
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      sellerLocation: map['sellerLocation'] ?? '',
     );
   }
 }

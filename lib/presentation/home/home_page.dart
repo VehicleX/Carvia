@@ -1,6 +1,7 @@
 import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:carvia/presentation/vehicle/vehicle_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -337,16 +338,10 @@ class _HomePageState extends State<HomePage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: vehicle.images.isNotEmpty
-                  ? Image.network(
-                      vehicle.images.first,
+                  ? VehicleImage(
+                      src: vehicle.images.first,
                       width: double.infinity,
                       height: double.infinity,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) => Container(
-                        color: Colors.grey,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.error, color: Colors.white),
-                      ),
                     )
                   : Container(
                       color: Colors.grey,
@@ -460,7 +455,7 @@ class _HomePageState extends State<HomePage> {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: vehicle.images.isNotEmpty 
-                  ? Image.network(vehicle.images.first, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.error))
+                  ? VehicleImage(src: vehicle.images.first, fit: BoxFit.cover)
                   : const Icon(Icons.electric_car, color: Colors.white),
             ),
             const SizedBox(width: 16),

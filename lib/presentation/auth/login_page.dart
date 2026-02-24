@@ -18,10 +18,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  int _selectedRoleIndex = 0;
-  final List<String> _roleNames = ["User", "Seller", "Police"];
-  // final List<UserRole> _roles = [UserRole.buyer, UserRole.seller, UserRole.police]; // Unused
-  
   bool _obscurePassword = true;
   bool _isLoading = false;
   final _emailController = TextEditingController();
@@ -175,11 +171,6 @@ class _LoginPageState extends State<LoginPage> {
                       color: AppColors.textSecondary,
                     ),
                   ).animate().fadeIn(delay: 200.ms),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // Role Toggle
-                  _buildRoleToggle(),
                   
                   const SizedBox(height: 32),
                   
@@ -348,77 +339,4 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _buildRoleToggle() {
-    return Container(
-      height: 50,
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(25),
-        border: Border.all(color: AppColors.surface.withValues(alpha: 0.5)),
-      ),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          double width = constraints.maxWidth / 3;
-          return Stack(
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutBack,
-                left: _selectedRoleIndex * width,
-                top: 0,
-                bottom: 0,
-                child: Container(
-                  width: width,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(21),
-                    gradient: LinearGradient(
-                      colors: [AppColors.primary, AppColors.secondary],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.4),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                children: List.generate(_roleNames.length, (index) {
-                  bool isSelected = _selectedRoleIndex == index;
-                  return Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedRoleIndex = index;
-                        });
-                      },
-                      child: Container(
-                        alignment: Alignment.center,
-                        color: Colors.transparent, // Hit test
-                        child: AnimatedDefaultTextStyle(
-                          duration: const Duration(milliseconds: 200),
-                          style: GoogleFonts.outfit(
-                            color: isSelected ? AppColors.background : AppColors.textSecondary,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                            fontSize: 14,
-                          ),
-                          child: Text(_roleNames[index]),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
 }

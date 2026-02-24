@@ -11,18 +11,30 @@ class PoliceDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Officer Dashboard", style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold))
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Officer Dashboard", 
+                style: GoogleFonts.outfit(
+                  fontSize: 32, 
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
+                ))
                 .animate().fadeIn().slideX(begin: -0.2),
-            const SizedBox(height: 8),
-            Text("Station ID: #KOR-99 • Officer Rank: Inspector", style: GoogleFonts.outfit(color: AppColors.textMuted))
+              const SizedBox(height: 6),
+              Text("Station ID: #KOR-99 • Officer Rank: Inspector", 
+                style: GoogleFonts.outfit(
+                  color: AppColors.textMuted,
+                  fontSize: 14,
+                ))
                 .animate().fadeIn(delay: 200.ms),
-            const SizedBox(height: 30),
+              const SizedBox(height: 28),
             
             FutureBuilder<Map<String, dynamic>>(
               future: Provider.of<ChallanService>(context, listen: false).fetchDashboardStats(),
@@ -55,6 +67,7 @@ class PoliceDashboard extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 

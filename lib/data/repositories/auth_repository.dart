@@ -139,12 +139,9 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserModel?> loginWithGoogle() async {
     try {
-      // Try silent sign-in first (recommended for web, works on all platforms)
-      GoogleSignInAccount? googleUser = await _googleSignIn.signInSilently();
-      
-      // If silent sign-in returns null, fall back to interactive sign-in
-      // On web, this may trigger a popup (which is now deprecated but still works as fallback)
-      googleUser ??= await _googleSignIn.signIn();
+      // Always show the Google account picker
+      await _googleSignIn.signOut(); // clear any previously cached account
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       
       if (googleUser == null) return null; // Cancelled
 

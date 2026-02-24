@@ -1,6 +1,7 @@
 import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/compare_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -95,13 +96,11 @@ class ComparePage extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  vehicle.images.isNotEmpty ? vehicle.images.first : "",
-                  height: 120,
-                  width: 160,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(height: 120, color: Colors.grey, child: const Icon(Icons.directions_car)),
-                ),
+                child: VehicleImage(
+                src: vehicle.images.isNotEmpty ? vehicle.images.first : "",
+                height: 120,
+                width: 160,
+              ),
               ),
               Positioned(
                 top: 4,

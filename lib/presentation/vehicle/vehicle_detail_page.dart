@@ -1,5 +1,6 @@
 import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -11,6 +12,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
+import 'package:carvia/presentation/vehicle/chat_page.dart';
 
 class VehicleDetailPage extends StatefulWidget {
   final VehicleModel vehicle;
@@ -101,7 +103,7 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
               if (widget.vehicle.images.isEmpty) {
                 return Container(color: Colors.grey.shade900, child: const Center(child: Icon(Icons.directions_car, size: 80, color: Colors.white54)));
               }
-              return Image.network(widget.vehicle.images[index], fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => const Icon(Icons.error));
+              return VehicleImage(src: widget.vehicle.images[index], fit: BoxFit.cover);
             },
           ),
           Positioned(
@@ -372,9 +374,58 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                   ],
                 ),
               ),
-              IconButton(onPressed: () {}, icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.message, size: 20))),
+              IconButton(
+                onPressed: () {
+                  final user = Provider.of<AuthService>(context, listen: false).currentUser;
+                  if (user == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please login to chat')));
+                    return;
+                  }
+                  if (user.uid == widget.vehicle.sellerId) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This is your own listing')));
+                    return;
+                  }
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(
+                    currentUserId: user.uid,
+                    currentUserName: user.name,
+                    otherUserId: widget.vehicle.sellerId,
+                    otherUserName: sellerName,
+                    vehicleId: widget.vehicle.id,
+                    vehicleName: '${widget.vehicle.brand} ${widget.vehicle.model}',
+                  )));
+                },
+                icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.message, size: 20)),
+              ),
               const SizedBox(width: 8),
-              IconButton(onPressed: () {}, icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.call, size: 20))),
+              IconButton(
+                onPressed: () {
+                  final number = sellerPhone.isNotEmpty ? sellerPhone : 'Not available';
+                  showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      title: Row(
+                        children: const [
+                          Icon(Iconsax.call, color: AppColors.primary, size: 20),
+                          SizedBox(width: 8),
+                          Text('Seller Contact'),
+                        ],
+                      ),
+                      content: Text(
+                        number,
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.call, size: 20)),
+              ),
             ],
           ),
         );

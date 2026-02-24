@@ -3,6 +3,7 @@ import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 import 'package:carvia/presentation/vehicle/vehicle_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -110,13 +111,11 @@ class _WishlistPageState extends State<WishlistPage> {
             // Image
             ClipRRect(
               borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
-              child: Image.network(
-                vehicle.images.first,
-                width: 120,
-                height: 120,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(width: 120, color: Colors.grey[300], child: const Icon(Icons.broken_image)),
-              ),
+              child: VehicleImage(
+              src: vehicle.images.first,
+              width: 120,
+              height: 120,
+            ),
             ),
             
             Expanded(

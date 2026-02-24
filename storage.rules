@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // ========================================
+    // VEHICLE IMAGES
+    // ========================================
+    match /vehicle_images/{fileName} {
+      // Allow authenticated users to upload vehicle images
+      allow create: if request.auth != null
+                    && request.resource.size < 10 * 1024 * 1024  // Max 10MB
+                    && request.resource.contentType.matches('image/.*');
+      
+      // Anyone can read vehicle images (for public viewing)
+      allow read: if true;
+      
+      // Only allow update/delete by the user who uploaded (if you track userId in metadata)
+      allow update, delete: if request.auth != null;
+    }
+    
+    // ========================================
+    // PROFILE IMAGES
+    // ========================================
+    match /profile_images/{userId}/{fileName} {
+      // Users can upload their own profile images
+      allow create, update: if request.auth != null 
+                            && request.auth.uid == userId
+                            && request.resource.size < 5 * 1024 * 1024  // Max 5MB
+                            && request.resource.contentType.matches('image/.*');
+      
+      // Anyone can read profile images
+      allow read: if true;
+      
+      // Users can delete their own profile images
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // ========================================
+    // DEFAULT RULE: Deny all other access
+    // ========================================
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
