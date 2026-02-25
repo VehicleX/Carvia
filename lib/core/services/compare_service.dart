@@ -21,6 +21,15 @@ class CompareService extends ChangeNotifier {
     notifyListeners();
   }
 
+  void addToCompare(VehicleModel vehicle) {
+    if (!_compareList.any((v) => v.id == vehicle.id)) {
+      if (_compareList.length < 3) {
+        _compareList.add(vehicle);
+        notifyListeners();
+      }
+    }
+  }
+
   bool isInCompare(String vehicleId) {
     return _compareList.any((v) => v.id == vehicleId);
   }

@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/presentation/vehicle/chat_page.dart';
+import 'package:carvia/core/services/ai_service.dart';
 
 class VehicleDetailPage extends StatefulWidget {
   final VehicleModel vehicle;
@@ -295,9 +296,72 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
               ],
             ),
           ),
-          TextButton(onPressed: () {}, child: const Text("DETAILS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2))),
+          TextButton(onPressed: _showAIAnalysis, child: const Text("DETAILS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2))),
         ],
       ),
+    );
+  }
+
+  void _showAIAnalysis() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: AppColors.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Iconsax.magic_star, color: Colors.white, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text("AI Analysis", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              FutureBuilder<String>(
+                future: Provider.of<AIService>(context, listen: false).generateVehicleAIAnalysis(widget.vehicle),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(child: Text("Error generating analysis."));
+                  }
+                  return Flexible(
+                    child: SingleChildScrollView(
+                      child: Text(
+                        snapshot.data ?? "",
+                        style: const TextStyle(height: 1.5, fontSize: 16),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("Close"),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -494,7 +558,7 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
           IconButton(
             onPressed: () {
                final compareService = Provider.of<CompareService>(context, listen: false);
-               compareService.toggleCompare(widget.vehicle);
+               compareService.addToCompare(widget.vehicle);
                Navigator.push(context, MaterialPageRoute(builder: (_) => const ComparePage()));
             },
             icon: const Icon(Icons.compare_arrows),

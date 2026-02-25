@@ -21,8 +21,25 @@ class BookTestDrivePage extends StatefulWidget {
 class _BookTestDrivePageState extends State<BookTestDrivePage> {
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   TimeOfDay _selectedTime = const TimeOfDay(hour: 10, minute: 0);
+  late TextEditingController _locationController;
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    String defaultLocation = widget.vehicle.location;
+    if (user != null && user.address.containsKey('street') && user.address['street'] != null) {
+      defaultLocation = "${user.address['street']}, ${user.address['city'] ?? ''}";
+    }
+    _locationController = TextEditingController(text: defaultLocation.isNotEmpty ? defaultLocation : "Seller's Location");
+  }
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +60,18 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
             _buildDatePicker(),
             const SizedBox(height: 16),
             _buildTimePicker(),
+            const SizedBox(height: 30),
+            Text("Meeting Location", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _locationController,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Iconsax.location),
+                border: OutlineInputBorder(),
+                hintText: "Enter a location for the test drive",
+              ),
+              maxLines: 2,
+            ),
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
@@ -203,6 +232,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
         status: 'pending',
         createdAt: DateTime.now(),
         sellerLocation: widget.vehicle.location,
+        meetingLocation: _locationController.text.trim(),
       );
 
       await Provider.of<VehicleService>(context, listen: false).bookTestDrive(booking);

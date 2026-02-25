@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:carvia/core/constants/api_keys.dart';
+import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
@@ -74,6 +75,35 @@ class AIService extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<String> generateVehicleAIAnalysis(VehicleModel vehicle) async {
+    if (!_hasValidApiKey) {
+      return "Unlock full AI potential by providing a valid Gemini API Key. \n\nThis vehicle appears to be a good match based on standard criteria.";
+    }
+
+    try {
+      final prompt = '''
+      Analyze the following vehicle as a car expert named Carvia AI:
+      Brand: ${vehicle.brand}
+      Model: ${vehicle.model}
+      Year: ${vehicle.year}
+      Price: \$${vehicle.price}
+      Mileage: ${vehicle.mileage} miles
+      Fuel: ${vehicle.fuel}
+      Transmission: ${vehicle.transmission}
+
+      Provide a concise 3-4 sentence personalized analysis of why this car is a good purchase, its key strengths, and what kind of driver it suits best.
+      ''';
+
+      if (_model == null) _initModel();
+      final response = await _model?.generateContent([Content.text(prompt)]);
+      
+      return response?.text ?? "This vehicle is a solid choice. It offers a good balance of performance and reliability.";
+    } catch (e) {
+      debugPrint("AI Analysis Error: $e");
+      return "This vehicle looks like a great option. Make sure to check it out in person and take it for a test drive!";
     }
   }
 }

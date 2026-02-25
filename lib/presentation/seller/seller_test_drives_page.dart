@@ -120,6 +120,21 @@ class SellerTestDrivesPage extends StatelessWidget {
               ],
             ),
           ],
+          const SizedBox(height: 8),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Iconsax.location, size: 14, color: AppColors.textMuted),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  "Location: ${request.meetingLocation.isNotEmpty ? request.meetingLocation : request.sellerLocation}",
+                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  maxLines: 2,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           if (request.status == 'pending')
             Row(

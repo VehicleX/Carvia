@@ -13,6 +13,7 @@ class TestDriveModel {
   final String status; // 'pending', 'confirmed', 'completed', 'cancelled'
   final DateTime createdAt;
   final String sellerLocation; // The seller's pickup / meetup location
+  final String meetingLocation;
 
   TestDriveModel({
     required this.id,
@@ -27,6 +28,7 @@ class TestDriveModel {
     required this.status,
     required this.createdAt,
     this.sellerLocation = '',
+    this.meetingLocation = '',
   });
 
   Map<String, dynamic> toMap() {
@@ -42,6 +44,7 @@ class TestDriveModel {
       'status': status,
       'createdAt': Timestamp.fromDate(createdAt),
       'sellerLocation': sellerLocation,
+      'meetingLocation': meetingLocation,
     };
   }
 
@@ -59,6 +62,7 @@ class TestDriveModel {
       status: map['status'] ?? 'pending',
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       sellerLocation: map['sellerLocation'] ?? '',
+      meetingLocation: map['meetingLocation'] ?? '',
     );
   }
 }

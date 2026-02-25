@@ -9,6 +9,7 @@ import 'package:carvia/presentation/ai/ai_chat_page.dart';
 import 'package:carvia/presentation/auth/login_page.dart';
 import 'package:carvia/presentation/vehicle/wishlist_page.dart';
 import 'package:carvia/presentation/profile/settings_page.dart';
+import 'package:carvia/presentation/home/vehicle_list_page.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
@@ -92,7 +93,7 @@ class _MainWrapperState extends State<MainWrapper> {
           ),
           _drawerItem(icon: Iconsax.car, title: "Explore Vehicles", onTap: () {
             Navigator.pop(context);
-            setState(() => _currentIndex = 0);
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const VehicleListPage(title: "All Vehicles")));
           }),
           _drawerItem(icon: Iconsax.heart, title: "Wishlist", onTap: () {
             Navigator.pop(context);

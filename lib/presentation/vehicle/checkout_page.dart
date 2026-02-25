@@ -19,9 +19,28 @@ class CheckoutPage extends StatefulWidget {
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  final _addressController = TextEditingController(text: "123 Main St, Springfield");
+  late TextEditingController _addressController;
   String _selectedPayment = "Credit Card";
   bool _isProcessing = false;
+  
+  @override
+  void initState() {
+    super.initState();
+    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    String initialAddress = "123 Main St, Springfield";
+    if (user != null) {
+      if (user.address.containsKey('street') && user.address['street'] != null) {
+        initialAddress = "${user.address['street']}, ${user.address['city'] ?? ''}";
+      }
+    }
+    _addressController = TextEditingController(text: initialAddress);
+  }
+
+  @override
+  void dispose() {
+    _addressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,14 +152,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final tax = price * 0.05;
     double total = price + tax + 500; // 500 delivery fee
     
-    if (_useCredits) {
-      // Logic: 100 Credits = $10 discount (Example)
-      // Cap discount at 10% of total or total credits value
-      int availableCredits = Provider.of<AuthService>(context, listen: false).currentUser?.credits ?? 0;
-      // In real app: final availableCredits = Provider.of<AuthService>(context).currentUser?.credits ?? 0;
+    int availableCredits = Provider.of<AuthService>(context, listen: false).currentUser?.credits ?? 0;
+    
+    double actualDiscount = 0;
+    if (_useCredits && availableCredits > 0) {
+      double maxDiscount = total * 0.1; // Cap discount at 10% of total
+      double potentialDiscount = availableCredits / 10; // 10 credits = $1 discount
       
-      double discount = (availableCredits / 10).clamp(0, total * 0.1); 
-      total -= discount;
+      actualDiscount = potentialDiscount < maxDiscount ? potentialDiscount : maxDiscount;
+      total -= actualDiscount;
     }
 
     return Column(
@@ -149,17 +169,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
         _row("Taxes (5%)", "\$${tax.toStringAsFixed(0)}"),
         _row("Delivery Fee", "\$500"),
         
-        // Credit Toggle
-        SwitchListTile(
-          title: const Text("Use Canvas Credits", style: TextStyle(fontWeight: FontWeight.bold)),
-          subtitle: const Text("Redeem 10% max discount"),
-          value: _useCredits,
-          onChanged: (val) => setState(() => _useCredits = val),
-          contentPadding: EdgeInsets.zero,
-        ),
+        if (availableCredits > 0)
+          SwitchListTile(
+            title: const Text("Use Canvas Credits", style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text("Available: $availableCredits credits"),
+            value: _useCredits,
+            onChanged: (val) => setState(() => _useCredits = val),
+            contentPadding: EdgeInsets.zero,
+          ),
         
-        if (_useCredits)
-           _row("Credits Discount", "-\$${(500/10).toStringAsFixed(0)}", color: Colors.green), // Mock calc
+        if (_useCredits && actualDiscount > 0)
+           _row("Credits Discount", "-\$${actualDiscount.toStringAsFixed(0)}", color: Colors.green),
 
         const Divider(height: 24),
         _row("Total Amount", "\$${total.toStringAsFixed(0)}", isBold: true),
