@@ -18,11 +18,18 @@ class AIService extends ChangeNotifier {
     AIMessage(text: "Hi! I'm Carvia AI. I can help you find the perfect car, compare models, or check financing options. What are you looking for today?", isUser: false, timestamp: DateTime.now()),
   ];
   bool _isLoading = false;
+  bool _isDetailedMode = false;
   ChatSession? _chatSession;
   GenerativeModel? _model;
 
   List<AIMessage> get messages => List.unmodifiable(_messages);
   bool get isLoading => _isLoading;
+  bool get isDetailedMode => _isDetailedMode;
+
+  void toggleDetailedMode() {
+    _isDetailedMode = !_isDetailedMode;
+    notifyListeners();
+  }
 
   AIService() {
     _initModel();
@@ -61,10 +68,45 @@ class AIService extends ChangeNotifier {
         await Future.delayed(const Duration(seconds: 1));
         _messages.add(AIMessage(text: "I'm currently in demo mode because my API Key isn't configured. Please add a valid Gemini API Key in `lib/core/constants/api_keys.dart` to unlock my full potential!", isUser: false, timestamp: DateTime.now()));
       } else {
-        final response = await _chatSession!.sendMessage(Content.text(text));
+        String prompt = text;
+        prompt += '''\n\n---
+IMPORTANT SYSTEM INSTRUCTIONS:
+You MUST respond ONLY with valid, raw JSON. Do NOT wrap the response in markdown blocks (like ```json), and do NOT use markdown formatting symbols (*, **, #) anywhere inside the JSON strings.
+Strictly adhere to this exact JSON structure:
+{
+  "title": "Main topic title",
+  "sections": [
+    {
+      "heading": "Section Heading",
+      "content": [
+        "Bullet point 1",
+        "Bullet point 2"
+      ]
+    }
+  ]
+}''';
+        
+        if (_isDetailedMode) {
+          prompt += "\nMODE: Detailed. Provide expanded, professional explanations, deep reasoning, pros/cons, and highly specific examples.";
+        } else {
+          prompt += "\nMODE: Quick. Provide very concise, short, punchy bullet points. Maximum 1 short sentence per bullet.";
+        }
+
+        final response = await _chatSession!.sendMessage(Content.text(prompt));
         
         if (response.text != null) {
-          _messages.add(AIMessage(text: response.text!, isUser: false, timestamp: DateTime.now()));
+          // Clean up potential markdown blocks if Gemini stubbornly includes them
+          String cleanText = response.text!.trim();
+          if (cleanText.startsWith('```json')) {
+            cleanText = cleanText.substring(7);
+          }
+          if (cleanText.startsWith('```')) {
+            cleanText = cleanText.substring(3);
+          }
+          if (cleanText.endsWith('```')) {
+            cleanText = cleanText.substring(0, cleanText.length - 3);
+          }
+          _messages.add(AIMessage(text: cleanText.trim(), isUser: false, timestamp: DateTime.now()));
         } else {
            _messages.add(AIMessage(text: "I'm having trouble connecting. Please try again.", isUser: false, timestamp: DateTime.now()));
         }
