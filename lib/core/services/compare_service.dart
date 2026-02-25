@@ -7,27 +7,31 @@ class CompareService extends ChangeNotifier {
   
   List<VehicleModel> get compareList => List.unmodifiable(_compareList);
 
-  void toggleCompare(VehicleModel vehicle) {
+  bool toggleCompare(VehicleModel vehicle) {
     if (_compareList.any((v) => v.id == vehicle.id)) {
       _compareList.removeWhere((v) => v.id == vehicle.id);
+      notifyListeners();
+      return true;
     } else {
-      if (_compareList.length < 3) {
-        _compareList.add(vehicle);
-      } else {
-        // Optional: Notify user that max is 3 via a callback or return value
-        // For now, we simple don't add.
-      }
-    }
-    notifyListeners();
-  }
-
-  void addToCompare(VehicleModel vehicle) {
-    if (!_compareList.any((v) => v.id == vehicle.id)) {
-      if (_compareList.length < 3) {
+      if (_compareList.length < 2) {
         _compareList.add(vehicle);
         notifyListeners();
+        return true;
+      } else {
+        return false;
       }
     }
+  }
+
+  bool addToCompare(VehicleModel vehicle) {
+    if (!_compareList.any((v) => v.id == vehicle.id)) {
+      if (_compareList.length < 2) {
+        _compareList.add(vehicle);
+        notifyListeners();
+        return true;
+      }
+    }
+    return false;
   }
 
   bool isInCompare(String vehicleId) {
