@@ -20,7 +20,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Future<void> _handleSendResetLink() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter your email")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please enter your email")));
       return;
     }
 
@@ -33,7 +33,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text("Email Sent"),
+            title: Text("Email Sent"),
             content: Text("A password reset link has been sent to $email. Please check your inbox."),
             actions: [
               TextButton(
@@ -41,7 +41,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                    Navigator.pop(context); // Close dialog
                    Navigator.pop(context); // Go back to login
                 },
-                child: const Text("OK"),
+                child: Text("OK"),
               )
             ],
           ),
@@ -57,33 +57,33 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
         backgroundColor: Colors.transparent,
         title: Text("Reset Password", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
       ),
       body: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Forgot Password?",
-              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
             ).animate().fadeIn().slideX(),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               "Enter your email address and we'll send you a link to reset your password.",
-              style: GoogleFonts.outfit(fontSize: 14, color: AppColors.textSecondary),
+              style: GoogleFonts.outfit(fontSize: 14, color: Theme.of(context).colorScheme.secondary),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             _buildTextField("EMAIL ADDRESS", Icons.email_outlined, _emailController),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             _buildButton("Send Reset Link", _handleSendResetLink),
           ],
         ),
@@ -95,18 +95,30 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-        const SizedBox(height: 8),
+        Text(label, style: GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary)),
+        SizedBox(height: 8),
         TextField(
           controller: controller,
           obscureText: isPassword,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
-            prefixIcon: Icon(icon),
+            prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.secondary),
             hintText: isPassword ? "••••••" : "",
-            fillColor: AppColors.surface,
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             filled: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+            ),
           ),
         ),
       ],
@@ -120,11 +132,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       child: ElevatedButton(
         onPressed: _isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
-        child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : Text(text),
+        child: _isLoading ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary) : Text(text),
       ),
     );
   }
