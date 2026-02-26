@@ -25,8 +25,8 @@ class VehicleImage extends StatelessWidget {
         Container(
           width: width,
           height: height,
-          color: Colors.grey.shade800,
-          child: const Icon(Icons.directions_car, color: Colors.white54),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+          child: Icon(Icons.directions_car, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54)),
         );
 
     if (src.startsWith('data:image')) {
