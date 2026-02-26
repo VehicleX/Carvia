@@ -27,83 +27,83 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           child: Column(
             children: [
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               // Profile Header
               Row(
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundColor: AppColors.primary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     backgroundImage: user.profileImage != null ? NetworkImage(user.profileImage!) : null,
-                    child: user.profileImage == null ? const Icon(Iconsax.user, size: 40, color: Colors.white) : null,
+                    child: user.profileImage == null ? Icon(Iconsax.user, size: 40, color: Theme.of(context).colorScheme.onSurface) : null,
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: 20),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(user.name, style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
-                        Text(user.email, style: const TextStyle(color: AppColors.textMuted)),
-                        const SizedBox(height: 8),
+                        Text(user.email, style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+                        SizedBox(height: 8),
                          Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text("Premium Member", style: TextStyle(color: AppColors.primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                          child: Text("Premium Member", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12, fontWeight: FontWeight.bold)),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               OutlinedButton.icon(
                 onPressed: () => _showEditProfileDialog(context, user),
-                icon: const Icon(Iconsax.edit),
-                label: const Text("Edit Profile"),
+                icon: Icon(Iconsax.edit),
+                label: Text("Edit Profile"),
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(double.infinity, 44),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
               
               // Credits Card
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [AppColors.primary, AppColors.secondary]),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                       blurRadius: 20,
-                      offset: const Offset(0, 10),
+                      offset: Offset(0, 10),
                     ),
                   ],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text("CARVIA CREDITS", style: TextStyle(color: Colors.white70, letterSpacing: 1.5, fontSize: 12)),
-                    const SizedBox(height: 8),
+                    Text("CARVIA CREDITS", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, letterSpacing: 1.5, fontSize: 12)),
+                    SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("${user.credits} pts", style: GoogleFonts.outfit(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
-                        const Icon(Iconsax.wallet_2, color: Colors.white, size: 32),
+                        Text("${user.credits} pts", style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontSize: 32, fontWeight: FontWeight.bold)),
+                        Icon(Iconsax.wallet_2, color: Theme.of(context).colorScheme.onSurface, size: 32),
                       ],
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
 
               // Menu Options
               _buildMenuOption(context, "My Vehicles", Iconsax.car, () {
@@ -126,7 +126,7 @@ class ProfilePage extends StatelessWidget {
                  Navigator.push(context, MaterialPageRoute(builder: (_) => const EChallanPage()));
               }),
               
-              const Divider(height: 40),
+              Divider(height: 40),
               
               _buildMenuOption(context, themeService.isDarkMode ? "Light Mode" : "Dark Mode", themeService.isDarkMode ? Iconsax.sun_1 : Iconsax.moon, () {
                 themeService.toggleTheme();
@@ -135,14 +135,14 @@ class ProfilePage extends StatelessWidget {
                  Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
               }),
               
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildMenuOption(context, "Logout", Iconsax.logout, () {
                  authService.logout();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginPage()),
                   (route) => false,
                 );
-              }, color: AppColors.error),
+              }, color: Theme.of(context).colorScheme.onSurface),
             ],
           ),
         ),
@@ -155,15 +155,15 @@ class ProfilePage extends StatelessWidget {
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
-        padding: const EdgeInsets.all(10),
+        padding: EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: (color ?? AppColors.primary).withValues(alpha: 0.1),
+          color: (color ?? Theme.of(context).colorScheme.onSurface).withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: Icon(icon, color: color ?? AppColors.primary), 
+        child: Icon(icon, color: color ?? Theme.of(context).colorScheme.onSurface), 
       ),
       title: Text(title, style: TextStyle(fontWeight: FontWeight.w600, color: textColor)),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textMuted),
+      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.secondary),
       onTap: onTap,
     );
   }
@@ -176,7 +176,7 @@ class ProfilePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Edit Profile"),
+        title: Text("Edit Profile"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -184,7 +184,7 @@ class ProfilePage extends StatelessWidget {
               controller: nameController,
               decoration: const InputDecoration(labelText: "Full Name", prefixIcon: Icon(Iconsax.user)),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             TextField(
               controller: phoneController,
               decoration: const InputDecoration(labelText: "Phone Number", prefixIcon: Icon(Iconsax.call)),
@@ -193,14 +193,14 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel")),
           ElevatedButton(
             onPressed: () async {
               try {
                 await authService.updateProfile(nameController.text.trim(), phoneController.text.trim());
                 if (context.mounted) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile Updated!")));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Updated!")));
                 }
               } catch (e) {
                 if (context.mounted) {
@@ -208,7 +208,7 @@ class ProfilePage extends StatelessWidget {
                 }
               }
             },
-            child: const Text("Save"),
+            child: Text("Save"),
           ),
         ],
       ),

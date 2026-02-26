@@ -43,7 +43,7 @@ class _SettingsPageState extends State<SettingsPage> {
         title: Text("Settings", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         children: [
           _buildSectionHeader("Notifications"),
           _buildSwitchTile("Push Notifications", "Receive alerts about new cars and offers", _pushNotifications, (val) {
@@ -55,33 +55,33 @@ class _SettingsPageState extends State<SettingsPage> {
              _toggleSetting('email_notifications', val);
           }),
           
-          const SizedBox(height: 30),
+          SizedBox(height: 30),
           _buildSectionHeader("About"),
            ListTile(
-            title: const Text("About Canvas Credits"),
-            subtitle: const Text("Learn how our credit system works"),
-            leading: const Icon(Iconsax.info_circle, color: AppColors.primary),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            title: Text("About Canvas Credits"),
+            subtitle: Text("Learn how our credit system works"),
+            leading: Icon(Iconsax.info_circle, color: Theme.of(context).colorScheme.primary),
+            trailing: Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const AboutCreditsPage()));
             },
           ),
           ListTile(
-            title: const Text("Privacy Policy"),
-            leading: const Icon(Iconsax.lock, color: AppColors.textMuted),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            title: Text("Privacy Policy"),
+            leading: Icon(Iconsax.lock, color: Theme.of(context).colorScheme.secondary),
+            trailing: Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {},
           ),
           ListTile(
-            title: const Text("Terms of Service"),
-            leading: const Icon(Iconsax.document_text, color: AppColors.textMuted),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+            title: Text("Terms of Service"),
+            leading: Icon(Iconsax.document_text, color: Theme.of(context).colorScheme.secondary),
+            trailing: Icon(Icons.arrow_forward_ios, size: 16),
             onTap: () {},
           ),
           
-          const SizedBox(height: 30),
+          SizedBox(height: 30),
           Center(
-            child: Text("Version 1.0.0", style: GoogleFonts.outfit(color: AppColors.textMuted)),
+            child: Text("Version 1.0.0", style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.secondary)),
           ),
         ],
       ),
@@ -90,8 +90,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _buildSectionHeader(String title) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary)),
+      padding: EdgeInsets.only(bottom: 10),
+      child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
     );
   }
 
@@ -99,8 +99,8 @@ class _SettingsPageState extends State<SettingsPage> {
     return SwitchListTile(
       value: value,
       onChanged: onChanged,
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+      title: Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
+      subtitle: Text(subtitle, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary)),
       contentPadding: EdgeInsets.zero,
     );
   }
