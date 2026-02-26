@@ -37,7 +37,7 @@ class _LoginPageState extends State<LoginPage> {
       if (success && mounted) {
         _navigateToHome(authService.currentUser?.role ?? UserRole.buyer);
       } else {
-        if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Login Failed. Check credentials.")));
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed. Check credentials.")));
       }
     } catch (e) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: $e")));
@@ -58,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
       } else if (!success && mounted) {
         // Login cancelled or failed
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Google Sign-in cancelled or failed")),
+          SnackBar(content: Text("Google Sign-in cancelled or failed")),
         );
       }
     } catch (e) {
@@ -104,7 +104,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Stack(
         children: [
           // Background Glows
@@ -116,41 +116,39 @@ class _LoginPageState extends State<LoginPage> {
               height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
                 backgroundBlendMode: BlendMode.screen,
-                boxShadow: const [BoxShadow(blurRadius: 100, spreadRadius: 50, color: Color(0x1A22D3EE))],
+                boxShadow: [BoxShadow(blurRadius: 100, spreadRadius: 50, color: Colors.grey.withValues(alpha: 0.1))],
               ),
             ),
           ),
           
           Center(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                    // Logo
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    width: 120,
+                    height: 120,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        colors: [AppColors.primary, AppColors.secondary],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.4),
+                          color: Colors.grey.withValues(alpha: 0.4),
                           blurRadius: 20,
-                          offset: const Offset(0, 10),
+                          offset: Offset(0, 10),
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.bolt_rounded, size: 40, color: Colors.white),
+                    child: ClipOval(
+                      child: Image.asset('assets/images/logo.jpg', fit: BoxFit.cover),
+                    ),
                   ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
                   
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   
                   // ... text ...
                   Text(
@@ -158,30 +156,25 @@ class _LoginPageState extends State<LoginPage> {
                     style: GoogleFonts.outfit(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ).animate().fadeIn().slideY(begin: 0.2),
                   
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   
                   Text(
                     "Sign in to manage your vehicle world",
                     style: GoogleFonts.outfit(
                       fontSize: 16,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ).animate().fadeIn(delay: 200.ms),
                   
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   
                   // Form Card
                   Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: AppColors.surface),
-                    ),
+                    width: double.infinity,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -191,44 +184,72 @@ class _LoginPageState extends State<LoginPage> {
                           style: GoogleFonts.outfit(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.secondary,
                             letterSpacing: 1.0,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         TextField(
                           controller: _emailController,
-                          style: const TextStyle(color: AppColors.textPrimary),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.email_outlined),
+                            prefixIcon: Icon(Icons.email_outlined, color: Theme.of(context).colorScheme.secondary),
                             hintText: "name@example.com",
-                            fillColor: AppColors.background.withValues(alpha: 0.5),
+                            hintStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                            ),
                           ),
                         ),
                         // ... password ...
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         Text(
                           "PASSWORD",
                           style: GoogleFonts.outfit(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textSecondary,
+                            color: Theme.of(context).colorScheme.secondary,
                             letterSpacing: 1.0,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         TextField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
-                          style: const TextStyle(color: AppColors.textPrimary),
+                          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.lock_outline_rounded),
+                            prefixIcon: Icon(Icons.lock_outline_rounded, color: Theme.of(context).colorScheme.secondary),
                             hintText: "••••••••",
-                            fillColor: AppColors.background.withValues(alpha: 0.5),
+                            hintStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
                                 _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.secondary,
                               ),
                               onPressed: () {
                                 setState(() {
@@ -238,7 +259,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
 
                         SizedBox(
                           width: double.infinity,
@@ -246,20 +267,20 @@ class _LoginPageState extends State<LoginPage> {
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
                             child: _isLoading 
-                                ? const CircularProgressIndicator(color: Colors.white)
+                                ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)
                                 : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Text("Login"),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.arrow_forward_rounded, size: 20),
+                                Text("Login"),
+                                SizedBox(width: 8),
+                                Icon(Icons.arrow_forward_rounded, size: 20),
                               ],
                             ),
                           ),
                         ).animate(onPlay: (c) => c.repeat(period: 10.seconds)).shimmer(duration: 2.seconds, delay: 5.seconds),
                         
                         // ...
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Center(
                             child: TextButton(
                             onPressed: () {
@@ -267,7 +288,7 @@ class _LoginPageState extends State<LoginPage> {
                             },
                             child: Text(
                               "Forgot Password?",
-                              style: GoogleFonts.outfit(color: AppColors.textSecondary),
+                              style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.secondary),
                             ),
                           ),
                         ),
@@ -275,11 +296,11 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1),
                   
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   
                   // OR Divider
                   // ...
-                  const SizedBox(height: 32),
+                  SizedBox(height: 32),
                   
                   // Google Button
                   SizedBox(
@@ -288,18 +309,18 @@ class _LoginPageState extends State<LoginPage> {
                     child: OutlinedButton(
                       onPressed: _handleGoogleLogin,
                       style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: AppColors.surface.withValues(alpha: 0.8)),
+                        side: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        foregroundColor: AppColors.textPrimary,
-                        backgroundColor: AppColors.surface.withValues(alpha: 0.3),
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        foregroundColor: Theme.of(context).colorScheme.onSurface,
+                        backgroundColor: Colors.transparent,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                            // Placeholder for Google Logo
-                          const Icon(Icons.g_mobiledata, size: 28, color: Colors.white),
-                          const SizedBox(width: 8),
+                          Icon(Icons.g_mobiledata, size: 28, color: Theme.of(context).colorScheme.onSurface),
+                          SizedBox(width: 8),
                           Text("Continue with Google", style: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.w500)),
                         ],
                       ),
@@ -307,14 +328,14 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   
                   // ...
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
                   
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         "Don't have an account? ",
-                        style: GoogleFonts.outfit(color: AppColors.textSecondary),
+                        style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.secondary),
                       ),
                       GestureDetector(
                         onTap: () {
@@ -323,7 +344,7 @@ class _LoginPageState extends State<LoginPage> {
                          child: Text(
                           "Register now",
                           style: GoogleFonts.outfit(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.onSurface,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
