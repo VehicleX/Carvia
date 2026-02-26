@@ -49,20 +49,20 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildVehicleSummary(),
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
             Text("Select Date & Time", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildDatePicker(),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             _buildTimePicker(),
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
             Text("Meeting Location", style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             TextField(
               controller: _locationController,
               decoration: const InputDecoration(
@@ -72,20 +72,20 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
               ),
               maxLines: 2,
             ),
-            const SizedBox(height: 40),
+            SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _submitBooking,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: _isLoading 
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 
-                    : const Text("Confirm Booking", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    ? SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.primary)) 
+                    : Text("Confirm Booking", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
@@ -96,15 +96,15 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
 
   Widget _buildVehicleSummary() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05),
             blurRadius: 10,
-            offset: const Offset(0, 5),
+            offset: Offset(0, 5),
           ),
         ],
       ),
@@ -114,18 +114,18 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
             borderRadius: BorderRadius.circular(12),
             child: widget.vehicle.images.isNotEmpty
                 ? VehicleImage(src: widget.vehicle.images.first, width: 80, height: 80)
-                : Container(width: 80, height: 80, color: Colors.grey),
+                : Container(width: 80, height: 80, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("${widget.vehicle.brand} ${widget.vehicle.model}", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 4),
-                Text(widget.vehicle.year.toString(), style: const TextStyle(color: AppColors.textMuted)),
-                const SizedBox(height: 8),
-                Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                SizedBox(height: 4),
+                Text(widget.vehicle.year.toString(), style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+                SizedBox(height: 8),
+                Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -146,24 +146,24 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
         if (date != null) setState(() => _selectedDate = date);
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.textMuted.withValues(alpha:0.3)),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            const Icon(Iconsax.calendar, color: AppColors.primary),
-            const SizedBox(width: 16),
+            Icon(Iconsax.calendar, color: Theme.of(context).colorScheme.primary),
+            SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Date", style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                Text(DateFormat('EEE, MMM d, y').format(_selectedDate), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text("Date", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
+                Text(DateFormat('EEE, MMM d, y').format(_selectedDate), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
             const Spacer(),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textMuted),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.secondary),
           ],
         ),
       ),
@@ -177,24 +177,24 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
         if (time != null) setState(() => _selectedTime = time);
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.textMuted.withValues(alpha:0.3)),
+          border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
           children: [
-            const Icon(Iconsax.clock, color: AppColors.primary),
-            const SizedBox(width: 16),
+            Icon(Iconsax.clock, color: Theme.of(context).colorScheme.primary),
+            SizedBox(width: 16),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Time", style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                Text(_selectedTime.format(context), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text("Time", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
+                Text(_selectedTime.format(context), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               ],
             ),
             const Spacer(),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.textMuted),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.secondary),
           ],
         ),
       ),
@@ -204,7 +204,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
   Future<void> _submitBooking() async {
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please login to book a test drive")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please login to book a test drive")));
       return;
     }
 
@@ -239,7 +239,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
 
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Test drive booked successfully!")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Test drive booked successfully!")));
       }
     } catch (e) {
       if (mounted) {
