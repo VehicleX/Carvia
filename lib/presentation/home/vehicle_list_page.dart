@@ -27,11 +27,11 @@ class VehicleListPage extends StatelessWidget {
               stream: Provider.of<VehicleService>(context, listen: false).getAllVehiclesStream(),
               builder: (context, snapshot) {
                  if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 }
                 
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("No vehicles found"));
+                  return Center(child: Text("No vehicles found"));
                 }
                 
                 return _buildVehicleList(snapshot.data!);
@@ -42,17 +42,20 @@ class VehicleListPage extends StatelessWidget {
 
   Widget _buildVehicleList(List<VehicleModel> list) {
     if (list.isEmpty) {
-       return const Center(child: Text("No vehicles match this category"));
+       return Center(child: Text("No vehicles match this category"));
     }
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       itemCount: list.length,
       itemBuilder: (context, index) {
         final vehicle = list[index];
         return Card(
           elevation: 2,
-          margin: const EdgeInsets.only(bottom: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          margin: EdgeInsets.only(bottom: 16),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2), width: 1)
+          ),
           child: InkWell(
             onTap: () {
                Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicle: vehicle)));
@@ -62,34 +65,34 @@ class VehicleListPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                   child: AspectRatio(
                     aspectRatio: 16/9,
                     child: vehicle.images.isNotEmpty
                       ? VehicleImage(src: vehicle.images.first, fit: BoxFit.cover)
-                      : Container(color: Colors.grey[300], child: const Icon(Icons.car_repair, size: 50)),
+                      : Container(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), child: Icon(Icons.car_repair, size: 50)),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         "${vehicle.brand} ${vehicle.model}", 
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         "\$${vehicle.price.toStringAsFixed(0)}", 
-                        style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)
+                        style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)
                       ),
-                       const SizedBox(height: 4),
+                       SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Iconsax.location, size: 14, color: AppColors.textMuted),
-                          const SizedBox(width: 4),
-                          Text(vehicle.location.isNotEmpty ? vehicle.location : "Location N/A", style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                          Icon(Iconsax.location, size: 14, color: Theme.of(context).colorScheme.secondary),
+                          SizedBox(width: 4),
+                          Text(vehicle.location.isNotEmpty ? vehicle.location : "Location N/A", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary)),
                         ],
                       ),
                     ],
