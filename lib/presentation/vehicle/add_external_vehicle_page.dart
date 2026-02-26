@@ -25,21 +25,21 @@ class _AddExternalVehiclePageState extends State<AddExternalVehiclePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add My Vehicle")),
+      appBar: AppBar(title: Text("Add My Vehicle")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
+              Text(
                 "Add a vehicle you already own to manage challans, insurance, and service history.",
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(color: Theme.of(context).colorScheme.secondary),
               ),
-              const SizedBox(height: 20),
-              const Text("Vehicle Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
+              Text("Vehicle Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              SizedBox(height: 20),
               
               DropdownButtonFormField<String>(
                 // ignore: deprecated_member_use
@@ -50,37 +50,37 @@ class _AddExternalVehiclePageState extends State<AddExternalVehiclePage> {
                   if (val != null) setState(() => _selectedType = val);
                 },
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               
               TextFormField(
                 controller: _brandController,
                 decoration: const InputDecoration(labelText: "Brand", hintText: "e.g. Toyota, Honda", prefixIcon: Icon(Iconsax.verify)),
                 validator: (val) => val!.isEmpty ? "Brand is required" : null,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _modelController,
                 decoration: const InputDecoration(labelText: "Model", prefixIcon: Icon(Iconsax.car)),
                 validator: (v) => v!.isEmpty ? "Required" : null,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _yearController,
                 decoration: const InputDecoration(labelText: "Year", prefixIcon: Icon(Iconsax.calendar)),
                 keyboardType: TextInputType.number,
                 validator: (v) => v!.isEmpty ? "Required" : null,
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _licensePlateController,
                 decoration: const InputDecoration(labelText: "License Plate (Reg No.)", prefixIcon: Icon(Iconsax.card)),
                 validator: (v) => v!.isEmpty ? "Required" : null,
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
               ElevatedButton(
                 onPressed: _isLoading ? null : _submit,
-                style: ElevatedButton.styleFrom(padding: const EdgeInsets.all(16)),
-                child: _isLoading ? const CircularProgressIndicator() : const Text("Add Vehicle"),
+                style: ElevatedButton.styleFrom(padding: EdgeInsets.all(16)),
+                child: _isLoading ? CircularProgressIndicator() : Text("Add Vehicle"),
               ),
             ],
           ),
@@ -120,7 +120,7 @@ class _AddExternalVehiclePageState extends State<AddExternalVehiclePage> {
       
       if (mounted) {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Vehicle Added Successfully!")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Vehicle Added Successfully!")));
       }
     } catch (e) {
       if (mounted) {

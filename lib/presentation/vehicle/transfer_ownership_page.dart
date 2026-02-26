@@ -19,26 +19,26 @@ class _TransferOwnershipPageState extends State<TransferOwnershipPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Transfer Ownership")),
+      appBar: AppBar(title: Text("Transfer Ownership")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Icon(Iconsax.refresh, size: 80, color: AppColors.primary),
-            const SizedBox(height: 20),
+            Icon(Iconsax.refresh, size: 80, color: Theme.of(context).colorScheme.primary),
+            SizedBox(height: 20),
             Text(
               "Transfer ${widget.vehicleName} (${widget.vehicleNumber})",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 10),
-            const Text(
+            SizedBox(height: 10),
+            Text(
               "Enter the email address of the new owner. They will receive a request to accept the transfer.",
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary),
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
@@ -48,16 +48,16 @@ class _TransferOwnershipPageState extends State<TransferOwnershipPage> {
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
             ElevatedButton(
               onPressed: _isLoading ? null : _initiateTransfer,
               style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                backgroundColor: AppColors.primary,
+                padding: EdgeInsets.symmetric(vertical: 16),
+                backgroundColor: Theme.of(context).colorScheme.surface,
               ),
               child: _isLoading 
-                ? const CircularProgressIndicator(color: Colors.white) 
-                : const Text("Initiate Transfer", style: TextStyle( fontSize: 16, fontWeight: FontWeight.bold)),
+                ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary) 
+                : Text("Initiate Transfer", style: TextStyle( fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ],
         ),
@@ -67,7 +67,7 @@ class _TransferOwnershipPageState extends State<TransferOwnershipPage> {
 
   Future<void> _initiateTransfer() async {
     if (_emailController.text.isEmpty || !_emailController.text.contains('@')) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please enter a valid email")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please enter a valid email")));
       return;
     }
 
@@ -82,7 +82,7 @@ class _TransferOwnershipPageState extends State<TransferOwnershipPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Request Sent"),
+        title: Text("Request Sent"),
         content: Text("Ownership transfer request for ${widget.vehicleName} sent to ${_emailController.text}."),
         actions: [
           TextButton(
@@ -90,7 +90,7 @@ class _TransferOwnershipPageState extends State<TransferOwnershipPage> {
                Navigator.pop(context); // Dialog
                Navigator.pop(context); // Page
             },
-            child: const Text("OK"),
+            child: Text("OK"),
           ),
         ],
       ),

@@ -22,71 +22,71 @@ class _InsurancePageState extends State<InsurancePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Vehicle Insurance")),
+      appBar: AppBar(title: Text("Vehicle Insurance")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
              Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12), blurRadius: 10)],
               ),
               child: Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: AppColors.primary.withValues(alpha:0.1), shape: BoxShape.circle),
-                    child: const Icon(Iconsax.shield_tick, color: AppColors.primary),
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), shape: BoxShape.circle),
+                    child: Icon(Iconsax.shield_tick, color: Theme.of(context).colorScheme.primary),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.vehicleName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text(widget.vehicleNumber, style: const TextStyle(color: AppColors.textMuted)),
+                      Text(widget.vehicleName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(widget.vehicleNumber, style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                     ],
                   )
                 ],
               ),
             ),
-            const SizedBox(height: 30),
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
+            SizedBox(height: 30),
             
             if (widget.isExternal) ...[
                Container(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha:0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.orange.withValues(alpha:0.3))
+                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3))
                 ),
-                child: const Column(
+                child: Column(
                   children: [
-                    Icon(Iconsax.warning_2, color: Colors.orange, size: 40),
+                    Icon(Iconsax.warning_2, color: Theme.of(context).colorScheme.onSurface, size: 40),
                     SizedBox(height: 10),
                     Text("No Active Policy Found", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    Text("This vehicle was added manually and doesn't have a linked policy yet.", textAlign: TextAlign.center, style: TextStyle(color: AppColors.textMuted)),
+                    Text("This vehicle was added manually and doesn't have a linked policy yet.", textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                   ],
                 ),
                )
             ] else ...[
-               const Text("Current Policy", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-               const SizedBox(height: 16),
+               Text("Current Policy", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+               SizedBox(height: 16),
                _buildPolicyCard(
                 "Carvia Protect Plan",
                 "Valid until: Dec 31, 2026",
                 "Active",
-                Colors.green,
+                Theme.of(context).colorScheme.onSurface,
               ),
             ],
             
-            const SizedBox(height: 30),
-            const Text("Actions", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
+            SizedBox(height: 30),
+            Text("Actions", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 16),
              _buildActionTile("Renew Policy", Iconsax.refresh, () {
                _showSuccessDialog("Renewal Initiated", "You will receive a quote on your email shortly.");
              }),
@@ -105,9 +105,9 @@ class _InsurancePageState extends State<InsurancePage> {
   Widget _buildPolicyCard(String plan, String validity, String status, Color statusColor) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [AppColors.primary, AppColors.primary.withValues(alpha:0.8)]),
+        gradient: LinearGradient(colors: [Theme.of(context).colorScheme.onSurface, Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)]),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
@@ -116,16 +116,16 @@ class _InsurancePageState extends State<InsurancePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(plan, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+              Text(plan, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha:0.2), borderRadius: BorderRadius.circular(20)),
-                child: Text(status, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(20)),
+                child: Text(status, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
               )
             ],
           ),
-          const SizedBox(height: 20),
-          Text(validity, style: const TextStyle(color: Colors.white70)),
+          SizedBox(height: 20),
+          Text(validity, style: TextStyle(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7))),
         ],
       ),
     );
@@ -133,12 +133,12 @@ class _InsurancePageState extends State<InsurancePage> {
 
   Widget _buildActionTile(String title, IconData icon, VoidCallback onTap) {
     return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        leading: Icon(icon, color: AppColors.primary),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        leading: Icon(icon, color: Theme.of(context).colorScheme.primary),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.w600)),
+        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Theme.of(context).colorScheme.secondary),
         onTap: onTap,
       ),
     );
@@ -153,7 +153,7 @@ class _InsurancePageState extends State<InsurancePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text("OK"),
+              child: Text("OK"),
             ),
           ],
         ),

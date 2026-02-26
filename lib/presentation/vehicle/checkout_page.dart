@@ -45,16 +45,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Checkout")),
+      appBar: AppBar(title: Text("Checkout")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildVehicleSummary(),
-            const SizedBox(height: 24),
-            const Text("Delivery Address", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
+            SizedBox(height: 24),
+            Text("Delivery Address", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 12),
             TextField(
               controller: _addressController,
               decoration: const InputDecoration(
@@ -63,31 +63,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               maxLines: 2,
             ),
-            const SizedBox(height: 24),
-            const Text("Payment Method", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
+            SizedBox(height: 24),
+            Text("Payment Method", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            SizedBox(height: 12),
             _buildPaymentOption("Credit Card", Icons.credit_card),
             _buildPaymentOption("UPI / Netbanking", Icons.account_balance_wallet),
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
             _buildPriceBreakdown(),
           ],
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: const Offset(0, -5))],
+          boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12), blurRadius: 10, offset: Offset(0, -5))],
         ),
         child: ElevatedButton(
           onPressed: _isProcessing ? null : _processOrder,
           style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: AppColors.primary,
+            padding: EdgeInsets.symmetric(vertical: 16),
+            backgroundColor: Theme.of(context).colorScheme.surface,
           ),
           child: _isProcessing 
-            ? const CircularProgressIndicator(color: Colors.white) 
-            : Text("PAY \$${widget.vehicle.price.toStringAsFixed(0)}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary) 
+            : Text("PAY \$${widget.vehicle.price.toStringAsFixed(0)}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
       ),
     );
@@ -95,7 +95,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Widget _buildVehicleSummary() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -110,7 +110,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             height: 70,
           ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -119,14 +119,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   "${widget.vehicle.brand} ${widget.vehicle.model}",
                   style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-                const SizedBox(height: 4),
-                Text(widget.vehicle.year.toString(), style: const TextStyle(color: AppColors.textMuted)),
+                SizedBox(height: 4),
+                Text(widget.vehicle.year.toString(), style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
               ],
             ),
           ),
           Text(
             "\$${widget.vehicle.price.toStringAsFixed(0)}",
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.primary),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
       ),
@@ -140,8 +140,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
       child: RadioListTile<String>(
         value: label,
         title: Text(label),
-        secondary: Icon(icon, color: AppColors.primary),
-        activeColor: AppColors.primary,
+        secondary: Icon(icon, color: Theme.of(context).colorScheme.primary),
+        activeColor: Theme.of(context).colorScheme.primary,
         contentPadding: EdgeInsets.zero,
       ),
     );
@@ -171,7 +171,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         
         if (availableCredits > 0)
           SwitchListTile(
-            title: const Text("Use Canvas Credits", style: TextStyle(fontWeight: FontWeight.bold)),
+            title: Text("Use Canvas Credits", style: TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Text("Available: $availableCredits credits"),
             value: _useCredits,
             onChanged: (val) => setState(() => _useCredits = val),
@@ -179,20 +179,20 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         
         if (_useCredits && actualDiscount > 0)
-           _row("Credits Discount", "-\$${actualDiscount.toStringAsFixed(0)}", color: Colors.green),
+           _row("Credits Discount", "-\$${actualDiscount.toStringAsFixed(0)}", color: Theme.of(context).colorScheme.onSurface),
 
-        const Divider(height: 24),
+        Divider(height: 24),
         _row("Total Amount", "\$${total.toStringAsFixed(0)}", isBold: true),
         
-        const SizedBox(height: 10),
+        SizedBox(height: 10),
         Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+          padding: EdgeInsets.all(10),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
           child: Row(
             children: [
-              const Icon(Iconsax.coin, color: Colors.green, size: 20),
-              const SizedBox(width: 8),
-              Text("You will earn ${(price * 0.01).toInt()} Credits!", style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+              Icon(Iconsax.coin, color: Theme.of(context).colorScheme.onSurface, size: 20),
+              SizedBox(width: 8),
+              Text("You will earn ${(price * 0.01).toInt()} Credits!", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
             ],
           ),
         )
@@ -202,11 +202,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
   Widget _row(String label, String value, {bool isBold = false, Color? color}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? (isBold ? null : AppColors.textMuted))),
+          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? (isBold ? null : Theme.of(context).colorScheme.onSurface))),
           Text(value, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color)),
         ],
       ),
@@ -228,7 +228,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final user = authService.currentUser;
 
     if (user == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("User not logged in!")));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("User not logged in!")));
       setState(() => _isProcessing = false);
       return;
     }
@@ -279,9 +279,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
         context: context,
         barrierDismissible: false,
         builder: (context) => AlertDialog(
-          title: const Column(
+          title: Column(
             children: [
-              Icon(Icons.check_circle, color: Colors.green, size: 60),
+              Icon(Icons.check_circle, color: Theme.of(context).colorScheme.onSurface, size: 60),
               SizedBox(height: 16),
               Text("Order Placed!"),
             ],
@@ -294,7 +294,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 Navigator.of(context).pop(); // Checkout Page
                 Navigator.of(context).pop(); // Detail Page (Back to Home)
               },
-              child: const Text("Back to Home"),
+              child: Text("Back to Home"),
             ),
           ],
         ),

@@ -44,7 +44,7 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
         stream: Provider.of<VehicleService>(context, listen: false).getUserTestDrivesStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           final bookings = snapshot.data ?? [];
@@ -53,9 +53,9 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             itemCount: bookings.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            separatorBuilder: (context, index) => SizedBox(height: 16),
             itemBuilder: (context, index) => _buildBookingCard(bookings[index]),
           );
         },
@@ -68,11 +68,11 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Iconsax.calendar_remove, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
-          const SizedBox(height: 16),
+          Icon(Iconsax.calendar_remove, size: 64, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)),
+          SizedBox(height: 16),
           Text("No Test Drives Booked", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          const Text("Book a test drive to experience your dream car.", style: TextStyle(color: AppColors.textSecondary)),
+          SizedBox(height: 8),
+          Text("Book a test drive to experience your dream car.", style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
         ],
       ),
     ).animate().fadeIn();
@@ -81,19 +81,19 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
   Widget _buildBookingCard(TestDriveModel booking) {
     Color statusColor;
     switch (booking.status.toLowerCase()) {
-      case 'confirmed': statusColor = AppColors.success; break;
-      case 'completed': statusColor = AppColors.primary; break;
-      case 'cancelled': statusColor = AppColors.error; break;
-      default: statusColor = Colors.orange;
+      case 'confirmed': statusColor = Theme.of(context).colorScheme.onSurface; break;
+      case 'completed': statusColor = Theme.of(context).colorScheme.onSurface; break;
+      case 'cancelled': statusColor = Theme.of(context).colorScheme.onSurface; break;
+      default: statusColor = Theme.of(context).colorScheme.onSurface;
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -102,23 +102,23 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
             borderRadius: BorderRadius.circular(12),
             child: booking.vehicleImage.isNotEmpty
               ? VehicleImage(src: booking.vehicleImage, width: 70, height: 70)
-              : Container(color: Colors.grey, width: 70, height: 70, child: const Icon(Icons.directions_car)),
+              : Container(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), width: 70, height: 70, child: Icon(Icons.directions_car)),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(booking.vehicleName, style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Row(
                   children: [
-                    const Icon(Iconsax.calendar_1, size: 14, color: AppColors.textMuted),
-                    const SizedBox(width: 4),
+                    Icon(Iconsax.calendar_1, size: 14, color: Theme.of(context).colorScheme.secondary),
+                    SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         DateFormat('MMM d, y • h:mm a').format(booking.scheduledTime),
-                        style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                        style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -129,17 +129,17 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
                   future: _resolveLocation(booking),
                   builder: (context, snap) {
                     final loc = snap.data ?? '';
-                    if (loc.trim().isEmpty) return const SizedBox.shrink();
+                    if (loc.trim().isEmpty) return SizedBox.shrink();
                     return Padding(
-                      padding: const EdgeInsets.only(top: 4),
+                      padding: EdgeInsets.only(top: 4),
                       child: Row(
                         children: [
-                          const Icon(Iconsax.location, size: 14, color: AppColors.textMuted),
-                          const SizedBox(width: 4),
+                          Icon(Iconsax.location, size: 14, color: Theme.of(context).colorScheme.secondary),
+                          SizedBox(width: 4),
                           Expanded(
                             child: Text(
                               loc,
-                              style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                              style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -149,9 +149,9 @@ class _TestDrivesPageState extends State<TestDrivesPage> {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),

@@ -57,14 +57,14 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Vehicles"),
+        title: Text("My Vehicles"),
         centerTitle: true,
       ),
       body: StreamBuilder<List<VehicleModel>>(
         stream: _buildMergedStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
             return Center(child: Text("Error: ${snapshot.error}"));
@@ -78,30 +78,30 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(24),
+                    padding: EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Iconsax.car, size: 64, color: AppColors.primary),
+                    child: Icon(Iconsax.car, size: 64, color: Theme.of(context).colorScheme.primary),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   Text(
                     "No Vehicles Yet",
                     style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
-                  const SizedBox(height: 8),
-                  const Text(
+                  SizedBox(height: 8),
+                  Text(
                     "Vehicles you purchase or add manually\nwill appear here in real-time.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.textMuted),
+                    style: TextStyle(color: Theme.of(context).colorScheme.secondary),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () => _addExternal(context, user.uid),
-                    icon: const Icon(Iconsax.add, color: Colors.white),
-                    label: const Text("Add a Vehicle", style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                    icon: Icon(Iconsax.add, color: Theme.of(context).colorScheme.onSurface),
+                    label: Text("Add a Vehicle", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                    style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
                   ),
                 ],
               ),
@@ -109,7 +109,7 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             itemCount: vehicles.length,
             itemBuilder: (context, index) {
               return _buildVehicleCard(context, vehicles[index]);
@@ -119,9 +119,9 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addExternal(context, user.uid),
-        label: const Text("Add Vehicle", style: TextStyle(color: Colors.white)),
-        icon: const Icon(Iconsax.add, color: Colors.white),
-        backgroundColor: AppColors.primary,
+        label: Text("Add Vehicle", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        icon: Icon(Iconsax.add, color: Theme.of(context).colorScheme.onSurface),
+        backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
       ),
     );
   }
@@ -142,12 +142,12 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
         MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicle: vehicle)),
       ),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
-            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12, offset: const Offset(0, 5))
+            BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05), blurRadius: 12, offset: Offset(0, 5))
           ],
         ),
         child: Column(
@@ -156,32 +156,32 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
             Container(
               height: 160,
               decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 image: vehicle.images.isNotEmpty
                     ? DecorationImage(image: NetworkImage(vehicle.images.first), fit: BoxFit.cover)
                     : null,
-                color: Colors.grey.shade800,
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               ),
               child: Stack(
                 children: [
                   if (vehicle.images.isEmpty)
-                    const Center(child: Icon(Icons.directions_car, size: 60, color: Colors.white54)),
+                    Center(child: Icon(Icons.directions_car, size: 60, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54))),
                   // Badge: External vs Purchased
                   Positioned(
                     top: 12,
                     right: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: isExternal
-                            ? Colors.blue.withValues(alpha: 0.85)
-                            : Colors.green.withValues(alpha: 0.85),
+                            ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85)
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         isExternal ? "EXTERNAL" : "OWNED",
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 10),
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 10),
                       ),
                     ),
                   ),
@@ -190,7 +190,7 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
             ),
             // ── Vehicle details
             Padding(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -205,26 +205,26 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
                       ),
                       if (vehicle.specs['licensePlate'] != null)
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: Colors.grey.withValues(alpha: 0.12),
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
                             vehicle.specs['licensePlate'] ?? '',
-                            style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                            style: TextStyle(fontSize: 11, fontFamily: 'monospace'),
                           ),
                         ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4),
                   Text(
                     "${vehicle.fuel} • ${vehicle.transmission}",
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                   ),
-                  const SizedBox(height: 12),
-                  const Divider(height: 1),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 12),
+                  Divider(height: 1),
+                  SizedBox(height: 10),
                   // ── Action buttons
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -283,12 +283,12 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
       onTap: onTap,
       borderRadius: BorderRadius.circular(8),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Column(
           children: [
-            Icon(icon, color: AppColors.primary, size: 20),
-            const SizedBox(height: 4),
-            Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
+            Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+            SizedBox(height: 4),
+            Text(label, style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.secondary)),
           ],
         ),
       ),

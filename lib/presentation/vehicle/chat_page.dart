@@ -88,14 +88,14 @@ class _ChatPageState extends State<ChatPage> {
             Text(widget.otherUserName,
                 style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 16)),
             Text(widget.vehicleName,
-                style: const TextStyle(
-                    fontSize: 11, color: AppColors.textMuted, fontWeight: FontWeight.normal)),
+                style: TextStyle(
+                    fontSize: 11, color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.normal)),
           ],
         ),
         centerTitle: false,
       ),
       body: _chatId == null
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : Column(
               children: [
                 Expanded(
@@ -103,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
                     stream: _chatService.messagesStream(_chatId!),
                     builder: (context, snap) {
                       if (snap.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(child: CircularProgressIndicator());
                       }
                       final messages = snap.data ?? [];
                       if (messages.isEmpty) {
@@ -113,10 +113,10 @@ class _ChatPageState extends State<ChatPage> {
                             children: [
                               Icon(Icons.chat_bubble_outline,
                                   size: 60,
-                                  color: AppColors.textMuted.withValues(alpha: 0.4)),
-                              const SizedBox(height: 12),
+                                  color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.4)),
+                              SizedBox(height: 12),
                               Text('Say hello to ${widget.otherUserName}!',
-                                  style: const TextStyle(color: AppColors.textMuted)),
+                                  style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                             ],
                           ),
                         );
@@ -125,7 +125,7 @@ class _ChatPageState extends State<ChatPage> {
                           .addPostFrameCallback((_) => _scrollToBottom());
                       return ListView.builder(
                         controller: _scrollController,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         itemCount: messages.length,
                         itemBuilder: (_, i) => _buildBubble(messages[i]),
                       );
@@ -143,23 +143,23 @@ class _ChatPageState extends State<ChatPage> {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        margin: EdgeInsets.symmetric(vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.72),
         decoration: BoxDecoration(
-          color: isMe ? AppColors.primary : Theme.of(context).cardColor,
+          color: isMe ? Theme.of(context).colorScheme.onSurface : Theme.of(context).cardColor,
           borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
             bottomLeft: Radius.circular(isMe ? 16 : 4),
             bottomRight: Radius.circular(isMe ? 4 : 16),
           ),
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.06),
                 blurRadius: 4,
-                offset: const Offset(0, 2))
+                offset: Offset(0, 2))
           ],
         ),
         child: Column(
@@ -168,15 +168,15 @@ class _ChatPageState extends State<ChatPage> {
           children: [
             Text(msg.text,
                 style: TextStyle(
-                    color: isMe ? Colors.white : null, fontSize: 14)),
-            const SizedBox(height: 4),
+                    color: isMe ? Theme.of(context).colorScheme.onSurface : null, fontSize: 14)),
+            SizedBox(height: 4),
             Text(
               DateFormat('h:mm a').format(msg.timestamp),
               style: TextStyle(
                   fontSize: 10,
                   color: isMe
-                      ? Colors.white.withValues(alpha: 0.7)
-                      : AppColors.textMuted),
+                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                      : Theme.of(context).colorScheme.onSurface),
             ),
           ],
         ),
@@ -187,14 +187,14 @@ class _ChatPageState extends State<ChatPage> {
   Widget _buildInputBar() {
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           boxShadow: [
             BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
+                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.06),
                 blurRadius: 10,
-                offset: const Offset(0, -2))
+                offset: Offset(0, -2))
           ],
         ),
         child: Row(
@@ -206,11 +206,11 @@ class _ChatPageState extends State<ChatPage> {
                 maxLines: null,
                 decoration: InputDecoration(
                   hintText: 'Type a message…',
-                  hintStyle: const TextStyle(color: AppColors.textMuted),
+                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
                   filled: true,
                   fillColor: Theme.of(context).scaffoldBackgroundColor,
                   contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none,
@@ -219,22 +219,22 @@ class _ChatPageState extends State<ChatPage> {
                 onSubmitted: (_) => _send(),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             GestureDetector(
               onTap: _send,
               child: Container(
-                padding: const EdgeInsets.all(12),
-                decoration: const BoxDecoration(
-                    color: AppColors.primary, shape: BoxShape.circle),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), shape: BoxShape.circle),
                 child: _sending
-                    ? const SizedBox(
+                    ? SizedBox(
                         width: 20,
                         height: 20,
                         child: CircularProgressIndicator(
-                            color: Colors.white, strokeWidth: 2),
+                            color: Theme.of(context).colorScheme.primary, strokeWidth: 2),
                       )
-                    : const Icon(Icons.send_rounded,
-                        color: Colors.white, size: 20),
+                    : Icon(Icons.send_rounded,
+                        color: Theme.of(context).colorScheme.onSurface, size: 20),
               ),
             ),
           ],
