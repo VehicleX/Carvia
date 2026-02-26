@@ -33,14 +33,22 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill name, email and password")),
+        SnackBar(
+           content: Text("Please fill name, email and password", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+           backgroundColor: Colors.red.shade800,
+           duration: Duration(seconds: 3),
+        ),
       );
       return;
     }
 
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Password must be at least 6 characters")),
+        SnackBar(
+           content: Text("Password must be at least 6 characters", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+           backgroundColor: Colors.red.shade800,
+           duration: Duration(seconds: 3),
+        ),
       );
       return;
     }
@@ -55,10 +63,10 @@ class _RegisterPageState extends State<RegisterPage> {
         if (mounted) {
           setState(() => _isLoading = false);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("This email is already registered. Please login instead."),
+            SnackBar(
+              content: Text("This email is already registered. Please login instead.", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               duration: Duration(seconds: 4),
-              backgroundColor: Colors.red,
+              backgroundColor: Colors.red.shade800,
             ),
           );
         }
@@ -88,7 +96,11 @@ class _RegisterPageState extends State<RegisterPage> {
          }
 
          ScaffoldMessenger.of(context).showSnackBar(
-           SnackBar(content: Text(errorMessage)),
+           SnackBar(
+              content: Text(errorMessage, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              backgroundColor: Colors.red.shade800,
+              duration: Duration(seconds: 4),
+           ),
          );
       }
     }
@@ -115,7 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
           try {
             await authService.resendOtp(email);
             if (context.mounted) {
-               ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP resent to your email")));
+               ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("OTP resent to your email")));
             }
           } catch (e) {
             // Check for fallback in resend too
@@ -148,12 +160,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 (route) => false,
               );
             } else {
-              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Registration failed")));
+              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration failed")));
             }
           } catch (e) {
             if (context.mounted) {
               Navigator.pop(context); 
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e"), backgroundColor: Colors.red));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("$e"), backgroundColor: Theme.of(context).colorScheme.surface));
             }
           }
         },
@@ -164,17 +176,17 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
+          icon: Icon(Icons.arrow_back_rounded),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text("Create Account", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -183,49 +195,49 @@ class _RegisterPageState extends State<RegisterPage> {
               style: GoogleFonts.outfit(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ).animate().fadeIn().slideX(begin: -0.1),
             
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             
             Text(
               "Start your digital vehicle journey",
               style: GoogleFonts.outfit(
                 fontSize: 16,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.secondary,
               ),
             ).animate().fadeIn(delay: 200.ms),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             // Role Selection
-            Text("I AM A:", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
-            const SizedBox(height: 12),
+            Text("I AM A:", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary)),
+            SizedBox(height: 12),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
                    _buildRoleChip("Buyer", UserRole.buyer),
-                   const SizedBox(width: 12),
+                   SizedBox(width: 12),
                    _buildRoleChip("Seller", UserRole.seller),
-                   const SizedBox(width: 12),
+                   SizedBox(width: 12),
                    _buildRoleChip("Police", UserRole.police),
                 ],
               ),
             ),
             
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             _buildTextField("FULL NAME", Icons.person_outline, _nameController),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildTextField("EMAIL ADDRESS", Icons.email_outlined, _emailController),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildTextField("PHONE NUMBER (OPTIONAL)", Icons.phone_outlined, _phoneController, isPhone: true),
-            const SizedBox(height: 20),
+            SizedBox(height: 20),
             _buildTextField("PASSWORD", Icons.lock_outline_rounded, _passwordController, isPassword: true),
             
-            const SizedBox(height: 40),
+            SizedBox(height: 40),
             
             SizedBox(
               width: double.infinity,
@@ -233,8 +245,8 @@ class _RegisterPageState extends State<RegisterPage> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _handleRegister,
                 child: _isLoading 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Send OTP & Register"),
+                    ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)
+                    : Text("Send OTP & Register"),
               ),
             ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.2),
           ],
@@ -251,13 +263,13 @@ class _RegisterPageState extends State<RegisterPage> {
       onSelected: (selected) {
         if (selected) setState(() => _selectedRole = role);
       },
-      selectedColor: AppColors.primary,
-      backgroundColor: AppColors.surface,
+      selectedColor: Theme.of(context).colorScheme.primary,
+      backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
       labelStyle: TextStyle(
-        color: isSelected ? Colors.white : AppColors.textPrimary,
+        color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
-      checkmarkColor: Colors.white,
+      checkmarkColor: Theme.of(context).colorScheme.onSurface,
     );
   }
 
@@ -270,31 +282,39 @@ class _RegisterPageState extends State<RegisterPage> {
           style: GoogleFonts.outfit(
             fontSize: 12,
             fontWeight: FontWeight.bold,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.secondary,
             letterSpacing: 1.0,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         TextField(
           controller: controller,
           obscureText: isPassword && _obscurePassword,
           keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
-          style: const TextStyle(color: AppColors.textPrimary),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
           decoration: InputDecoration(
-            prefixIcon: Icon(icon, color: AppColors.textSecondary),
+            prefixIcon: Icon(icon, color: Theme.of(context).colorScheme.secondary),
             hintText: isPhone ? "+1 555 000 0000" : (isPassword ? "••••••••" : ""),
-            hintStyle: const TextStyle(color: AppColors.textMuted),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.secondary),
             filled: true,
-            fillColor: AppColors.surface,
+            fillColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
             ),
             suffixIcon: isPassword
                 ? IconButton(
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     onPressed: () {
                       setState(() {
