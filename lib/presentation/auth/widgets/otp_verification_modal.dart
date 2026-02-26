@@ -50,9 +50,9 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
       filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
       child: Container(
         decoration: BoxDecoration(
-          color: AppColors.background.withValues(alpha: 0.8),
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-          border: Border.fromBorderSide(BorderSide(color: AppColors.surface, width: 1)),
+          color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          border: Border.fromBorderSide(BorderSide(color: Theme.of(context).colorScheme.outline, width: 1)),
         ),
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(context).viewInsets.bottom + 24,
@@ -68,33 +68,33 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             // Icon
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.mark_email_read_outlined, color: AppColors.primary, size: 32),
+              child: Icon(Icons.mark_email_read_outlined, color: Theme.of(context).colorScheme.primary, size: 32),
             ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
             
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             Text(
               "OTP Verification",
               style: GoogleFonts.outfit(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               widget.email != null 
                 ? "Enter the 4-digit code sent to\n${_maskEmail(widget.email!)}"
@@ -102,12 +102,12 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: Theme.of(context).colorScheme.secondary,
                 height: 1.5,
               ),
             ),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             // OTP Inputs
             Row(
@@ -126,20 +126,20 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
                     style: GoogleFonts.outfit(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     decoration: InputDecoration(
                       contentPadding: EdgeInsets.zero,
                       counterText: "",
                       filled: true,
-                      fillColor: AppColors.surface,
+                      fillColor: Theme.of(context).colorScheme.surface,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: AppColors.surface),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 2),
                       ),
                     ),
                   ),
@@ -147,7 +147,7 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
               }),
             ),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             // Verify Button
             SizedBox(
@@ -161,11 +161,11 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
                      widget.onVerified?.call(code);
                   }
                 },
-                child: const Text("Verify Code"),
+                child: Text("Verify Code"),
               ),
             ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.2),
             
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             
             // Resend Timer
             Row(
@@ -173,21 +173,21 @@ class _OtpVerificationModalState extends State<OtpVerificationModal> {
               children: [
                 Text(
                   "Didn't receive code? ",
-                  style: GoogleFonts.outfit(color: AppColors.textSecondary),
+                  style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.secondary),
                 ),
                 GestureDetector(
                   onTap: widget.onResend,
                   child: Text(
                     "Resend",
                     style: GoogleFonts.outfit(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
           ],
         ),
       ),
