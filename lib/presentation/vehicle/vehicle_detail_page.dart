@@ -43,39 +43,39 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         leading: CircleAvatar(
-          backgroundColor: Colors.black45,
-          child: BackButton(color: Colors.white, onPressed: () => Navigator.pop(context)),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          child: BackButton(color: Theme.of(context).colorScheme.onSurface, onPressed: () => Navigator.pop(context)),
         ),
         actions: [
           CircleAvatar(
-            backgroundColor: Colors.black45,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: IconButton(
-              icon: const Icon(Icons.share, color: Colors.white),
+              icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onSurface),
               onPressed: () {},
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           CircleAvatar(
-            backgroundColor: Colors.black45,
+            backgroundColor: Theme.of(context).colorScheme.primary,
             child: Consumer<VehicleService>(
               builder: (context, vehicleService, child) {
                 final isWishlisted = vehicleService.isInWishlist(widget.vehicle.id);
                 return IconButton(
                   icon: Icon(isWishlisted ? Icons.favorite : Icons.favorite_border,
-                      color: isWishlisted ? Colors.red : Colors.white),
+                      color: isWishlisted ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface),
                   onPressed: () {
                     final authService = Provider.of<AuthService>(context, listen: false);
                      if (authService.currentUser != null) {
                         vehicleService.toggleWishlist(authService.currentUser!.uid, widget.vehicle.id);
                      } else {
-                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please login to wishlist vehicles!")));
+                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please login to wishlist vehicles!")));
                      }
                   },
                 );
               },
             ),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20),
         ],
       ),
       body: SingleChildScrollView(
@@ -102,7 +102,7 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
             onPageChanged: (index) => setState(() => _currentImageIndex = index),
             itemBuilder: (context, index) {
               if (widget.vehicle.images.isEmpty) {
-                return Container(color: Colors.grey.shade900, child: const Center(child: Icon(Icons.directions_car, size: 80, color: Colors.white54)));
+                return Container(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), child: Center(child: Icon(Icons.directions_car, size: 80, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54))));
               }
               return VehicleImage(src: widget.vehicle.images[index], fit: BoxFit.cover);
             },
@@ -116,11 +116,11 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
               children: List.generate(
                 widget.vehicle.images.length,
                 (index) => Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  margin: EdgeInsets.symmetric(horizontal: 4),
                   width: _currentImageIndex == index ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: _currentImageIndex == index ? AppColors.primary : Colors.white54,
+                    color: _currentImageIndex == index ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -140,9 +140,9 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
       ),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -159,57 +159,57 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary)),
-                    const Text("Fixed Price", style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                    Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                    Text("Fixed Price", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
                   ],
                 ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           
           if (isOwnerOrExternal) ...[
              Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.success.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 widget.vehicle.specs['licensePlate'] != null ? "Plate: ${widget.vehicle.specs['licensePlate']}" : "Your Vehicle",
-                style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold, fontSize: 12)
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 12)
               ),
              ),
           ] else ...[
              Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text("Stock: #CV-992-01", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
+              child: Text("Stock: #CV-992-01", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 12)),
              ),
           ],
           
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           _buildSpecGrid(),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           // Hide AI and Seller for owners
           if (!isOwnerOrExternal) ...[
             _buildAIAnalysis(),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
           ],
           
-          const Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
+          Text("Description", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          SizedBox(height: 12),
           Text(
             // If external and no description, show generic owner text
             (widget.vehicle.isExternal && widget.vehicle.specs['description'] == null) 
                 ? "Manage your vehicle details, insurance, and challans here."
                 : (widget.vehicle.specs['description'] ?? "This is a masterpiece of engineering. One-owner, garage-kept, and maintained exclusively by certified technicians."),
-            style: const TextStyle(color: AppColors.textMuted, height: 1.5),
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary, height: 1.5),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           
           if (!isOwnerOrExternal)
             _buildSellerCard(),
@@ -237,7 +237,7 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
 
   Widget _buildSpecItem(IconData icon, String label, String value) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -245,20 +245,20 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: AppColors.primary, size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(label, style: const TextStyle(color: AppColors.textMuted, fontSize: 10)),
-              Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(label, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 10)),
+              Text(value, style: TextStyle(fontWeight: FontWeight.bold)),
             ],
           ),
         ],
@@ -268,35 +268,35 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
 
   Widget _buildAIAnalysis() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary.withValues(alpha: 0.1), Colors.blue.withValues(alpha: 0.05)],
+          colors: [Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
-            decoration: const BoxDecoration(
-              color: AppColors.primary,
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Iconsax.magic_star, color: Colors.white),
+            child: Icon(Iconsax.magic_star, color: Theme.of(context).colorScheme.onSurface),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Carvia AI Analysis", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("98% Match for your preferences", style: TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                Text("Carvia AI Analysis", style: TextStyle(fontWeight: FontWeight.bold)),
+                Text("98% Match for your preferences", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
               ],
             ),
           ),
-          TextButton(onPressed: _showAIAnalysis, child: const Text("DETAILS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2))),
+          TextButton(onPressed: _showAIAnalysis, child: Text("DETAILS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2))),
         ],
       ),
     );
@@ -308,7 +308,7 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       builder: (context) {
         return Container(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -316,46 +316,46 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Iconsax.magic_star, color: Colors.white, size: 20),
+                    child: Icon(Iconsax.magic_star, color: Theme.of(context).colorScheme.onSurface, size: 20),
                   ),
-                  const SizedBox(width: 12),
-                  const Text("AI Analysis", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  SizedBox(width: 12),
+                  Text("AI Analysis", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               FutureBuilder<String>(
                 future: Provider.of<AIService>(context, listen: false).generateVehicleAIAnalysis(widget.vehicle),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Padding(
+                    return Padding(
                       padding: EdgeInsets.symmetric(vertical: 40),
                       child: Center(child: CircularProgressIndicator()),
                     );
                   }
                   if (snapshot.hasError) {
-                    return const Center(child: Text("Error generating analysis."));
+                    return Center(child: Text("Error generating analysis."));
                   }
                   return Flexible(
                     child: SingleChildScrollView(
                       child: Text(
                         snapshot.data ?? "",
-                        style: const TextStyle(height: 1.5, fontSize: 16),
+                        style: TextStyle(height: 1.5, fontSize: 16),
                       ),
                     ),
                   );
                 },
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("Close"),
+                  child: Text("Close"),
                 ),
               ),
             ],
@@ -391,18 +391,18 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
             : (sellerEmail.isNotEmpty ? sellerEmail : 'Contact details unavailable');
 
         return Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 backgroundImage: NetworkImage("https://randomuser.me/api/portraits/men/32.jpg"),
                 radius: 25,
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,23 +414,23 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                             sellerName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        const Icon(Icons.verified, size: 16, color: AppColors.success),
+                        SizedBox(width: 4),
+                        Icon(Icons.verified, size: 16, color: Theme.of(context).colorScheme.onSurface),
                       ],
                     ),
                     Row(
                       children: [
-                        const Icon(Iconsax.call, size: 14, color: AppColors.textMuted),
-                        const SizedBox(width: 4),
+                        Icon(Iconsax.call, size: 14, color: Theme.of(context).colorScheme.secondary),
+                        SizedBox(width: 4),
                         Expanded(
                           child: Text(
                             contactText,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                            style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                           ),
                         ),
                       ],
@@ -442,11 +442,11 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                 onPressed: () {
                   final user = Provider.of<AuthService>(context, listen: false).currentUser;
                   if (user == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please login to chat')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please login to chat')));
                     return;
                   }
                   if (user.uid == widget.vehicle.sellerId) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('This is your own listing')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('This is your own listing')));
                     return;
                   }
                   Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(
@@ -458,9 +458,9 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                     vehicleName: '${widget.vehicle.brand} ${widget.vehicle.model}',
                   )));
                 },
-                icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.message, size: 20)),
+                icon: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)), child: Icon(Iconsax.message, size: 20)),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               IconButton(
                 onPressed: () {
                   final number = sellerPhone.isNotEmpty ? sellerPhone : 'Not available';
@@ -469,26 +469,26 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                     builder: (_) => AlertDialog(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       title: Row(
-                        children: const [
-                          Icon(Iconsax.call, color: AppColors.primary, size: 20),
+                        children: [
+                          Icon(Iconsax.call, color: Theme.of(context).colorScheme.primary, size: 20),
                           SizedBox(width: 8),
                           Text('Seller Contact'),
                         ],
                       ),
                       content: Text(
                         number,
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, letterSpacing: 1.2),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('Close'),
+                          child: Text('Close'),
                         ),
                       ],
                     ),
                   );
                 },
-                icon: Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(10)), child: const Icon(Iconsax.call, size: 20)),
+                icon: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)), child: Icon(Iconsax.call, size: 20)),
               ),
             ],
           ),
@@ -501,11 +501,11 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
     // If vehicle is external (manually added), don't show buy/test drive options
     if (widget.vehicle.isExternal) {
        return Container(
-         padding: const EdgeInsets.all(20),
+         padding: EdgeInsets.all(20),
          decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -5))],
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1), blurRadius: 10, offset: Offset(0, -5))],
          ),
          child: Row(
            children: [
@@ -514,9 +514,9 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                  onPressed: () {
                    // Navigate to service history or maintenance (Future feature)
                  },
-                 icon: const Icon(Iconsax.setting_2),
-                 label: const Text("Manage Vehicle"),
-                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary),
+                 icon: Icon(Iconsax.setting_2),
+                 label: Text("Manage Vehicle"),
+                 style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
                ),
              ),
            ],
@@ -530,26 +530,26 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
 
     if (isOwner) {
        return Container(
-         padding: const EdgeInsets.all(20),
+         padding: EdgeInsets.all(20),
          decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, -5))],
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+          boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1), blurRadius: 10, offset: Offset(0, -5))],
          ),
-         child: const Center(child: Text("You own this vehicle", style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.success))),
+         child: Center(child: Text("You own this vehicle", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface))),
        );
     }
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: const BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
             blurRadius: 10,
-            offset: const Offset(0, -5),
+            offset: Offset(0, -5),
           ),
         ],
       ),
@@ -561,34 +561,34 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                compareService.addToCompare(widget.vehicle);
                Navigator.push(context, MaterialPageRoute(builder: (_) => const ComparePage()));
             },
-            icon: const Icon(Icons.compare_arrows),
+            icon: Icon(Icons.compare_arrows),
             tooltip: "Compare",
             style: IconButton.styleFrom(
-              side: const BorderSide(color: AppColors.textMuted),
+              side: BorderSide(color: Theme.of(context).colorScheme.outline),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: OutlinedButton(
               onPressed: () => _showBookTestDriveDialog(),
               style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                side: const BorderSide(color: AppColors.textMuted),
+                padding: EdgeInsets.symmetric(vertical: 16),
+                side: BorderSide(color: Theme.of(context).colorScheme.outline),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               ),
-              child: const Text("Test Drive", style: TextStyle(fontWeight: FontWeight.bold)),
+              child: Text("Test Drive", style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             flex: 2,
             child: ElevatedButton(
               onPressed: () {
                  Navigator.push(context, MaterialPageRoute(builder: (_) => CheckoutPage(vehicle: widget.vehicle)));
               },
-              child: const Text("BUY NOW"),
+              child: Text("BUY NOW"),
             ),
           ),
         ],
