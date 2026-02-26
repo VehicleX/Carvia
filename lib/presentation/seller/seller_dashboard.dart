@@ -21,7 +21,7 @@ class SellerDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context);
     final user = authService.currentUser;
-    if (user == null) return const Center(child: CircularProgressIndicator());
+    if (user == null) return Center(child: CircularProgressIndicator());
 
     return RefreshIndicator(
       onRefresh: () async {},
@@ -30,14 +30,14 @@ class SellerDashboard extends StatelessWidget {
           // ── Greeting Header ──────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 28),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [AppColors.primary, AppColors.primary.withValues(alpha: 0.75)],
+                  colors: [Theme.of(context).colorScheme.onSurface, Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75)],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(32)),
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,27 +46,27 @@ class SellerDashboard extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 26,
-                        backgroundColor: Colors.white24,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         backgroundImage: user.profileImage != null
                             ? NetworkImage(user.profileImage!)
                             : null,
                         child: user.profileImage == null
-                            ? const Icon(Iconsax.shop, color: Colors.white, size: 26)
+                            ? Icon(Iconsax.shop, color: Theme.of(context).colorScheme.onPrimary, size: 26)
                             : null,
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               "Welcome back 👋",
-                              style: const TextStyle(color: Colors.white70, fontSize: 13),
+                              style: TextStyle(color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8), fontSize: 13),
                             ),
                             Text(
                               user.name,
                               style: GoogleFonts.outfit(
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.surface,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 20),
                             ),
@@ -74,25 +74,25 @@ class SellerDashboard extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white24,
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.24),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Row(
+                        child: Row(
                           children: [
-                            Icon(Iconsax.shop, size: 14, color: Colors.white),
+                            Icon(Iconsax.shop, size: 14, color: Theme.of(context).colorScheme.surface),
                             SizedBox(width: 4),
-                            Text("Seller", style: TextStyle(color: Colors.white, fontSize: 12)),
+                            Text("Seller", style: TextStyle(color: Theme.of(context).colorScheme.surface, fontSize: 12)),
                           ],
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   Text(
                     "Your dealership at a glance",
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                    style: TextStyle(color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8), fontSize: 13),
                   ),
                 ],
               ),
@@ -124,18 +124,18 @@ class SellerDashboard extends StatelessWidget {
                         .fold(0.0, (s, v) => s + v.price);
 
                     final stats = [
-                      _Stat("Active Listings", "$activeCount", Iconsax.car, Colors.blue, 1),
-                      _Stat("Sold Vehicles", "$soldCount", Iconsax.tick_circle, Colors.green, 1),
-                      _Stat("Pending Orders", "$pendingOrders", Iconsax.box, Colors.orange, 3),
-                      _Stat("Total Views", "$totalViews", Iconsax.eye, Colors.purple, 5),
+                      _Stat("Active Listings", "$activeCount", Iconsax.car, Theme.of(context).colorScheme.onSurface, 1),
+                      _Stat("Sold Vehicles", "$soldCount", Iconsax.tick_circle, Theme.of(context).colorScheme.onSurface, 1),
+                      _Stat("Pending Orders", "$pendingOrders", Iconsax.box, Theme.of(context).colorScheme.onSurface, 3),
+                      _Stat("Total Views", "$totalViews", Iconsax.eye, Theme.of(context).colorScheme.onSurface, 5),
                     ];
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(horizontal: 20),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -144,19 +144,19 @@ class SellerDashboard extends StatelessWidget {
                                       fontWeight: FontWeight.bold, fontSize: 18)),
                               Text(
                                 "Updated now",
-                                style: const TextStyle(
-                                    color: AppColors.textMuted, fontSize: 12),
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(height: 12),
+                        SizedBox(height: 12),
                         GridView.builder(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(horizontal: 20),
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
+                              SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
                             crossAxisSpacing: 12,
                             mainAxisSpacing: 12,
@@ -170,9 +170,9 @@ class SellerDashboard extends StatelessWidget {
                         ),
 
                         // ── Revenue Banner ──────────────────────────────
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding: EdgeInsets.symmetric(horizontal: 20),
                           child: _RevenueBanner(
                             revenue: totalRevenue,
                             pending: pendingOrders + confirmedOrders,
@@ -189,42 +189,42 @@ class SellerDashboard extends StatelessWidget {
           // ── Quick Actions ─────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+              padding: EdgeInsets.fromLTRB(20, 28, 20, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Quick Actions",
                       style:
                           GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18)),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14),
                   Row(
                     children: [
                       Expanded(
                         child: _QuickAction(
                           icon: Iconsax.add_circle,
                           label: "Add Vehicle",
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => const AddVehiclePage()),
                           ),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: _QuickAction(
                           icon: Iconsax.box,
                           label: "View Orders",
-                          color: Colors.orange,
+                          color: Theme.of(context).colorScheme.onSurface,
                           onTap: () => onTabChange?.call(3),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: 12),
                       Expanded(
                         child: _QuickAction(
                           icon: Iconsax.chart_2,
                           label: "Analytics",
-                          color: Colors.purple,
+                          color: Theme.of(context).colorScheme.onSurface,
                           onTap: () => onTabChange?.call(5),
                         ),
                       ),
@@ -238,7 +238,7 @@ class SellerDashboard extends StatelessWidget {
           // ── Recent Orders Preview ─────────────────────────────────────
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
+              padding: EdgeInsets.fromLTRB(20, 28, 20, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -250,7 +250,7 @@ class SellerDashboard extends StatelessWidget {
                               fontWeight: FontWeight.bold, fontSize: 18)),
                       TextButton(
                         onPressed: () => onTabChange?.call(3),
-                        child: const Text("See All"),
+                        child: Text("See All"),
                       ),
                     ],
                   ),
@@ -267,19 +267,19 @@ class SellerDashboard extends StatelessWidget {
               if (orders.isEmpty) {
                 return SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
+                    padding: EdgeInsets.fromLTRB(20, 8, 20, 0),
                     child: Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Row(
+                      child: Row(
                         children: [
-                          Icon(Iconsax.box, color: AppColors.textMuted),
+                          Icon(Iconsax.box, color: Theme.of(context).colorScheme.secondary),
                           SizedBox(width: 12),
                           Text("No orders yet",
-                              style: TextStyle(color: AppColors.textMuted)),
+                              style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                         ],
                       ),
                     ),
@@ -290,7 +290,7 @@ class SellerDashboard extends StatelessWidget {
               return SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (ctx, i) => Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+                    padding: EdgeInsets.fromLTRB(20, 6, 20, 0),
                     child: _MiniOrderCard(order: orders[i]),
                   ),
                   childCount: orders.length,
@@ -327,7 +327,7 @@ class _StatCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
@@ -336,7 +336,7 @@ class _StatCard extends StatelessWidget {
             BoxShadow(
                 color: stat.color.withValues(alpha: 0.06),
                 blurRadius: 12,
-                offset: const Offset(0, 4))
+                offset: Offset(0, 4))
           ],
         ),
         child: Column(
@@ -344,7 +344,7 @@ class _StatCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: stat.color.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
@@ -358,7 +358,7 @@ class _StatCard extends StatelessWidget {
                     style: GoogleFonts.outfit(
                         fontSize: 26, fontWeight: FontWeight.bold, color: stat.color)),
                 Text(stat.title,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
+                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.secondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
               ],
@@ -379,19 +379,19 @@ class _RevenueBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
+        gradient: LinearGradient(
+          colors: [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.surface.withValues(alpha: 0.8)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.18),
               blurRadius: 16,
-              offset: const Offset(0, 6))
+              offset: Offset(0, 6))
         ],
       ),
       child: Row(
@@ -400,34 +400,34 @@ class _RevenueBanner extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text("Total Earnings",
-                    style: TextStyle(color: Colors.white54, fontSize: 12)),
-                const SizedBox(height: 4),
+                Text("Total Earnings",
+                    style: TextStyle(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54), fontSize: 12)),
+                SizedBox(height: 4),
                 Text(
                   "₹${NumberFormat.compact().format(revenue)}",
                   style: GoogleFonts.outfit(
-                      color: Colors.white,
+                      color: Theme.of(context).colorScheme.onSurface,
                       fontSize: 28,
                       fontWeight: FontWeight.bold),
                 ),
                 if (pending > 0)
                   Container(
-                    margin: const EdgeInsets.only(top: 8),
+                    margin: EdgeInsets.only(top: 8),
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha: 0.2),
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       "$pending orders awaiting action",
-                      style: const TextStyle(color: Colors.orange, fontSize: 11),
+                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 11),
                     ),
                   ),
               ],
             ),
           ),
-          const Icon(Iconsax.wallet_2, color: Colors.white24, size: 48),
+          Icon(Iconsax.wallet_2, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8), size: 48),
         ],
       ),
     );
@@ -451,7 +451,7 @@ class _QuickAction extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
@@ -460,7 +460,7 @@ class _QuickAction extends StatelessWidget {
         child: Column(
           children: [
             Icon(icon, color: color, size: 26),
-            const SizedBox(height: 6),
+            SizedBox(height: 6),
             Text(label,
                 style: TextStyle(
                     color: color, fontWeight: FontWeight.w600, fontSize: 11),
@@ -477,19 +477,20 @@ class _MiniOrderCard extends StatelessWidget {
   final OrderModel order;
   const _MiniOrderCard({required this.order});
 
-  Color get _color {
+  Color _getColor(BuildContext context) {
     switch (order.status) {
-      case OrderStatus.pending: return Colors.orange;
-      case OrderStatus.confirmed: return Colors.blue;
-      case OrderStatus.delivered: return AppColors.success;
-      case OrderStatus.cancelled: return AppColors.error;
+      case OrderStatus.pending: return Theme.of(context).colorScheme.onSurface;
+      case OrderStatus.confirmed: return Theme.of(context).colorScheme.onSurface;
+      case OrderStatus.delivered: return Theme.of(context).colorScheme.onSurface;
+      case OrderStatus.cancelled: return Theme.of(context).colorScheme.onSurface;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final _color = _getColor(context);
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -498,31 +499,31 @@ class _MiniOrderCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(Iconsax.car, color: AppColors.primary, size: 18),
+            child: Icon(Iconsax.car, color: Theme.of(context).colorScheme.primary, size: 18),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(order.vehicleName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis),
                 Text(
                   "₹${order.amount.toStringAsFixed(0)} • ${DateFormat('dd MMM').format(order.date)}",
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 11),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: _color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(20),
