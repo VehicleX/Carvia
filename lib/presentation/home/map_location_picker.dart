@@ -85,11 +85,11 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Select Location")),
+      appBar: AppBar(title: Text("Select Location")),
       body: Stack(
         children: [
           _isLoading 
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(child: CircularProgressIndicator())
             : GoogleMap(
                 initialCameraPosition: CameraPosition(target: _currentPosition, zoom: 14),
                 onMapCreated: (controller) {},
@@ -98,25 +98,25 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
                 myLocationEnabled: true,
                 myLocationButtonEnabled: true,
               ),
-          const Center(
-            child: Icon(Icons.location_pin, color: AppColors.primary, size: 50),
+          Center(
+            child: Icon(Icons.location_pin, color: Theme.of(context).colorScheme.primary, size: 50),
           ),
           Positioned(
             bottom: 30,
             left: 20,
             right: 20,
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                boxShadow: [BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12), blurRadius: 10)],
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(_address, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center),
-                  const SizedBox(height: 20),
+                  Text(_address, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16), textAlign: TextAlign.center),
+                  SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     height: 50,
@@ -124,7 +124,7 @@ class _MapLocationPickerState extends State<MapLocationPicker> {
                       onPressed: _isLoading ? null : () {
                         Navigator.pop(context, _address);
                       },
-                      child: const Text("Confirm Location"),
+                      child: Text("Confirm Location"),
                     ),
                   ),
                 ],
