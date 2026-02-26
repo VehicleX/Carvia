@@ -25,8 +25,8 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
     const PoliceSearchVehicle(),
     const PoliceIssueChallan(), // Quick Access
     const PoliceAnalyticsPage(),
-    const Center(child: Text("Notifications")), // Placeholder
-    const Center(child: Text("Settings")), // Placeholder
+    Center(child: Text("Notifications")), // Placeholder
+    Center(child: Text("Settings")), // Placeholder
   ];
 
   @override
@@ -43,14 +43,14 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
               color: Theme.of(context).cardColor,
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                   // Logo / Header
                   if (_isSidebarExpanded)
-                    Text("Carvia Police", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary))
+                    Text("Carvia Police", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface))
                   else
-                    const Icon(Icons.security, color: AppColors.primary),
+                    Icon(Icons.security, color: Theme.of(context).colorScheme.primary),
                   
-                  const SizedBox(height: 40),
+                  SizedBox(height: 40),
                   
                   _buildNavItem(0, "Dashboard", Iconsax.home),
                   _buildNavItem(1, "Search Vehicle", Iconsax.search_normal),
@@ -61,7 +61,7 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
                   
                   const Spacer(),
                   _buildLogoutButton(),
-                  const SizedBox(height: 20),
+                  SizedBox(height: 20),
                 ],
               ),
             ),
@@ -71,7 +71,7 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
               children: [
                 if (!isDesktop) ...[
                   AppBar(
-                    title: const Text("Carvia Police"),
+                    title: Text("Carvia Police"),
                     backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                     elevation: 0,
                   ),
@@ -85,7 +85,7 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
       bottomNavigationBar: isDesktop ? null : NavigationBar(
         selectedIndex: _selectedIndex > 3 ? 0 : _selectedIndex, // Simple mapping for mobile
         onDestinationSelected: (idx) => setState(() => _selectedIndex = idx),
-        destinations: const [
+        destinations: [
           NavigationDestination(icon: Icon(Iconsax.home), label: "Home"),
           NavigationDestination(icon: Icon(Iconsax.search_normal), label: "Search"),
           NavigationDestination(icon: Icon(Iconsax.receipt_add), label: "Challan"),
@@ -98,8 +98,8 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
   Widget _buildNavItem(int index, String title, IconData icon) {
     final isSelected = _selectedIndex == index;
     return ListTile(
-      title: _isSidebarExpanded ? Text(title, style: TextStyle(color: isSelected ? AppColors.primary : AppColors.textMuted)) : null,
-      leading: Icon(icon, color: isSelected ? AppColors.primary : AppColors.textMuted),
+      title: _isSidebarExpanded ? Text(title, style: TextStyle(color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface)) : null,
+      leading: Icon(icon, color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface),
       onTap: () => setState(() => _selectedIndex = index),
       selected: isSelected,
     );
@@ -107,8 +107,8 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
 
   Widget _buildLogoutButton() {
     return ListTile(
-      leading: const Icon(Iconsax.logout, color: Colors.red),
-      title: _isSidebarExpanded ? const Text("Logout", style: TextStyle(color: Colors.red)) : null,
+      leading: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.primary),
+      title: _isSidebarExpanded ? Text("Logout", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)) : null,
       onTap: () {
         Provider.of<AuthService>(context, listen: false).logout();
       },

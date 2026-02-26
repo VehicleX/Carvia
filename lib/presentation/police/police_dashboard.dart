@@ -15,7 +15,7 @@ class PoliceDashboard extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -26,43 +26,43 @@ class PoliceDashboard extends StatelessWidget {
                   letterSpacing: -0.5,
                 ))
                 .animate().fadeIn().slideX(begin: -0.2),
-              const SizedBox(height: 6),
+              SizedBox(height: 6),
               Text("Station ID: #KOR-99 • Officer Rank: Inspector", 
                 style: GoogleFonts.outfit(
-                  color: AppColors.textMuted,
+                  color: Theme.of(context).colorScheme.secondary,
                   fontSize: 14,
                 ))
                 .animate().fadeIn(delay: 200.ms),
-              const SizedBox(height: 28),
+              SizedBox(height: 28),
             
             FutureBuilder<Map<String, dynamic>>(
               future: Provider.of<ChallanService>(context, listen: false).fetchDashboardStats(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 }
                 
                 final stats = snapshot.data ?? {'total_issued': 0, 'revenue': 0.0, 'pending': 0};
                 
                 return Row(
                   children: [
-                    Expanded(child: _buildStatCard(context, "Challans Issued", "${stats['total_issued']}", Iconsax.receipt, Colors.blue, 0)),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildStatCard(context, "Total Revenue", "\$${stats['revenue']}", Iconsax.money, Colors.green, 1)),
-                    const SizedBox(width: 16),
-                    Expanded(child: _buildStatCard(context, "Pending Payments", "${stats['pending']}", Iconsax.timer, Colors.orange, 2)),
+                    Expanded(child: _buildStatCard(context, "Challans Issued", "${stats['total_issued']}", Iconsax.receipt, Theme.of(context).colorScheme.onSurface, 0)),
+                    SizedBox(width: 16),
+                    Expanded(child: _buildStatCard(context, "Total Revenue", "\$${stats['revenue']}", Iconsax.money, Theme.of(context).colorScheme.onSurface, 1)),
+                    SizedBox(width: 16),
+                    Expanded(child: _buildStatCard(context, "Pending Payments", "${stats['pending']}", Iconsax.timer, Theme.of(context).colorScheme.onSurface, 2)),
                   ],
                 );
               },
             ),
             
-            const SizedBox(height: 30),
+            SizedBox(height: 30),
             Text("Active Alerts", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold))
                 .animate().fadeIn(delay: 600.ms),
-            const SizedBox(height: 16),
-            _buildAlertCard(context, "Stolen Vehicle Detected", "KA-01-AB-1234 spotted near MG Road.", Colors.red, 3),
-            const SizedBox(height: 10),
-            _buildAlertCard(context, "High Speed Violation", "TN-99-ZZ-0000 caught at 120km/h on Highway.", Colors.orange, 4),
+            SizedBox(height: 16),
+            _buildAlertCard(context, "Stolen Vehicle Detected", "KA-01-AB-1234 spotted near MG Road.", Theme.of(context).colorScheme.onSurface, 3),
+            SizedBox(height: 10),
+            _buildAlertCard(context, "High Speed Violation", "TN-99-ZZ-0000 caught at 120km/h on Highway.", Theme.of(context).colorScheme.onSurface, 4),
           ],
         ),
       ),
@@ -72,21 +72,21 @@ class PoliceDashboard extends StatelessWidget {
 
   Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color, int index) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 28),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(value, style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold)),
-          Text(title, style: const TextStyle(color: AppColors.textMuted)),
+          Text(title, style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
         ],
       ),
     ).animate().fadeIn(delay: (300 + (index * 100)).ms).slideY(begin: 0.2, end: 0);
@@ -94,7 +94,7 @@ class PoliceDashboard extends StatelessWidget {
 
   Widget _buildAlertCard(BuildContext context, String title, String body, Color color, int index) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(12),
@@ -103,8 +103,8 @@ class PoliceDashboard extends StatelessWidget {
       child: Row(
         children: [
           Icon(Iconsax.warning_2, color: color)
-              .animate(onPlay: (controller) => controller.repeat(reverse: true)).scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2)),
-          const SizedBox(width: 16),
+              .animate(onPlay: (controller) => controller.repeat(reverse: true)).scale(begin: Offset(1, 1), end: Offset(1.2, 1.2)),
+          SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

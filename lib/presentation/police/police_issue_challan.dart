@@ -77,7 +77,7 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
       await challanService.issueChallan(challan);
       
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Challan Issued Successfully! 🚨")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Challan Issued Successfully! 🚨")));
         Navigator.pop(context);
       }
 
@@ -91,9 +91,9 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Issue E-Challan")),
+      appBar: AppBar(title: Text("Issue E-Challan")),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Form(
           key: _formKey,
           child: Column(
@@ -108,7 +108,7 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
                 ),
                 validator: (val) => val!.isEmpty ? "Required" : null,
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               
               DropdownButtonFormField<String>(
                 // ignore: deprecated_member_use
@@ -122,51 +122,51 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
                 onChanged: _onViolationChanged,
               ),
               
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               
               Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(color: Colors.red.withValues(alpha:0.1), borderRadius: BorderRadius.circular(12)),
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text("Calculated Fine", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("\$${_fineAmount.toStringAsFixed(0)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.red)),
+                    Text("Calculated Fine", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text("\$${_fineAmount.toStringAsFixed(0)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                   ],
                 ),
               ),
               
-              const SizedBox(height: 30),
-              const Text("Evidence Upload", style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 12),
+              SizedBox(height: 30),
+              Text("Evidence Upload", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 12),
               Container(
                 height: 150,
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, style: BorderStyle.solid),
+                  border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), style: BorderStyle.solid),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.camera_alt, size: 40, color: Colors.grey),
-                      Text("Tap to capture/upload image", style: TextStyle(color: Colors.grey)),
+                      Icon(Icons.camera_alt, size: 40, color: Theme.of(context).colorScheme.secondary),
+                      Text("Tap to capture/upload image", style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                     ],
                   ),
                 ),
               ),
               
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _isLoading ? null : _issueChallan,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Theme.of(context).colorScheme.surface,
+                    padding: EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: _isLoading ? const CircularProgressIndicator(color: Colors.white) : const Text("ISSUE CHALLAN", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: _isLoading ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary) : Text("ISSUE CHALLAN", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],
