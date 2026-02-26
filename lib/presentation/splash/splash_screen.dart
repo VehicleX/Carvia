@@ -58,20 +58,20 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.black,
       body: Stack(
         fit: StackFit.expand,
         children: [
           // Radial Glow Background
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment(0, -0.2), // Slightly above center
                   radius: 0.8,
                   colors: [
-                    Color(0xFF1E293B), // Lighter slate
-                    AppColors.background, // Deep slate
+                    Colors.grey.shade800, // Lighter grey
+                    Colors.black, // Fade to black
                   ],
                   stops: [0.0, 1.0],
                 ),
@@ -92,16 +92,19 @@ class _SplashScreenState extends State<SplashScreen> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.3),
+                        color: Colors.grey.withValues(alpha: 0.3),
                         blurRadius: 60,
                         spreadRadius: 10,
                       ),
                     ],
                   ),
-                  child: const Icon(
-                    Icons.bolt_rounded,
-                    size: 80,
-                    color: AppColors.primary,
+                  child: ClipOval(
+                    child: Image.asset(
+                      'assets/images/logo.jpg',
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 )
                     .animate(onPlay: (controller) => controller.repeat(reverse: true))
@@ -109,17 +112,17 @@ class _SplashScreenState extends State<SplashScreen> {
                     .then()
                     .moveY(begin: -10, end: 0, duration: 2.seconds, curve: Curves.easeInOut),
 
-                const SizedBox(height: 40),
+                SizedBox(height: 40),
                 // ...
-                const SizedBox(height: 60),
+                SizedBox(height: 60),
 
                 // Loader
-                const SizedBox(
+                SizedBox(
                   width: 24,
                   height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                    valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).colorScheme.onSurface),
                   ),
                 ).animate().fadeIn(delay: 1000.ms),
               ],
@@ -135,7 +138,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: Text(
                 "v1.0.1",
                 style: GoogleFonts.outfit(
-                  color: AppColors.textSecondary.withValues(alpha: 0.5),
+                  color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5),
                   fontSize: 12,
                 ),
               ).animate().fadeIn(delay: 1.5.seconds),

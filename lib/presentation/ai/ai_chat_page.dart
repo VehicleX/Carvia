@@ -84,7 +84,7 @@ class _AIChatPageState extends State<AIChatPage> {
             child: Stack(
               children: [
                 ListView.builder(
-                  padding: const EdgeInsets.only(top: 16, bottom: 80),
+                  padding: EdgeInsets.only(top: 16, bottom: 80),
                   reverse: false, // In a real chat we might reverse this, but AIMessage list appends sequentially
                   itemCount: aiService.messages.length,
                   itemBuilder: (context, index) {
@@ -100,8 +100,8 @@ class _AIChatPageState extends State<AIChatPage> {
             Row(
               children: [
                 Padding(
-                  padding: const EdgeInsets.only(left: 20, bottom: 8),
-                  child: const Text("Carvia AI is typing...").animate(onPlay: (controller) => controller.repeat()).fadeIn(duration: 500.ms).fadeOut(curve: Curves.easeInOut, duration: 800.ms),
+                  padding: EdgeInsets.only(left: 20, bottom: 8),
+                  child: Text("Carvia AI is typing...").animate(onPlay: (controller) => controller.repeat()).fadeIn(duration: 500.ms).fadeOut(curve: Curves.easeInOut, duration: 800.ms),
                 ),
               ],
             ),
@@ -114,14 +114,14 @@ class _AIChatPageState extends State<AIChatPage> {
   Widget _buildModeToggle(AIService aiService) {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           _buildToggleBtn("Quick Mode", !aiService.isDetailedMode, () {
             if (aiService.isDetailedMode) aiService.toggleDetailedMode();
           }),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           _buildToggleBtn("Detailed Mode", aiService.isDetailedMode, () {
             if (!aiService.isDetailedMode) aiService.toggleDetailedMode();
           }),
@@ -135,10 +135,10 @@ class _AIChatPageState extends State<AIChatPage> {
       onTap: onTap,
       child: AnimatedContainer(
         duration: 200.ms,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.primary.withAlpha(50) : AppColors.surface,
-          border: Border.all(color: isActive ? AppColors.primary : Colors.transparent),
+          color: isActive ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.surface,
+          border: Border.all(color: isActive ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -146,7 +146,7 @@ class _AIChatPageState extends State<AIChatPage> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: isActive ? AppColors.primary : AppColors.textMuted,
+            color: isActive ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -159,19 +159,19 @@ class _AIChatPageState extends State<AIChatPage> {
       left: 0,
       right: 0,
       child: Container(
-        constraints: const BoxConstraints(maxHeight: 200),
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        constraints: BoxConstraints(maxHeight: 200),
+        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: AppColors.surfaceDark,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
-            BoxShadow(color: Colors.black.withAlpha(50), blurRadius: 10, offset: const Offset(0, -2))
+            BoxShadow(color: Theme.of(context).colorScheme.outline.withAlpha(50), blurRadius: 10, offset: Offset(0, -2))
           ],
         ),
         child: StreamBuilder<List<VehicleModel>>(
           stream: Provider.of<VehicleService>(context, listen: false).getAllVehiclesStream(),
           builder: (context, snapshot) {
-            if (!snapshot.hasData) return const SizedBox.shrink();
+            if (!snapshot.hasData) return SizedBox.shrink();
             
             final vehicles = snapshot.data!.where((v) {
               final fullName = "${v.brand} ${v.model}".toLowerCase();
@@ -179,9 +179,9 @@ class _AIChatPageState extends State<AIChatPage> {
             }).toList();
 
             if (vehicles.isEmpty) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.all(16.0),
-                child: Text("No vehicles match.", style: TextStyle(color: AppColors.textMuted)),
+                child: Text("No vehicles match.", style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
               );
             }
 
@@ -191,9 +191,9 @@ class _AIChatPageState extends State<AIChatPage> {
               itemBuilder: (context, index) {
                 final v = vehicles[index];
                 return ListTile(
-                  leading: const Icon(Iconsax.car, color: AppColors.primary),
-                  title: Text("${v.brand} ${v.model}", style: const TextStyle(color: AppColors.textPrimary)),
-                  subtitle: Text("\$${v.price.toStringAsFixed(0)} • ${v.year}", style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                  leading: Icon(Iconsax.car, color: Theme.of(context).colorScheme.primary),
+                  title: Text("${v.brand} ${v.model}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                  subtitle: Text("\$${v.price.toStringAsFixed(0)} • ${v.year}", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
                   onTap: () => _insertMention(v),
                 );
               },
@@ -209,24 +209,24 @@ class _AIChatPageState extends State<AIChatPage> {
       return Align(
         alignment: Alignment.centerRight,
         child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          margin: EdgeInsets.symmetric(vertical: 6, horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
           decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: const BorderRadius.only(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
               bottomLeft: Radius.circular(20),
               bottomRight: Radius.zero,
             ),
             boxShadow: [
-              BoxShadow(color: AppColors.primary.withAlpha(50), blurRadius: 8, offset: const Offset(0, 4)),
+              BoxShadow(color: Theme.of(context).colorScheme.outline.withAlpha(50), blurRadius: 8, offset: Offset(0, 4)),
             ],
           ),
           child: Text(
             message.text,
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 15),
           ),
         ).animate().fade(duration: 300.ms).slideX(begin: 0.05, duration: 300.ms),
       );
@@ -235,18 +235,18 @@ class _AIChatPageState extends State<AIChatPage> {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.85),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.only(
+          borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20),
             topRight: Radius.circular(20),
             bottomRight: Radius.circular(20),
             bottomLeft: Radius.zero,
           ),
           boxShadow: [
-            BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 10, offset: const Offset(0, 4)),
+            BoxShadow(color: Theme.of(context).colorScheme.outline.withAlpha(20), blurRadius: 10, offset: Offset(0, 4)),
           ],
         ),
         child: AiResponseSectionWidget(rawText: message.text),
@@ -256,7 +256,7 @@ class _AIChatPageState extends State<AIChatPage> {
 
   Widget _buildInputArea(AIService aiService) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       color: Theme.of(context).cardColor,
       child: SafeArea(
         child: Row(
@@ -270,17 +270,17 @@ class _AIChatPageState extends State<AIChatPage> {
                   filled: true,
                   fillColor: Theme.of(context).scaffoldBackgroundColor,
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 ),
                 onSubmitted: (val) => _sendMessage(aiService),
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             CircleAvatar(
-              backgroundColor: AppColors.primary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               radius: 24,
               child: IconButton(
-                icon: const Icon(Iconsax.send_1, color: Colors.white, size: 20),
+                icon: Icon(Iconsax.send_1, color: Theme.of(context).colorScheme.onSurface, size: 20),
                 onPressed: () => _sendMessage(aiService),
               ),
             ),
@@ -316,40 +316,40 @@ class AiResponseSectionWidget extends StatelessWidget {
 
       if (title != null && sections != null && sections.isNotEmpty) {
         return Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Divider(color: AppColors.surfaceDark),
+                child: Divider(color: Theme.of(context).colorScheme.outline),
               ),
               ...sections.map((sec) {
                 final heading = sec['heading'] ?? '';
                 final List<dynamic> content = sec['content'] ?? [];
                 
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
+                  padding: EdgeInsets.only(bottom: 16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (heading.toString().isNotEmpty)
                         Text(
                           heading.toString(),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                         ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       ...content.map((item) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6.0, left: 4.0),
+                        padding: EdgeInsets.only(bottom: 6.0, left: 4.0),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text("• ", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 16)),
-                            Expanded(child: Text(item.toString(), style: const TextStyle(fontSize: 14, color: AppColors.textSecondary))),
+                            Text("• ", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+                            Expanded(child: Text(item.toString(), style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.secondary))),
                           ],
                         ),
                       )),
@@ -374,10 +374,10 @@ class AiResponseSectionWidget extends StatelessWidget {
                               .trim();
                               
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: EdgeInsets.all(16.0),
       child: Text(
         cleanText,
-        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary, height: 1.4),
+        style: TextStyle(fontSize: 15, color: Theme.of(context).colorScheme.onSurface, height: 1.4),
       ),
     );
   }

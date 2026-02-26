@@ -26,7 +26,7 @@ class _LandingPageState extends State<LandingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent, // Background handled by scroll or container
@@ -35,11 +35,11 @@ class _LandingPageState extends State<LandingPage> {
         title: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.2), shape: BoxShape.circle),
-              child: const Icon(Icons.bolt_rounded, color: AppColors.primary),
+              padding: EdgeInsets.all(8),
+              decoration: BoxDecoration(color: Colors.grey.withValues(alpha: 0.2), shape: BoxShape.circle),
+              child: ClipOval(child: Image.asset('assets/images/logo.jpg', width: 40, height: 40, fit: BoxFit.cover)),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               "Carvia",
               style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 24),
@@ -51,9 +51,9 @@ class _LandingPageState extends State<LandingPage> {
             onPressed: () {
                Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage()));
             },
-            child: Text("Login", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: AppColors.primary)),
+            child: Text("Login", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
         ],
       ),
       body: Stack(
@@ -67,9 +67,9 @@ class _LandingPageState extends State<LandingPage> {
               height: 500,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withValues(alpha: 0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
               ),
-            ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.2, 1.2), duration: 5.seconds),
+            ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: Offset(1,1), end: Offset(1.2, 1.2), duration: 5.seconds),
           ),
 
           SingleChildScrollView(
@@ -79,7 +79,7 @@ class _LandingPageState extends State<LandingPage> {
                 _buildHeroToSection(context),
                 _buildWhyCarviaSection(),
                 _buildHowItWorksSection(),
-                const SizedBox(height: 100), // Bottom padding
+                SizedBox(height: 100), // Bottom padding
               ],
             ),
           ),
@@ -92,12 +92,12 @@ class _LandingPageState extends State<LandingPage> {
   Widget _buildHeroToSection(BuildContext context) {
     return Container(
       constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height),
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 80),
+      padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 80),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
           
           // Headline
           RichText(
@@ -105,31 +105,31 @@ class _LandingPageState extends State<LandingPage> {
               style: GoogleFonts.outfit(
                 fontSize: 42,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1.1,
               ),
-              children: const [
+              children: [
                 TextSpan(text: "Buy. Sell.\n"),
                 TextSpan(
                   text: "Digitally.",
-                  style: TextStyle(color: AppColors.primary),
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 ),
               ],
             ),
           ).animate().fadeIn(delay: 200.ms).slideX(begin: -0.1),
           
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           Text(
             "Experience the future of automotive ownership. Instant verification, secure payments, and AI-driven insights.",
             style: GoogleFonts.outfit(
               fontSize: 16,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.secondary,
               height: 1.5,
             ),
           ).animate().fadeIn(delay: 400.ms),
           
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           
           // Buttons
           Row(
@@ -140,31 +140,31 @@ class _LandingPageState extends State<LandingPage> {
                      Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage()));
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: AppColors.primary,
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Theme.of(context).colorScheme.surface,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                     elevation: 10,
-                    shadowColor: AppColors.primary.withValues(alpha: 0.4),
+                    shadowColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4),
                   ),
-                  child: const Text("Get Started", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  child: Text("Get Started", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: OutlinedButton(
                   onPressed: () {},
                   style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: AppColors.textMuted),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    side: BorderSide(color: Theme.of(context).colorScheme.outline),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  child: const Text("Learn More", style: TextStyle(color: AppColors.textPrimary)),
+                  child: Text("Learn More", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
                 ),
               ),
             ],
           ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.2),
 
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
 
           // Car Image
           Center(
@@ -174,9 +174,9 @@ class _LandingPageState extends State<LandingPage> {
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.3),
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
                     blurRadius: 40,
-                    offset: const Offset(0, 20),
+                    offset: Offset(0, 20),
                   ),
                 ],
               ),
@@ -187,9 +187,9 @@ class _LandingPageState extends State<LandingPage> {
                   fit: BoxFit.cover,
                   loadingBuilder: (context, child, loadingProgress) {
                     if (loadingProgress == null) return child;
-                    return Container(color: Colors.grey[900]);
+                    return Container(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05));
                   },
-                  errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[900], child: const Icon(Icons.car_rental, size: 50, color: Colors.white)),
+                  errorBuilder: (context, error, stackTrace) => Container(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), child: Icon(Icons.car_rental, size: 50, color: Theme.of(context).colorScheme.onSurface)),
                 ),
               ),
             ).animate().scale(duration: 800.ms, curve: Curves.easeOutBack),
@@ -202,25 +202,25 @@ class _LandingPageState extends State<LandingPage> {
   // --- Why Carvia ---
   Widget _buildWhyCarviaSection() {
     return Container(
-      padding: const EdgeInsets.all(24.0),
+      padding: EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(width: 4, height: 32, color: AppColors.primary),
-              const SizedBox(width: 12),
+              Container(width: 4, height: 32, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
+              SizedBox(width: 12),
               Text(
                 "Why Carvia?",
                 style: GoogleFonts.outfit(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          SizedBox(height: 32),
           
           _buildFeatureCard(
             Icons.swap_horiz_rounded,
@@ -228,14 +228,14 @@ class _LandingPageState extends State<LandingPage> {
             "List your car instantly or find your dream ride with verified history.",
             0,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildFeatureCard(
             Icons.verified_user_rounded,
             "Digital Ownership",
             "Blockchain-backed vehicle history that cannot be tampered with.",
             200,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildFeatureCard(
             Icons.receipt_long_rounded,
             "Challan Management",
@@ -249,31 +249,31 @@ class _LandingPageState extends State<LandingPage> {
 
   Widget _buildFeatureCard(IconData icon, String title, String subtitle, int delay) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-             color: Colors.black.withValues(alpha: 0.05),
+             color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05),
              blurRadius: 10,
-             offset: const Offset(0, 4),
+             offset: Offset(0, 4),
           )
         ],
-        border: Border.all(color: AppColors.textMuted.withValues(alpha: 0.1)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Icon(icon, color: AppColors.primary, size: 28),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 28),
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -283,15 +283,15 @@ class _LandingPageState extends State<LandingPage> {
                   style: GoogleFonts.outfit(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 8),
                 Text(
                   subtitle,
                   style: GoogleFonts.outfit(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.secondary,
                     height: 1.5,
                   ),
                 ),
@@ -306,7 +306,7 @@ class _LandingPageState extends State<LandingPage> {
   // --- How It Works ---
   Widget _buildHowItWorksSection() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
+      padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -315,26 +315,26 @@ class _LandingPageState extends State<LandingPage> {
             style: GoogleFonts.outfit(
               fontSize: 28,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          const SizedBox(height: 40),
+          SizedBox(height: 40),
           
           _buildStepCard(1, "Browse", "Find verified vehicles."),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildStepCard(2, "Verify", "Check history & AI score."),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildStepCard(3, "Own", "Digital transfer of ownership."),
           
-          const SizedBox(height: 60),
+          SizedBox(height: 60),
           
           // Footer
           Opacity(
             opacity: 0.5,
             child: Column(
               children: [
-                const Icon(Icons.bolt, size: 30),
-                const SizedBox(height: 8),
+                ClipOval(child: Image.asset('assets/images/logo.jpg', width: 60, height: 60, fit: BoxFit.cover)),
+                SizedBox(height: 8),
                 Text(
                   "© 2026 CARVIA TECHNOLOGIES INC.",
                   style: GoogleFonts.outfit(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1),
@@ -350,11 +350,11 @@ class _LandingPageState extends State<LandingPage> {
   Widget _buildStepCard(int number, String title, String subtitle) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.textMuted.withValues(alpha: 0.1)),
+        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [
@@ -362,28 +362,28 @@ class _LandingPageState extends State<LandingPage> {
              width: 44,
              height: 44,
              decoration: BoxDecoration(
-               color: AppColors.primary, // Primary background
+               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), // Primary background
                shape: BoxShape.circle,
                boxShadow: [
-                 BoxShadow(color: AppColors.primary.withValues(alpha: 0.4), blurRadius: 10, offset: const Offset(0, 4)),
+                 BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.4), blurRadius: 10, offset: Offset(0, 4)),
                ],
              ),
              alignment: Alignment.center,
              child: Text(
                "$number",
                style: GoogleFonts.outfit(
-                 color: Colors.white, // FIX: Forced White color for visibility
+                 color: Theme.of(context).colorScheme.onSurface, // FIX: Forced White color for visibility
                  fontWeight: FontWeight.bold,
                  fontSize: 20,
                ),
              ),
            ),
-           const SizedBox(width: 20),
+           SizedBox(width: 20),
            Column(
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
-               Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-               Text(subtitle, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+               Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+               Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 14)),
              ],
            )
         ],
