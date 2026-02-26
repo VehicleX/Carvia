@@ -36,7 +36,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       body: Consumer<NotificationService>(
         builder: (context, notificationService, child) {
           if (notificationService.isLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           if (notificationService.notifications.isEmpty) {
@@ -44,18 +44,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Iconsax.notification, size: 80, color: AppColors.textMuted.withValues(alpha:0.5)),
-                  const SizedBox(height: 16),
-                  Text("No notifications yet", style: GoogleFonts.outfit(fontSize: 18, color: AppColors.textMuted)),
+                  Icon(Iconsax.notification, size: 80, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)),
+                  SizedBox(height: 16),
+                  Text("No notifications yet", style: GoogleFonts.outfit(fontSize: 18, color: Theme.of(context).colorScheme.secondary)),
                 ],
               ),
             );
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(20),
+            padding: EdgeInsets.all(20),
             itemCount: notificationService.notifications.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            separatorBuilder: (context, index) => SizedBox(height: 16),
             itemBuilder: (context, index) {
               final notification = notificationService.notifications[index];
               return _buildNotificationCard(notification);
@@ -72,37 +72,37 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     switch (notification.type) {
       case 'order':
-        iconColor = Colors.green;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.box;
         break;
       case 'offer':
       case 'price_drop':
-        iconColor = Colors.orange;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.discount_shape;
         break;
       case 'test_drive_booked':
       case 'test_drive':
-        iconColor = Colors.blue;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.car;
         break;
       case 'auth_verified':
-        iconColor = Colors.purple;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.verify;
         break;
       case 'insurance_expiry':
-        iconColor = Colors.red;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.shield_cross;
         break;
       case 'challan_access_request':
-        iconColor = Colors.amber;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.lock;
         break;
       case 'credit_earned':
-        iconColor = Colors.teal;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.wallet_2;
         break;
       default:
-        iconColor = AppColors.primary;
+        iconColor = Theme.of(context).colorScheme.onSurface;
         iconData = Iconsax.notification;
     }
 
@@ -121,7 +121,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         }
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: notification.isRead ? Theme.of(context).cardColor.withValues(alpha:0.5) : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
@@ -131,33 +131,33 @@ class _NotificationsPageState extends State<NotificationsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: iconColor.withValues(alpha:0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(iconData, color: iconColor, size: 24),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(notification.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: notification.isRead ? AppColors.textMuted : null)),
-                  const SizedBox(height: 4),
-                  Text(notification.body, style: TextStyle(color: AppColors.textMuted, fontSize: 14)),
-                  const SizedBox(height: 8),
+                  Text(notification.title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: notification.isRead ? Theme.of(context).colorScheme.onSurface : null)),
+                  SizedBox(height: 4),
+                  Text(notification.body, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 14)),
+                  SizedBox(height: 8),
                   Text(
                      // Handle Timestamp or Date
                     DateFormat('MMM d, h:mm a').format(notification.createdAt),
-                    style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                   ),
                 ],
               ),
             ),
             if (!notification.isRead)
                Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: EdgeInsets.only(top: 8.0),
                 child: CircleAvatar(radius: 4, backgroundColor: iconColor),
               ),
           ],
