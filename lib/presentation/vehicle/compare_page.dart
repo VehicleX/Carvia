@@ -17,7 +17,7 @@ class ComparePage extends StatelessWidget {
         title: Text("Compare Vehicles", style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 18)),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline),
+            icon: Icon(Icons.delete_outline),
             tooltip: "Clear All",
             onPressed: () {
               Provider.of<CompareService>(context, listen: false).clearcompare();
@@ -33,14 +33,14 @@ class ComparePage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                   const Icon(Icons.compare_arrows, size: 64, color: AppColors.textMuted),
-                   const SizedBox(height: 16),
-                   const Text("No vehicles to compare", style: TextStyle(color: AppColors.textMuted)),
-                   const SizedBox(height: 16),
+                   Icon(Icons.compare_arrows, size: 64, color: Theme.of(context).colorScheme.secondary),
+                   SizedBox(height: 16),
+                   Text("No vehicles to compare", style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+                   SizedBox(height: 16),
                    ElevatedButton.icon(
                      onPressed: () => _showVehicleSelectionBottomSheet(context),
-                     icon: const Icon(Icons.add),
-                     label: const Text("Add Vehicle"),
+                     icon: Icon(Icons.add),
+                     label: Text("Add Vehicle"),
                    ),
                 ],
               ),
@@ -55,7 +55,7 @@ class ComparePage extends StatelessWidget {
           VehicleModel? v2 = vehicles.length > 1 ? vehicles[1] : null;
 
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               children: [
                 // Header Row (Vehicle Names) ~15%
@@ -63,26 +63,26 @@ class ComparePage extends StatelessWidget {
                   flex: 15,
                   child: Row(
                     children: [
-                      const Expanded(child: SizedBox()), // empty top-left
+                      Expanded(child: SizedBox()), // empty top-left
                       Expanded(child: _buildHeaderCell(context, v1)),
                       Expanded(child: _buildHeaderCell(context, v2)),
                     ],
                   ),
                 ),
-                const Divider(height: 1, thickness: 1, color: AppColors.surfaceDark),
+                Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outline),
                 
                 // Comparison Table ~75%
                 Expanded(
                   flex: 75,
                   child: Column(
                     children: [
-                      _buildRow("Price", v1, v2, (v) => "\$${v.price.toStringAsFixed(0)}", (v) => v.price <= bestPrice),
-                      _buildRow("Year", v1, v2, (v) => "${v.year}", (v) => v.year >= bestYear),
-                      _buildRow("Brand", v1, v2, (v) => v.brand, (v) => false),
-                      _buildRow("Fuel", v1, v2, (v) => v.fuel, (v) => false),
-                      _buildRow("Trans.", v1, v2, (v) => v.transmission, (v) => false),
+                      _buildRow(context, "Price", v1, v2, (v) => "\$${v.price.toStringAsFixed(0)}", (v) => v.price <= bestPrice),
+                      _buildRow(context, "Year", v1, v2, (v) => "${v.year}", (v) => v.year >= bestYear),
+                      _buildRow(context, "Brand", v1, v2, (v) => v.brand, (v) => false),
+                      _buildRow(context, "Fuel", v1, v2, (v) => v.fuel, (v) => false),
+                      _buildRow(context, "Trans.", v1, v2, (v) => v.transmission, (v) => false),
                       // Only highlight mileage if greater than 0
-                      _buildRow("Mileage", v1, v2, (v) => "${v.mileage} mi", (v) => v.mileage <= bestMileage && v.mileage > 0),
+                      _buildRow(context, "Mileage", v1, v2, (v) => "${v.mileage} mi", (v) => v.mileage <= bestMileage && v.mileage > 0),
                     ],
                   ),
                 ),
@@ -95,14 +95,14 @@ class ComparePage extends StatelessWidget {
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             minimumSize: const Size(double.infinity, 44),
-                            padding: const EdgeInsets.symmetric(vertical: 0),
+                            padding: EdgeInsets.symmetric(vertical: 0),
                           ),
                           onPressed: () => _showVehicleSelectionBottomSheet(context),
-                          icon: const Icon(Icons.add, size: 20),
-                          label: const Text("Add Another Vehicle", style: TextStyle(fontSize: 14)),
+                          icon: Icon(Icons.add, size: 20),
+                          label: Text("Add Another Vehicle", style: TextStyle(fontSize: 14)),
                         )
                       )
-                    : const SizedBox(),
+                    : SizedBox(),
                 ),
               ],
             ),
@@ -121,9 +121,9 @@ class ComparePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.add_circle_outline, color: AppColors.primary, size: 24),
-              const SizedBox(height: 4),
-              const Text("Select vehicle", style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.bold)),
+              Icon(Icons.add_circle_outline, color: Theme.of(context).colorScheme.primary, size: 24),
+              SizedBox(height: 4),
+              Text("Select vehicle", style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.secondary, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -131,7 +131,7 @@ class ComparePage extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4.0),
+      padding: EdgeInsets.symmetric(horizontal: 4.0),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -140,7 +140,7 @@ class ComparePage extends StatelessWidget {
             children: [
               Text(
                 "${vehicle.brand} ${vehicle.model}",
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -153,9 +153,9 @@ class ComparePage extends StatelessWidget {
             child: GestureDetector(
               onTap: () => Provider.of<CompareService>(context, listen: false).toggleCompare(vehicle),
               child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                child: const Icon(Icons.close, size: 14, color: Colors.white),
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), shape: BoxShape.circle),
+                child: Icon(Icons.close, size: 14, color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
           ),
@@ -164,7 +164,7 @@ class ComparePage extends StatelessWidget {
     );
   }
 
-  Widget _buildRow(String parameter, VehicleModel? v1, VehicleModel? v2, String Function(VehicleModel) valueMapper, bool Function(VehicleModel) isBetter) {
+  Widget _buildRow(BuildContext context, String parameter, VehicleModel? v1, VehicleModel? v2, String Function(VehicleModel) valueMapper, bool Function(VehicleModel) isBetter) {
     return Expanded(
       child: Column(
         children: [
@@ -175,7 +175,7 @@ class ComparePage extends StatelessWidget {
                 Expanded(
                   child: Container(
                     alignment: Alignment.centerLeft,
-                    child: Text(parameter, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textMuted)),
+                    child: Text(parameter, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.secondary)),
                   ),
                 ),
                 // Vehicle 1 Value
@@ -183,8 +183,8 @@ class ComparePage extends StatelessWidget {
                   child: Container(
                     alignment: Alignment.center,
                     child: v1 != null
-                        ? _buildValue(valueMapper(v1), isBetter(v1))
-                        : const Text("-", style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                        ? _buildValue(context, valueMapper(v1), isBetter(v1))
+                        : Text("-", style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.secondary)),
                   ),
                 ),
                 // Vehicle 2 Value
@@ -192,26 +192,26 @@ class ComparePage extends StatelessWidget {
                   child: Container(
                     alignment: Alignment.center,
                     child: v2 != null
-                        ? _buildValue(valueMapper(v2), isBetter(v2))
-                        : const Text("-", style: TextStyle(fontSize: 13, color: AppColors.textMuted)),
+                        ? _buildValue(context, valueMapper(v2), isBetter(v2))
+                        : Text("-", style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.secondary)),
                   ),
                 ),
               ],
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: AppColors.surface, indent: 4, endIndent: 4),
+          Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outline, indent: 4, endIndent: 4),
         ],
       ),
     );
   }
 
-  Widget _buildValue(String text, bool isBetter) {
+  Widget _buildValue(BuildContext context, String text, bool isBetter) {
     return Text(
       text,
       style: TextStyle(
         fontSize: 13,
         fontWeight: isBetter ? FontWeight.bold : FontWeight.normal,
-        color: isBetter ? AppColors.primary : AppColors.textPrimary,
+        color: isBetter ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
       ),
       textAlign: TextAlign.center,
       maxLines: 2,
@@ -223,7 +223,7 @@ class ComparePage extends StatelessWidget {
     final compareService = Provider.of<CompareService>(context, listen: false);
     if (compareService.compareList.length >= 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("You can compare only 2 vehicles at a time")),
+        SnackBar(content: Text("You can compare only 2 vehicles at a time")),
       );
       return;
     }
@@ -231,7 +231,7 @@ class ComparePage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.surface,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -257,7 +257,7 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
     
     return Container(
       height: height * 0.85,
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -265,22 +265,22 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Select Vehicle", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-              IconButton(icon: const Icon(Icons.close, color: AppColors.textMuted), onPressed: () => Navigator.pop(context)),
+              Text("Select Vehicle", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+              IconButton(icon: Icon(Icons.close, color: Theme.of(context).colorScheme.secondary), onPressed: () => Navigator.pop(context)),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           // Search Bar
           TextField(
             onChanged: (value) => setState(() => _searchQuery = value.toLowerCase()),
             decoration: InputDecoration(
               hintText: "Search vehicles...",
-              prefixIcon: const Icon(Icons.search, color: AppColors.textMuted),
-              fillColor: AppColors.surfaceDark,
+              prefixIcon: Icon(Icons.search, color: Theme.of(context).colorScheme.secondary),
+              fillColor: Theme.of(context).colorScheme.surface,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           
           // List
           Expanded(
@@ -288,10 +288,10 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
               stream: Provider.of<VehicleService>(context, listen: false).getAllVehiclesStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("No vehicles available", style: TextStyle(color: AppColors.textMuted)));
+                  return Center(child: Text("No vehicles available", style: TextStyle(color: Theme.of(context).colorScheme.secondary)));
                 }
 
                 // Filter out already compared vehicles
@@ -307,7 +307,7 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
                 }
 
                 if (availableVehicles.isEmpty) {
-                   return const Center(child: Text("No match found", style: TextStyle(color: AppColors.textMuted)));
+                   return Center(child: Text("No match found", style: TextStyle(color: Theme.of(context).colorScheme.secondary)));
                 }
 
                 return ListView.builder(
@@ -319,33 +319,33 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
                     return GestureDetector(
                       onTap: () => setState(() => _selectedVehicle = vehicle),
                       child: Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
+                        margin: EdgeInsets.only(bottom: 12),
+                        padding: EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: isSelected ? AppColors.primary.withAlpha(26) : AppColors.surfaceDark,
+                          color: isSelected ? Theme.of(context).colorScheme.onSurface.withAlpha(26) : Theme.of(context).colorScheme.onSurface,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: isSelected ? AppColors.primary : Colors.transparent, 
+                            color: isSelected ? Theme.of(context).colorScheme.onSurface : Colors.transparent, 
                             width: 2
                           ),
                         ),
                         child: Row(
                           children: [
-                            const SizedBox(width: 8),
+                            SizedBox(width: 8),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("${vehicle.brand} ${vehicle.model}", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                                  const SizedBox(height: 4),
-                                  Text("${vehicle.year} • ${vehicle.fuel}", style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
-                                  const SizedBox(height: 4),
-                                  Text("\$${vehicle.price.toStringAsFixed(0)}", style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                                  Text("${vehicle.brand} ${vehicle.model}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  SizedBox(height: 4),
+                                  Text("${vehicle.year} • ${vehicle.fuel}", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
+                                  SizedBox(height: 4),
+                                  Text("\$${vehicle.price.toStringAsFixed(0)}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),
                             if (isSelected) 
-                              const Icon(Icons.check_circle, color: AppColors.primary),
+                              Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary),
                           ],
                         ),
                       ),
@@ -358,7 +358,7 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
           
           // Confirm Button
           if (_selectedVehicle != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -367,11 +367,11 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
                   Navigator.pop(context);
                   if (!success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("You can compare only 2 vehicles at a time")),
+                      SnackBar(content: Text("You can compare only 2 vehicles at a time")),
                     );
                   }
                 },
-                child: const Text("Add to Compare"),
+                child: Text("Add to Compare"),
               ),
             ),
           ]
