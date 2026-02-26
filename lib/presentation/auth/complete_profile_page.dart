@@ -68,30 +68,30 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
       appBar: AppBar(
-        title: const Text("Complete Profile"),
+        title: Text("Complete Profile"),
         backgroundColor: Colors.transparent,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(24),
         child: Column(
           children: [
             Text(
               "One Last Step",
               style: GoogleFonts.outfit(fontSize: 28, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               "Select your role and add your phone number (optional).",
               textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(color: AppColors.textSecondary),
+              style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.secondary),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             _buildRoleToggle(),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             TextField(
               controller: _phoneController,
@@ -99,12 +99,12 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               decoration: InputDecoration(
                 labelText: "Phone Number (Optional)",
                 hintText: "Add phone number later",
-                prefixIcon: const Icon(Icons.phone_rounded),
+                prefixIcon: Icon(Icons.phone_rounded),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),
             
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             
             SizedBox(
               width: double.infinity,
@@ -112,8 +112,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _handleCompleteProfile,
                 child: _isLoading 
-                  ? const CircularProgressIndicator()
-                  : const Text("Continue"),
+                  ? CircularProgressIndicator()
+                  : Text("Continue"),
               ),
             ),
           ],
@@ -135,8 +135,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
           onSelected: (selected) {
             if (selected) setState(() => _selectedRoleIndex = index);
           },
-          selectedColor: AppColors.primary,
-          labelStyle: TextStyle(color: isSelected ? Colors.white : AppColors.textPrimary),
+          selectedColor: Theme.of(context).colorScheme.primary,
+          labelStyle: TextStyle(color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface),
         );
       }),
     );
