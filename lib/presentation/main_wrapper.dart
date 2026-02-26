@@ -47,23 +47,23 @@ class _MainWrapperState extends State<MainWrapper> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        backgroundColor: isDark ? AppColors.surface : Colors.white,
-        indicatorColor: AppColors.primary.withValues(alpha:0.2),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        indicatorColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
         elevation: 10,
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Iconsax.home),
-            selectedIcon: Icon(Iconsax.home5, color: AppColors.primary),
+            selectedIcon: Icon(Iconsax.home5, color: Theme.of(context).colorScheme.primary),
             label: 'Home',
           ),
           NavigationDestination(
             icon: Icon(Iconsax.car),
-            selectedIcon: Icon(Iconsax.car5, color: AppColors.primary),
+            selectedIcon: Icon(Iconsax.car5, color: Theme.of(context).colorScheme.primary),
             label: 'My Vehicles',
           ),
           NavigationDestination(
             icon: Icon(Iconsax.user),
-            selectedIcon: Icon(Iconsax.user_octagon, color: AppColors.primary),
+            selectedIcon: Icon(Iconsax.user_octagon, color: Theme.of(context).colorScheme.primary),
             label: 'Profile',
           ),
         ],
@@ -73,24 +73,23 @@ class _MainWrapperState extends State<MainWrapper> {
 
   Widget _buildDrawer(BuildContext context, bool isDark, ThemeService themeService, AuthService authService) {
     return Drawer(
-      backgroundColor: isDark ? AppColors.surface : Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [AppColors.primary, AppColors.secondary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+            margin: EdgeInsets.zero,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1))),
             ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Iconsax.user, size: 40, color: AppColors.primary),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              child: Icon(Iconsax.user, size: 40, color: Theme.of(context).colorScheme.onPrimary),
             ),
-            accountName: Text(authService.currentUser?.name ?? "User", style: const TextStyle(fontWeight: FontWeight.bold)),
-            accountEmail: Text(authService.currentUser?.email ?? ""),
+            accountName: Text(authService.currentUser?.name ?? "User", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface, fontSize: 18)),
+            accountEmail: Text(authService.currentUser?.email ?? "", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 14)),
           ),
+          SizedBox(height: 10),
           _drawerItem(icon: Iconsax.car, title: "Explore Vehicles", onTap: () {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (_) => const VehicleListPage(title: "All Vehicles")));
@@ -107,7 +106,7 @@ class _MainWrapperState extends State<MainWrapper> {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (_) => const EChallanPage()));
           }),
-          const Divider(),
+          Divider(),
           _drawerItem(icon: Iconsax.setting, title: "Settings", onTap: () {
             Navigator.pop(context);
             Navigator.push(context, MaterialPageRoute(builder: (_) => const SettingsPage()));
@@ -116,11 +115,11 @@ class _MainWrapperState extends State<MainWrapper> {
             themeService.toggleTheme();
           }),
           const Spacer(),
-          _drawerItem(icon: Iconsax.logout, title: "Logout", color: AppColors.error, onTap: () {
+          _drawerItem(icon: Iconsax.logout, title: "Logout", color: Theme.of(context).colorScheme.onSurface, onTap: () {
             authService.logout();
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
           }),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
         ],
       ),
     );
@@ -128,8 +127,8 @@ class _MainWrapperState extends State<MainWrapper> {
 
   Widget _drawerItem({required IconData icon, required String title, required VoidCallback onTap, Color? color}) {
     return ListTile(
-      leading: Icon(icon, color: color ?? AppColors.textMuted),
-      title: Text(title, style: TextStyle(color: color ?? (Theme.of(context).brightness == Brightness.dark ? AppColors.textPrimary : Colors.black))),
+      leading: Icon(icon, color: color ?? Theme.of(context).colorScheme.onSurface),
+      title: Text(title, style: TextStyle(color: color ?? (Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface))),
       onTap: onTap,
     );
   }
