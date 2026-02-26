@@ -51,14 +51,14 @@ class _WishlistPageState extends State<WishlistPage> {
   @override
   Widget build(BuildContext context) {
      return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text("My Wishlist", style: GoogleFonts.outfit(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
       body: _isLoading 
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : _vehicles.isEmpty 
               ? _buildEmptyState()
               : _buildList(),
@@ -70,11 +70,11 @@ class _WishlistPageState extends State<WishlistPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Iconsax.heart_slash, size: 64, color: AppColors.textMuted.withValues(alpha: 0.5)),
-          const SizedBox(height: 16),
+          Icon(Iconsax.heart_slash, size: 64, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.5)),
+          SizedBox(height: 16),
           Text("Traffic is clear here!", style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 8),
-          const Text("Start liking vehicles to build your dream garage.", style: TextStyle(color: AppColors.textSecondary)),
+          SizedBox(height: 8),
+          Text("Start liking vehicles to build your dream garage.", style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
         ],
       ),
     ).animate().fadeIn();
@@ -82,9 +82,9 @@ class _WishlistPageState extends State<WishlistPage> {
 
   Widget _buildList() {
     return ListView.separated(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       itemCount: _vehicles.length,
-      separatorBuilder: (context, index) => const SizedBox(height: 16),
+      separatorBuilder: (context, index) => SizedBox(height: 16),
       itemBuilder: (context, index) {
         final vehicle = _vehicles[index];
         return _buildVehicleCard(vehicle);
@@ -100,17 +100,18 @@ class _WishlistPageState extends State<WishlistPage> {
       child: Container(
         height: 120,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2), width: 1),
           boxShadow: [
-             BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4)),
+             BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, 4)),
           ],
         ),
         child: Row(
           children: [
             // Image
             ClipRRect(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(16)),
+              borderRadius: BorderRadius.horizontal(left: Radius.circular(16)),
               child: VehicleImage(
               src: vehicle.images.first,
               width: 120,
@@ -120,7 +121,7 @@ class _WishlistPageState extends State<WishlistPage> {
             
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -131,21 +132,21 @@ class _WishlistPageState extends State<WishlistPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       "\$${vehicle.price.toStringAsFixed(0)}", 
-                      style: GoogleFonts.outfit(color: AppColors.primary, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
                     Row(
                       children: [
-                        Icon(Iconsax.gas_station, size: 14, color: AppColors.textMuted),
-                        const SizedBox(width: 4),
-                        Text(vehicle.fuel, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
-                        const SizedBox(width: 12),
-                        Icon(Iconsax.speedometer, size: 14, color: AppColors.textMuted),
-                        const SizedBox(width: 4),
-                        Text("${vehicle.mileage} km", style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                        Icon(Iconsax.gas_station, size: 14, color: Theme.of(context).colorScheme.secondary),
+                        SizedBox(width: 4),
+                        Text(vehicle.fuel, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary)),
+                        SizedBox(width: 12),
+                        Icon(Iconsax.speedometer, size: 14, color: Theme.of(context).colorScheme.secondary),
+                        SizedBox(width: 4),
+                        Text("${vehicle.mileage} km", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary)),
                       ],
                     ),
                   ],
@@ -155,7 +156,7 @@ class _WishlistPageState extends State<WishlistPage> {
             
             // Delete Action
             IconButton(
-              icon: const Icon(Iconsax.heart5, color: AppColors.error),
+              icon: Icon(Iconsax.heart5, color: Theme.of(context).colorScheme.primary),
               onPressed: () async {
                  final vehicleService = Provider.of<VehicleService>(context, listen: false);
                  final authService = Provider.of<AuthService>(context, listen: false);
