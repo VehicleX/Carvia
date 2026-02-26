@@ -14,14 +14,14 @@ class SellerOrdersPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
-    if (user == null) return const Center(child: Text("Login required"));
+    if (user == null) return Center(child: Text("Login required"));
 
     return StreamBuilder<List<OrderModel>>(
       stream: Provider.of<OrderService>(context, listen: false)
           .getSellerOrdersStream(user.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator());
         }
 
         final orders = snapshot.data ?? [];
@@ -32,21 +32,21 @@ class SellerOrdersPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Iconsax.box, size: 60, color: AppColors.primary),
+                  child: Icon(Iconsax.box, size: 60, color: Theme.of(context).colorScheme.primary),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Text("No Orders Yet",
                     style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 20)),
-                const SizedBox(height: 8),
-                const Text(
+                SizedBox(height: 8),
+                Text(
                   "Orders from buyers will appear here.\nConfirm and deliver them to complete a sale.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textMuted, height: 1.5),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, height: 1.5),
                 ),
               ],
             ),
@@ -73,7 +73,7 @@ class SellerOrdersPage extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: _sectionHeader(
                     "Action Required (${active.length})",
-                    Colors.orange,
+                    Theme.of(context).colorScheme.onSurface,
                     Iconsax.notification,
                   ),
                 ),
@@ -88,7 +88,7 @@ class SellerOrdersPage extends StatelessWidget {
                 SliverToBoxAdapter(
                   child: _sectionHeader(
                     "Completed (${completed.length})",
-                    AppColors.success,
+                    Theme.of(context).colorScheme.onSurface,
                     Iconsax.tick_circle,
                   ),
                 ),
@@ -109,11 +109,11 @@ class SellerOrdersPage extends StatelessWidget {
 
   Widget _sectionHeader(String title, Color color, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),
+      padding: EdgeInsets.fromLTRB(16, 20, 16, 8),
       child: Row(
         children: [
           Icon(icon, size: 16, color: color),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           Text(
             title,
             style: TextStyle(
@@ -131,12 +131,12 @@ class _SellerOrderCard extends StatelessWidget {
   final OrderModel order;
   const _SellerOrderCard({required this.order});
 
-  Color get _statusColor {
+  Color _statusColor(BuildContext context) {
     switch (order.status) {
-      case OrderStatus.pending: return Colors.orange;
-      case OrderStatus.confirmed: return Colors.blue;
-      case OrderStatus.delivered: return AppColors.success;
-      case OrderStatus.cancelled: return AppColors.error;
+      case OrderStatus.pending: return Theme.of(context).colorScheme.onSurface;
+      case OrderStatus.confirmed: return Theme.of(context).colorScheme.onSurface;
+      case OrderStatus.delivered: return Theme.of(context).colorScheme.onSurface;
+      case OrderStatus.cancelled: return Theme.of(context).colorScheme.onSurface;
     }
   }
 
@@ -154,19 +154,19 @@ class _SellerOrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = _statusColor;
+    final color = _statusColor(context);
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05),
               blurRadius: 10,
-              offset: const Offset(0, 4))
+              offset: Offset(0, 4))
         ],
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
@@ -176,17 +176,17 @@ class _SellerOrderCard extends StatelessWidget {
           // ── Top: date + status
           Row(
             children: [
-              Icon(Iconsax.calendar_1, size: 12, color: AppColors.textMuted),
-              const SizedBox(width: 4),
+              Icon(Iconsax.calendar_1, size: 12, color: Theme.of(context).colorScheme.secondary),
+              SizedBox(width: 4),
               Text(
                 DateFormat('dd MMM yyyy • hh:mm a').format(order.date),
                 style:
-                    const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                    TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 11),
               ),
               const Spacer(),
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(20),
@@ -195,7 +195,7 @@ class _SellerOrderCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(_statusIcon, size: 11, color: color),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Text(_statusLabel,
                         style: TextStyle(
                             color: color,
@@ -206,20 +206,20 @@ class _SellerOrderCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
 
           // ── Vehicle info
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Iconsax.car, color: AppColors.primary, size: 22),
+                child: Icon(Iconsax.car, color: Theme.of(context).colorScheme.primary, size: 22),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,11 +227,11 @@ class _SellerOrderCard extends StatelessWidget {
                     Text(order.vehicleName,
                         style: GoogleFonts.outfit(
                             fontWeight: FontWeight.bold, fontSize: 15)),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       "₹${order.amount.toStringAsFixed(0)} • ${order.paymentMethod}",
-                      style: const TextStyle(
-                          color: AppColors.textMuted, fontSize: 12),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                     ),
                   ],
                 ),
@@ -241,13 +241,13 @@ class _SellerOrderCard extends StatelessWidget {
                 style: GoogleFonts.outfit(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
-                    color: AppColors.primary),
+                    color: Theme.of(context).colorScheme.onSurface),
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          const Divider(height: 1),
-          const SizedBox(height: 10),
+          SizedBox(height: 14),
+          Divider(height: 1),
+          SizedBox(height: 10),
 
           // ── Action buttons
           _buildActions(context),
@@ -264,26 +264,26 @@ class _SellerOrderCard extends StatelessWidget {
           Expanded(
             child: ElevatedButton.icon(
               onPressed: () => _confirmOrder(context),
-              icon: const Icon(Iconsax.tick_circle, size: 16, color: Colors.white),
-              label: const Text("Confirm Order",
-                  style: TextStyle(color: Colors.white)),
+              icon: Icon(Iconsax.tick_circle, size: 16, color: Theme.of(context).colorScheme.onSurface),
+              label: Text("Confirm Order",
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                padding: const EdgeInsets.symmetric(vertical: 10),
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                padding: EdgeInsets.symmetric(vertical: 10),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           OutlinedButton.icon(
             onPressed: () => _cancelOrder(context),
-            icon: const Icon(Iconsax.close_circle, size: 16, color: AppColors.error),
-            label: const Text("Cancel",
-                style: TextStyle(color: AppColors.error, fontSize: 12)),
+            icon: Icon(Iconsax.close_circle, size: 16, color: Theme.of(context).colorScheme.onSurface),
+            label: Text("Cancel",
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.error),
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              side: BorderSide(color: Theme.of(context).colorScheme.outline),
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 12),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
@@ -298,36 +298,36 @@ class _SellerOrderCard extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(10),
+            padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.green.withValues(alpha: 0.08),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+              border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
             ),
-            child: const Row(
+            child: Row(
               children: [
-                Icon(Iconsax.star, size: 14, color: Colors.amber),
+                Icon(Iconsax.star, size: 14, color: Theme.of(context).colorScheme.onSurface),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     "Marking delivered will add this car to the buyer's My Vehicles and award them 50 credits.",
-                    style: TextStyle(fontSize: 11, color: Colors.green),
+                    style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
               onPressed: () => _deliverOrder(context),
-              icon: const Icon(Iconsax.box_tick, size: 16, color: Colors.white),
-              label: const Text("Mark as Delivered",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+              icon: Icon(Iconsax.box_tick, size: 16, color: Theme.of(context).colorScheme.onSurface),
+              label: Text("Mark as Delivered",
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                backgroundColor: Theme.of(context).colorScheme.surface,
+                padding: EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
@@ -339,24 +339,24 @@ class _SellerOrderCard extends StatelessWidget {
 
     // Delivered / Cancelled — no actions
     if (order.status == OrderStatus.delivered) {
-      return const Row(
+      return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Iconsax.box_tick, color: AppColors.success, size: 16),
+          Icon(Iconsax.box_tick, color: Theme.of(context).colorScheme.onSurface, size: 16),
           SizedBox(width: 6),
           Text("Delivered — Car added to buyer's account",
-              style: TextStyle(color: AppColors.success, fontSize: 12)),
+              style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
         ],
       );
     }
 
-    return const Row(
+    return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Iconsax.close_circle, color: AppColors.error, size: 16),
+        Icon(Iconsax.close_circle, color: Theme.of(context).colorScheme.onSurface, size: 16),
         SizedBox(width: 6),
         Text("Order Cancelled",
-            style: TextStyle(color: AppColors.error, fontSize: 12)),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontSize: 12)),
       ],
     );
   }
@@ -368,17 +368,17 @@ class _SellerOrderCard extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Confirm Order?"),
+        title: Text("Confirm Order?"),
         content: Text(
             "Accept the order for ${order.vehicleName}?\n\nYou'll then need to mark it delivered once the vehicle is handed over."),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("Cancel")),
+              child: Text("Cancel")),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Confirm", style: TextStyle(color: Colors.white)),
+            child: Text("Confirm", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ),
         ],
       ),
@@ -390,9 +390,9 @@ class _SellerOrderCard extends StatelessWidget {
             .updateOrderStatus(order.id, OrderStatus.confirmed);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text("✅ Order confirmed! Now deliver the vehicle."),
-              backgroundColor: Colors.blue,
+              backgroundColor: Theme.of(context).colorScheme.surface,
             ),
           );
         }
@@ -410,21 +410,21 @@ class _SellerOrderCard extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Mark as Delivered? 🚗"),
+        title: Text("Mark as Delivered? 🚗"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Confirm vehicle handover to buyer for:\n\"${order.vehicleName}\""),
-            const SizedBox(height: 16),
+            SizedBox(height: 16),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withValues(alpha: 0.08),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+                border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("This will instantly:",
@@ -442,12 +442,12 @@ class _SellerOrderCard extends StatelessWidget {
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("Not Yet")),
+              child: Text("Not Yet")),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Yes, Deliver!",
-                style: TextStyle(color: Colors.white)),
+            child: Text("Yes, Deliver!",
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ),
         ],
       ),
@@ -458,7 +458,7 @@ class _SellerOrderCard extends StatelessWidget {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const Center(child: CircularProgressIndicator()),
+        builder: (_) => Center(child: CircularProgressIndicator()),
       );
 
       try {
@@ -473,10 +473,10 @@ class _SellerOrderCard extends StatelessWidget {
         if (context.mounted) {
           Navigator.pop(context); // close loader
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Text(
                   "🚗 Delivered! Car added to buyer's My Vehicles. +50 credits awarded."),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.surface,
               duration: Duration(seconds: 4),
             ),
           );
@@ -495,18 +495,18 @@ class _SellerOrderCard extends StatelessWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Cancel Order?"),
-        content: const Text(
+        title: Text("Cancel Order?"),
+        content: Text(
             "This will cancel the buyer's order. This action cannot be undone."),
         actions: [
           TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("Keep")),
+              child: Text("Keep")),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text("Cancel Order",
-                style: TextStyle(color: Colors.white)),
+            child: Text("Cancel Order",
+                style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
           ),
         ],
       ),
@@ -518,9 +518,9 @@ class _SellerOrderCard extends StatelessWidget {
             .updateOrderStatus(order.id, OrderStatus.cancelled);
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
                 content: Text("Order cancelled."),
-                backgroundColor: AppColors.error),
+                backgroundColor: Theme.of(context).colorScheme.surface),
           );
         }
       } catch (e) {
@@ -540,15 +540,15 @@ class _BulletPoint extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
+      padding: EdgeInsets.only(bottom: 4),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle_rounded, size: 14, color: Colors.green),
-          const SizedBox(width: 6),
+          Icon(Icons.check_circle_rounded, size: 14, color: Theme.of(context).colorScheme.onSurface),
+          SizedBox(width: 6),
           Expanded(
             child: Text(text,
-                style: const TextStyle(fontSize: 12)),
+                style: TextStyle(fontSize: 12)),
           ),
         ],
       ),
