@@ -41,7 +41,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthService>(context).currentUser;
-    if (user == null) return const Center(child: Text("Login Required"));
+    if (user == null) return Center(child: Text("Login Required"));
 
     final isOrg = user.accountType == AccountType.company;
 
@@ -62,23 +62,23 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: EdgeInsets.all(20),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 50,
-                backgroundColor: AppColors.primary,
-                child: Icon(Iconsax.user, size: 50, color: Colors.white),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Icon(Iconsax.user, size: 50, color: Theme.of(context).colorScheme.onSurface),
               ),
-              const SizedBox(height: 16),
-              Text(user.email, style: const TextStyle(color: AppColors.textMuted)),
-              const SizedBox(height: 10),
+              SizedBox(height: 16),
+              Text(user.email, style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
+              SizedBox(height: 10),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isOrg ? Colors.purple.withValues(alpha:0.1) : Colors.blue.withValues(alpha:0.1),
+                  color: isOrg ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1) : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -87,39 +87,39 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                     Text(
                       isOrg ? "Organization Account" : "Individual Seller",
                       style: TextStyle(
-                        color: isOrg ? Colors.purple : Colors.blue,
+                        color: isOrg ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
                       ),
                     ),
                     if (!isOrg && _isEditing) ...[
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       InkWell(
                         onTap: () {
                            // Logic to upgrade to Organization
                            _showUpgradeDialog();
                         },
-                        child: const Text(" (Upgrade)", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                        child: Text(" (Upgrade)", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
                       )
                     ]
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              SizedBox(height: 30),
               _buildSectionHeader("Basic Info"),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildTextField("Name", _nameController, Iconsax.user, enabled: _isEditing),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               _buildTextField("Phone", _phoneController, Iconsax.call, enabled: _isEditing),
               
               if (isOrg) ...[
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
                 _buildSectionHeader("Business Details"),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 _buildTextField("Business Name", _businessNameController, Iconsax.building, enabled: _isEditing),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _buildTextField("GST Number", _gstController, Iconsax.receipt, enabled: _isEditing),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 _buildTextField("Business Address", _addressController, Iconsax.location, enabled: _isEditing, maxLines: 2),
               ],
             ],
@@ -132,7 +132,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
   Widget _buildSectionHeader(String title) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
     );
   }
 
@@ -166,7 +166,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
            _isEditing = false;
            _isLoading = false;
          });
-         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Profile Updated!")));
+         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Profile Updated!")));
       }
     } catch (e) {
       if (mounted) {
@@ -180,12 +180,12 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Upgrade to Organization"),
-        content: const Text("This will enable business features like adding GST, Business Name, and Address. Continue?"),
+        title: Text("Upgrade to Organization"),
+        content: Text("This will enable business features like adding GST, Business Name, and Address. Continue?"),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text("Cancel")),
           if (_isLoading)
-            const CircularProgressIndicator()
+            CircularProgressIndicator()
           else
             TextButton(
               onPressed: () async {
@@ -200,7 +200,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                     await authService.upgradeToOrganization(user.uid);
                     if (mounted) {
                       navigator.pop();
-                      messenger.showSnackBar(const SnackBar(content: Text("Upgraded to Organization Account!")));
+                      messenger.showSnackBar(SnackBar(content: Text("Upgraded to Organization Account!")));
                     }
                   }
                 } catch (e) {
@@ -212,7 +212,7 @@ class _SellerProfilePageState extends State<SellerProfilePage> {
                   if (mounted) setState(() => _isLoading = false);
                 }
               }, 
-              child: const Text("Upgrade"),
+              child: Text("Upgrade"),
             ),
         ],
       ),
