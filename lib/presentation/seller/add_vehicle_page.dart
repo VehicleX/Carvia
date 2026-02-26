@@ -142,7 +142,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -150,32 +150,32 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
               Text("Add Photos",
                   style: GoogleFonts.outfit(
                       fontWeight: FontWeight.bold, fontSize: 18)),
-              const SizedBox(height: 6),
-              const Text("Choose how to add vehicle photos",
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
-              const SizedBox(height: 20),
+              SizedBox(height: 6),
+              Text("Choose how to add vehicle photos",
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 13)),
+              SizedBox(height: 20),
               _ImageSourceTile(
                 icon: Iconsax.camera,
                 label: "Take Photo",
                 subtitle: "Use your camera to capture",
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 onTap: () {
                   Navigator.pop(context);
                   _pickImages(ImageSource.camera);
                 },
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _ImageSourceTile(
                 icon: Iconsax.gallery,
                 label: "Choose from Gallery",
                 subtitle: "Select multiple photos at once",
-                color: Colors.purple,
+                color: Theme.of(context).colorScheme.onSurface,
                 onTap: () {
                   Navigator.pop(context);
                   _pickImages(ImageSource.gallery);
                 },
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
             ],
           ),
         ),
@@ -227,7 +227,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         data: Theme.of(context).copyWith(
           colorScheme: Theme.of(context)
               .colorScheme
-              .copyWith(primary: AppColors.primary),
+              .copyWith(primary: Theme.of(context).colorScheme.primary),
         ),
         child: Stepper(
           type: StepperType.horizontal,
@@ -245,42 +245,42 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           },
           controlsBuilder: (context, details) {
             return Padding(
-              padding: const EdgeInsets.only(top: 20),
+              padding: EdgeInsets.only(top: 20),
               child: Row(
                 children: [
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isSubmitLoading ? null : details.onStepContinue,
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: AppColors.primary,
+                        padding: EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
                       child: _isSubmitLoading
-                          ? const SizedBox(
+                          ? SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 2))
+                                  color: Theme.of(context).colorScheme.primary, strokeWidth: 2))
                           : Text(
                               _currentStep == 2
                                   ? (_isEditMode ? "Update Vehicle" : "Publish Vehicle")
                                   : "Continue →",
-                              style: const TextStyle(
-                                  color: Colors.white, fontWeight: FontWeight.bold)),
+                              style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold)),
                     ),
                   ),
                   if (_currentStep > 0) ...[
-                    const SizedBox(width: 12),
+                    SizedBox(width: 12),
                     OutlinedButton(
                       onPressed: details.onStepCancel,
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                        padding: EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text("Back"),
+                      child: Text("Back"),
                     ),
                   ],
                 ],
@@ -289,19 +289,19 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           },
           steps: [
             Step(
-              title: const Text("Details"),
+              title: Text("Details"),
               content: _buildDetailsStep(),
               isActive: _currentStep >= 0,
               state: _currentStep > 0 ? StepState.complete : StepState.editing,
             ),
             Step(
-              title: const Text("Specs"),
+              title: Text("Specs"),
               content: _buildSpecsStep(),
               isActive: _currentStep >= 1,
               state: _currentStep > 1 ? StepState.complete : StepState.editing,
             ),
             Step(
-              title: const Text("Photos"),
+              title: Text("Photos"),
               content: _buildImagesStep(),
               isActive: _currentStep >= 2,
               state: _currentStep == 2 ? StepState.editing : StepState.indexed,
@@ -320,21 +320,21 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       child: Column(
         children: [
           _sectionLabel("Vehicle Type"),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _ChipSelector(
-            options: const ["Car", "Bike", "Truck", "SUV", "Van"],
+            options: ["Car", "Bike", "Truck", "SUV", "Van"],
             selected: _selectedType,
             onChanged: (v) => setState(() => _selectedType = v),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(child: _field(_brandController, "Brand", Iconsax.tag)),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(child: _field(_modelController, "Model", Iconsax.car)),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -345,7 +345,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
                   validator: (val) => val!.isEmpty ? "Required" : null,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Expanded(
                 child: TextFormField(
                   controller: _priceController,
@@ -356,9 +356,9 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _field(_locationController, "Location (shown to buyers for test drives)", Iconsax.location),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _field(_licensePlateController, "License Plate (optional)", Iconsax.receipt,
               required: false),
         ],
@@ -388,35 +388,35 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         // Engine CC (only for bikes)
         if (isBike) ...[
           _sectionLabel("Engine Capacity"),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           TextFormField(
             controller: _engineCcController,
             keyboardType: TextInputType.number,
             decoration: _dec("Engine (cc)", Iconsax.cpu),
             validator: (val) => val!.isEmpty ? "Required" : null,
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
         
         _sectionLabel("Fuel Type"),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _ChipSelector(
           options: fuelOptions,
           selected: _selectedFuel,
           onChanged: (v) => setState(() => _selectedFuel = v),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         
         // Transmission (only for cars)
         if (!isBike) ...[
           _sectionLabel("Transmission"),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           _ChipSelector(
-            options: const ["Automatic", "Manual"],
+            options: ["Automatic", "Manual"],
             selected: _selectedTransmission,
             onChanged: (v) => setState(() => _selectedTransmission = v),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
         ],
         
         TextFormField(
@@ -425,16 +425,16 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           decoration: _dec("Mileage (km)", Iconsax.speedometer),
           validator: (val) => val!.isEmpty ? "Required" : null,
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         
         _sectionLabel("Color"),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _ChipSelector(
-          options: const ["White", "Black", "Silver", "Red", "Blue", "Grey", "Brown", "Other"],
+          options: ["White", "Black", "Silver", "Red", "Blue", "Grey", "Brown", "Other"],
           selected: _selectedColor,
           onChanged: (v) => setState(() => _selectedColor = v),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         
         TextFormField(
           controller: _descriptionController,
@@ -458,11 +458,11 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           onTap: _showImageSourceDialog,
           child: Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 32),
+            padding: EdgeInsets.symmetric(vertical: 32),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.05),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
               border: Border.all(
-                color: AppColors.primary.withValues(alpha: 0.3),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3),
                 style: BorderStyle.solid,
               ),
               borderRadius: BorderRadius.circular(20),
@@ -471,24 +471,24 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Iconsax.gallery_add, size: 32, color: AppColors.primary),
+                  child: Icon(Iconsax.gallery_add, size: 32, color: Theme.of(context).colorScheme.primary),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: 12),
                 Text("Add Vehicle Photos",
                     style: GoogleFonts.outfit(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        color: AppColors.primary)),
-                const SizedBox(height: 4),
-                const Text(
+                        color: Theme.of(context).colorScheme.onSurface)),
+                SizedBox(height: 4),
+                Text(
                   "Tap to use Camera or Gallery\nMultiple photos supported",
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 12, height: 1.5),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12, height: 1.5),
                 ),
               ],
             ),
@@ -496,21 +496,21 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         ),
 
         if (totalImages > 0) ...[
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text("$totalImages photo${totalImages == 1 ? '' : 's'} selected",
-                  style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: AppColors.primary)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
               TextButton.icon(
                 onPressed: _showImageSourceDialog,
-                icon: const Icon(Iconsax.add, size: 14),
-                label: const Text("Add More"),
+                icon: Icon(Iconsax.add, size: 14),
+                label: Text("Add More"),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           SizedBox(
             height: 110,
             child: ListView(
@@ -531,7 +531,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
                       child: e.key < _pendingBytesCache.length
                           ? Image.memory(_pendingBytesCache[e.key],
                               width: 110, height: 110, fit: BoxFit.cover)
-                          : Container(width: 110, height: 110, color: Colors.grey),
+                          : Container(width: 110, height: 110, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)),
                     )),
               ],
             ),
@@ -539,8 +539,8 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         ],
 
         if (_isUploading) ...[
-          const SizedBox(height: 16),
-          const Row(
+          SizedBox(height: 16),
+          Row(
 
             children: [
               SizedBox(
@@ -549,26 +549,26 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
                   child: CircularProgressIndicator(strokeWidth: 2)),
               SizedBox(width: 8),
               Text("Uploading photos...",
-                  style: TextStyle(color: AppColors.textMuted, fontSize: 13)),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 13)),
             ],
           ),
         ],
 
-        const SizedBox(height: 16),
+        SizedBox(height: 16),
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.blue.withValues(alpha: 0.07),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: const Row(
+          child: Row(
             children: [
-              Icon(Iconsax.info_circle, size: 14, color: Colors.blue),
+              Icon(Iconsax.info_circle, size: 14, color: Theme.of(context).colorScheme.onSurface),
               SizedBox(width: 8),
               Expanded(
                 child: Text(
                   "First photo will be shown as the cover. Photos are uploaded to Firebase Storage.",
-                  style: TextStyle(fontSize: 11, color: Colors.blue),
+                  style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurface),
                 ),
               ),
             ],
@@ -584,7 +584,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     bool isNew = false,
   }) {
     return Container(
-      margin: const EdgeInsets.only(right: 10),
+      margin: EdgeInsets.only(right: 10),
       child: Stack(
         children: [
           ClipRRect(
@@ -596,14 +596,14 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
               top: 6,
               left: 6,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Text("NEW",
+                child: Text("NEW",
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 9,
                         fontWeight: FontWeight.bold)),
               ),
@@ -613,10 +613,10 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
             right: 4,
             child: GestureDetector(
               onTap: onRemove,
-              child: const CircleAvatar(
+              child: CircleAvatar(
                 radius: 11,
-                backgroundColor: Colors.red,
-                child: Icon(Icons.close, size: 13, color: Colors.white),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Icon(Icons.close, size: 13, color: Theme.of(context).colorScheme.onSurface),
               ),
             ),
           ),
@@ -631,7 +631,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     final totalImages = _uploadedImageUrls.length + _pendingFiles.length;
     if (totalImages == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Please add at least one photo")));
+          SnackBar(content: Text("Please add at least one photo")));
       return;
     }
 
@@ -697,7 +697,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
               _isEditMode ? "🚀 Vehicle updated!" : "🚗 Vehicle published!"),
-          backgroundColor: AppColors.success,
+          backgroundColor: Theme.of(context).colorScheme.surface,
         ));
       }
     } catch (e) {
@@ -727,16 +727,16 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: AppColors.textMuted.withValues(alpha: 0.3)),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
         ),
       );
 
   Widget _sectionLabel(String text) => Text(text,
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14));
+      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14));
 }
 
 // ── Chip Selector ─────────────────────────────────────────────────────────────
@@ -757,21 +757,21 @@ class _ChipSelector extends StatelessWidget {
                 onTap: () => onChanged(o),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                   decoration: BoxDecoration(
                     color: o == selected
-                        ? AppColors.primary
-                        : AppColors.primary.withValues(alpha: 0.08),
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: o == selected
-                          ? AppColors.primary
-                          : AppColors.primary.withValues(alpha: 0.2),
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Text(o,
                       style: TextStyle(
-                          color: o == selected ? Colors.white : AppColors.primary,
+                          color: o == selected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
                           fontWeight: o == selected
                               ? FontWeight.bold
                               : FontWeight.normal,
@@ -802,7 +802,7 @@ class _ImageSourceTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
@@ -811,14 +811,14 @@ class _ImageSourceTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -827,8 +827,8 @@ class _ImageSourceTile extends StatelessWidget {
                       style:  TextStyle(
                           fontWeight: FontWeight.bold, fontSize: 15, color: color)),
                   Text(subtitle,
-                      style: const TextStyle(
-                          color: AppColors.textMuted, fontSize: 12)),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
                 ],
               ),
             ),
