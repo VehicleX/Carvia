@@ -14,7 +14,7 @@ class SellerTestDrivesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthService>(context).currentUser;
-    if (user == null) return const Center(child: Text("Please login"));
+    if (user == null) return Center(child: Text("Please login"));
 
     return Scaffold(
       appBar: AppBar(
@@ -24,16 +24,16 @@ class SellerTestDrivesPage extends StatelessWidget {
         stream: Provider.of<VehicleService>(context, listen: false).getSellerTestDrivesStream(user.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Iconsax.calendar_remove, size: 60, color: AppColors.textMuted.withValues(alpha:0.3)),
-                  const SizedBox(height: 16),
-                  const Text("No pending test drives", style: TextStyle(color: AppColors.textMuted)),
+                  Icon(Iconsax.calendar_remove, size: 60, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
+                  SizedBox(height: 16),
+                  Text("No pending test drives", style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                 ],
               ),
             );
@@ -41,9 +41,9 @@ class SellerTestDrivesPage extends StatelessWidget {
 
           final requests = snapshot.data!;
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: EdgeInsets.all(16),
             itemCount: requests.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 16),
+            separatorBuilder: (context, index) => SizedBox(height: 16),
             itemBuilder: (context, index) {
               return _buildRequestCard(context, requests[index]);
             },
@@ -58,19 +58,19 @@ class SellerTestDrivesPage extends StatelessWidget {
     
     Color statusColor;
     switch (request.status) {
-      case 'approved': statusColor = Colors.green; break;
-      case 'rejected': statusColor = Colors.red; break;
-      case 'completed': statusColor = Colors.blue; break;
-      default: statusColor = Colors.orange;
+      case 'approved': statusColor = Theme.of(context).colorScheme.onSurface; break;
+      case 'rejected': statusColor = Theme.of(context).colorScheme.onSurface; break;
+      case 'completed': statusColor = Theme.of(context).colorScheme.onSurface; break;
+      default: statusColor = Theme.of(context).colorScheme.onSurface;
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha:0.05), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05), blurRadius: 10, offset: Offset(0, 4)),
         ],
       ),
       child: Column(
@@ -81,61 +81,61 @@ class SellerTestDrivesPage extends StatelessWidget {
               Expanded(
                 child: Text(
                   DateFormat('MMM dd, yyyy • hh:mm a').format(request.scheduledTime),
-                  style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(color: statusColor.withValues(alpha:0.1), borderRadius: BorderRadius.circular(8)),
                 child: Text(request.status.toUpperCase(), style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 10)),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Text(request.vehicleName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-          const SizedBox(height: 4),
+          SizedBox(height: 12),
+          Text(request.vehicleName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          SizedBox(height: 4),
           Row(
             children: [
-              const Icon(Iconsax.user, size: 14, color: AppColors.textMuted),
-              const SizedBox(width: 4),
+              Icon(Iconsax.user, size: 14, color: Theme.of(context).colorScheme.secondary),
+              SizedBox(width: 4),
               Expanded(
                 child: Text(
                   "Buyer: ${request.buyerName}",
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
           ),
           if (request.buyerPhone.isNotEmpty) ...[
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Row(
               children: [
-                const Icon(Iconsax.call, size: 14, color: AppColors.textMuted),
-                const SizedBox(width: 4),
-                Text(request.buyerPhone, style: const TextStyle(color: AppColors.textMuted, fontSize: 12)),
+                Icon(Iconsax.call, size: 14, color: Theme.of(context).colorScheme.secondary),
+                SizedBox(width: 4),
+                Text(request.buyerPhone, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
               ],
             ),
           ],
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Iconsax.location, size: 14, color: AppColors.textMuted),
-              const SizedBox(width: 4),
+              Icon(Iconsax.location, size: 14, color: Theme.of(context).colorScheme.secondary),
+              SizedBox(width: 4),
               Expanded(
                 child: Text(
                   "Location: ${request.meetingLocation.isNotEmpty ? request.meetingLocation : request.sellerLocation}",
-                  style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                  style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                   maxLines: 2,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           if (request.status == 'pending')
             Row(
               children: [
@@ -143,18 +143,18 @@ class SellerTestDrivesPage extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () => _updateStatus(context, vehicleService, request, 'rejected'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.error,
-                      side: const BorderSide(color: AppColors.error),
+                      foregroundColor: Theme.of(context).colorScheme.onSurface,
+                      side: BorderSide(color: Theme.of(context).colorScheme.outline),
                     ),
-                    child: const Text("Reject"),
+                    child: Text("Reject"),
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () => _updateStatus(context, vehicleService, request, 'approved'),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                    child: const Text("Approve"),
+                    style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
+                    child: Text("Approve"),
                   ),
                 ),
               ],

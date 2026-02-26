@@ -16,14 +16,14 @@ class SellerAnalyticsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
-    if (user == null) return const Center(child: Text("Please login"));
+    if (user == null) return Center(child: Text("Please login"));
 
     return StreamBuilder<List<VehicleModel>>(
       stream: Provider.of<VehicleService>(context, listen: false)
           .getSellerVehiclesStream(user.uid),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return Center(child: CircularProgressIndicator());
         }
 
         final vehicles = snapshot.data ?? [];
@@ -43,50 +43,50 @@ class SellerAnalyticsPage extends StatelessWidget {
             // ── Revenue Header ───────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.all(20),
+                padding: EdgeInsets.all(20),
                 child: Container(
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF1a1a2e), Color(0xFF16213e)],
+                    gradient: LinearGradient(
+                      colors: [Theme.of(context).colorScheme.surface, Theme.of(context).colorScheme.surface.withValues(alpha: 0.8)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.2),
+                          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
                           blurRadius: 20,
-                          offset: const Offset(0, 8))
+                          offset: Offset(0, 8))
                     ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
-                          Icon(Iconsax.wallet_2, color: Colors.white54, size: 18),
+                          Icon(Iconsax.wallet_2, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54), size: 18),
                           SizedBox(width: 8),
                           Text("Total Revenue",
-                              style: TextStyle(color: Colors.white54, fontSize: 14)),
+                              style: TextStyle(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54), fontSize: 14)),
                         ],
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         "₹${NumberFormat('#,##,##0').format(totalRevenue)}",
                         style: GoogleFonts.outfit(
                             fontSize: 36,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                            color: Theme.of(context).colorScheme.primary),
                       ),
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Row(
                         children: [
-                          _MiniStat("Sold", "$soldVehicles", Colors.green),
-                          const SizedBox(width: 12),
-                          _MiniStat("Active", "$activeListings", Colors.blue),
-                          const SizedBox(width: 12),
-                          _MiniStat("Rate", "${conversionRate.toStringAsFixed(1)}%", Colors.amber),
+                          _MiniStat("Sold", "$soldVehicles", Theme.of(context).colorScheme.primary),
+                          SizedBox(width: 12),
+                          _MiniStat("Active", "$activeListings", Theme.of(context).colorScheme.primary),
+                          SizedBox(width: 12),
+                          _MiniStat("Rate", "${conversionRate.toStringAsFixed(1)}%", Theme.of(context).colorScheme.primary),
                         ],
                       ),
                     ],
@@ -98,14 +98,14 @@ class SellerAnalyticsPage extends StatelessWidget {
             // ── Engagement Stats ─────────────────────────────────────────
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text("Engagement",
                         style: GoogleFonts.outfit(
                             fontWeight: FontWeight.bold, fontSize: 18)),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                     Row(
                       children: [
                         Expanded(
@@ -113,19 +113,19 @@ class SellerAnalyticsPage extends StatelessWidget {
                             label: "Total Views",
                             value: NumberFormat.compact().format(totalViews),
                             icon: Iconsax.eye,
-                            color: Colors.blue,
+                            color: Theme.of(context).colorScheme.onSurface,
                             subtitle: vehicles.isEmpty
                                 ? "0 avg/vehicle"
                                 : "${(totalViews / vehicles.length).toStringAsFixed(1)} avg/vehicle",
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        SizedBox(width: 12),
                         Expanded(
                           child: _EngagementCard(
                             label: "Wishlists",
                             value: "$totalWishlists",
                             icon: Iconsax.heart,
-                            color: Colors.pink,
+                            color: Theme.of(context).colorScheme.onSurface,
                             subtitle: vehicles.isEmpty
                                 ? "0 avg/vehicle"
                                 : "${(totalWishlists / vehicles.length).toStringAsFixed(1)} avg/vehicle",
@@ -133,27 +133,27 @@ class SellerAnalyticsPage extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 28),
+                    SizedBox(height: 28),
 
                     // ── Performance Bars ─────────────────────────────────
                     Text("Inventory Breakdown",
                         style: GoogleFonts.outfit(
                             fontWeight: FontWeight.bold, fontSize: 18)),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                     _InventoryBreakdown(vehicles: vehicles),
-                    const SizedBox(height: 28),
+                    SizedBox(height: 28),
 
                     // ── Top performing vehicles ──────────────────────────
                     Text("Top Performing",
                         style: GoogleFonts.outfit(
                             fontWeight: FontWeight.bold, fontSize: 18)),
-                    const SizedBox(height: 14),
+                    SizedBox(height: 14),
                   ],
                 ),
               ),
             ),
 
-            _buildTopVehicles(vehicles),
+            _buildTopVehicles(context, vehicles),
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
           ],
         );
@@ -161,13 +161,13 @@ class SellerAnalyticsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTopVehicles(List<VehicleModel> vehicles) {
+  Widget _buildTopVehicles(BuildContext context, List<VehicleModel> vehicles) {
     if (vehicles.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: const Text("No vehicles yet.",
-              style: TextStyle(color: AppColors.textMuted)),
+          padding: EdgeInsets.symmetric(horizontal: 20),
+          child: Text("No vehicles yet.",
+              style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
         ),
       );
     }
@@ -179,7 +179,7 @@ class SellerAnalyticsPage extends StatelessWidget {
     return SliverList(
       delegate: SliverChildBuilderDelegate(
         (ctx, i) => Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+          padding: EdgeInsets.fromLTRB(20, 0, 20, 10),
           child: _TopVehicleRow(rank: i + 1, vehicle: top[i]),
         ),
         childCount: top.length,
@@ -198,7 +198,7 @@ class _MiniStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
@@ -206,7 +206,7 @@ class _MiniStat extends StatelessWidget {
       child: Row(
         children: [
           Text(label, style: TextStyle(color: color.withValues(alpha: 0.8), fontSize: 11)),
-          const SizedBox(width: 4),
+          SizedBox(width: 4),
           Text(value,
               style: TextStyle(
                   color: color, fontWeight: FontWeight.bold, fontSize: 12)),
@@ -233,7 +233,7 @@ class _EngagementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
@@ -242,27 +242,27 @@ class _EngagementCard extends StatelessWidget {
           BoxShadow(
               color: color.withValues(alpha: 0.06),
               blurRadius: 10,
-              offset: const Offset(0, 4))
+              offset: Offset(0, 4))
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 20),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12),
           Text(value,
               style: GoogleFonts.outfit(
                   fontSize: 28, fontWeight: FontWeight.bold, color: color)),
           Text(label,
-              style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
-          const SizedBox(height: 4),
+              style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary)),
+          SizedBox(height: 4),
           Text(subtitle,
               style: TextStyle(
                   fontSize: 10, color: color.withValues(alpha: 0.7))),
@@ -280,8 +280,8 @@ class _InventoryBreakdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (vehicles.isEmpty) {
-      return const Text("No inventory data.",
-          style: TextStyle(color: AppColors.textMuted));
+      return Text("No inventory data.",
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary));
     }
 
     final total = vehicles.length;
@@ -291,14 +291,14 @@ class _InventoryBreakdown extends StatelessWidget {
     }
 
     final segments = [
-      ('Active', byStatus['active'] ?? 0, Colors.blue),
-      ('Sold', byStatus['sold'] ?? 0, Colors.green),
-      ('Reserved', byStatus['reserved'] ?? 0, Colors.orange),
-      ('Inactive', byStatus['inactive'] ?? 0, Colors.grey),
+      ('Active', byStatus['active'] ?? 0, Theme.of(context).colorScheme.onSurface),
+      ('Sold', byStatus['sold'] ?? 0, Theme.of(context).colorScheme.onSurface),
+      ('Reserved', byStatus['reserved'] ?? 0, Theme.of(context).colorScheme.onSurface),
+      ('Inactive', byStatus['inactive'] ?? 0, Theme.of(context).colorScheme.onSurface),
     ].where((s) => s.$2 > 0).toList();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
@@ -320,7 +320,7 @@ class _InventoryBreakdown extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           // Legend
           Wrap(
             spacing: 16,
@@ -334,10 +334,10 @@ class _InventoryBreakdown extends StatelessWidget {
                             height: 10,
                             decoration: BoxDecoration(
                                 color: s.$3, shape: BoxShape.circle)),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6),
                         Text(
                             "${s.$1} (${((s.$2 / total) * 100).toStringAsFixed(0)}%)",
-                            style: const TextStyle(fontSize: 12)),
+                            style: TextStyle(fontSize: 12)),
                       ],
                     ))
                 .toList(),
@@ -356,16 +356,16 @@ class _TopVehicleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rankColors = [Colors.amber, Colors.grey, Colors.brown, AppColors.textMuted, AppColors.textMuted];
+    final rankColors = [Theme.of(context).colorScheme.onSurface, Theme.of(context).colorScheme.onSurface, Theme.of(context).colorScheme.onSurface, Theme.of(context).colorScheme.onSurface, Theme.of(context).colorScheme.onSurface];
     final rankColor = rankColors[rank - 1];
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: rank == 1
-            ? Border.all(color: Colors.amber.withValues(alpha: 0.3))
+            ? Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3))
             : null,
       ),
       child: Row(
@@ -384,7 +384,7 @@ class _TopVehicleRow extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 12)),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: vehicle.images.isNotEmpty
@@ -392,21 +392,21 @@ class _TopVehicleRow extends StatelessWidget {
                 : Container(
                     width: 56,
                     height: 40,
-                    color: AppColors.surface,
-                    child: const Icon(Iconsax.car, size: 20)),
+                    color: Theme.of(context).colorScheme.surface,
+                    child: Icon(Iconsax.car, size: 20)),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("${vehicle.brand} ${vehicle.model}",
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: 13)),
                 Text(
                   "₹${NumberFormat.compact().format(vehicle.price)} • ${vehicle.year}",
                   style:
-                      const TextStyle(color: AppColors.textMuted, fontSize: 11),
+                      TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 11),
                 ),
               ],
             ),
@@ -416,24 +416,24 @@ class _TopVehicleRow extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Iconsax.eye, size: 12, color: AppColors.textMuted),
-                  const SizedBox(width: 3),
+                  Icon(Iconsax.eye, size: 12, color: Theme.of(context).colorScheme.secondary),
+                  SizedBox(width: 3),
                   Text("${vehicle.viewsCount}",
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
                 ],
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: vehicle.status == 'sold'
-                      ? Colors.green.withValues(alpha: 0.12)
-                      : Colors.blue.withValues(alpha: 0.12),
+                      ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12)
+                      : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   vehicle.status.toUpperCase(),
                   style: TextStyle(
-                      color: vehicle.status == 'sold' ? Colors.green : Colors.blue,
+                      color: vehicle.status == 'sold' ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface,
                       fontSize: 9,
                       fontWeight: FontWeight.bold),
                 ),

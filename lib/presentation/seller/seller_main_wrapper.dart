@@ -26,7 +26,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final List<Widget> _pages = [
-    const SizedBox(), // Placeholder, will be initialized in initState
+    SizedBox(), // Placeholder, will be initialized in initState
     const ManageListingsPage(),
     const AddVehiclePage(),
     const SellerOrdersPage(),
@@ -82,11 +82,11 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
         final shouldExit = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text("Exit App"),
-            content: const Text("Are you sure you want to exit?"),
+            title: Text("Exit App"),
+            content: Text("Are you sure you want to exit?"),
             actions: [
-              TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text("Cancel")),
-              TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text("Exit")),
+              TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text("Cancel")),
+              TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text("Exit")),
             ],
           ),
         );
@@ -98,9 +98,9 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
       child: Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(menuItems[_currentIndex]['title'], style: const TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(menuItems[_currentIndex]['title'], style: TextStyle(fontWeight: FontWeight.bold)),
         leading: IconButton(
-          icon: const Icon(Iconsax.menu_1),
+          icon: Icon(Iconsax.menu_1),
           onPressed: () => _scaffoldKey.currentState?.openDrawer(),
         ),
         actions: [
@@ -109,7 +109,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
             onPressed: themeService.toggleTheme,
           ),
           IconButton(
-            icon: const Icon(Iconsax.logout, color: AppColors.error),
+            icon: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {
               authService.logout();
               Navigator.of(context).pushAndRemoveUntil(
@@ -121,46 +121,43 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
         ],
       ),
       drawer: Drawer(
-        backgroundColor: isDark ? AppColors.surface : Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         child: Column(
           children: [
             UserAccountsDrawerHeader(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blueGrey, Colors.black87],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2))),
               ),
-              currentAccountPicture: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Iconsax.shop, size: 40, color: Colors.blueGrey),
+              currentAccountPicture: CircleAvatar(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                child: Icon(Iconsax.shop, size: 40, color: Theme.of(context).colorScheme.onPrimary),
               ),
-              accountName: Text(authService.currentUser?.name ?? "Seller", style: const TextStyle(fontWeight: FontWeight.bold)),
-              accountEmail: Text(authService.currentUser?.email ?? ""),
+              accountName: Text(authService.currentUser?.name ?? "Seller", style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+              accountEmail: Text(authService.currentUser?.email ?? "", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
             ),
              ...menuItems.asMap().entries.map((entry) {
               final idx = entry.key;
               final item = entry.value;
               final isSelected = _currentIndex == idx;
               return ListTile(
-                leading: Icon(item['icon'], color: isSelected ? AppColors.primary : AppColors.textMuted),
+                leading: Icon(item['icon'], color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface),
                 title: Text(item['title'], style: TextStyle(
-                  color: isSelected ? AppColors.primary : null,
+                  color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 )),
                 selected: isSelected,
-                selectedTileColor: AppColors.primary.withValues(alpha:0.1),
+                selectedTileColor: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
                 onTap: () {
                   setState(() => _currentIndex = idx);
                   Navigator.pop(context);
                 },
               );
             }),
-            const Divider(),
+            Divider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2)),
             ListTile(
-              leading: const Icon(Iconsax.logout, color: AppColors.error),
-              title: const Text("Logout", style: TextStyle(color: AppColors.error)),
+              leading: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.error),
+              title: Text("Logout", style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () {
                 authService.logout();
                 Navigator.of(context).pushAndRemoveUntil(
