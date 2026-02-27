@@ -379,12 +379,14 @@ class _LandingPageState extends State<LandingPage> {
              ),
            ),
            SizedBox(width: 20),
-           Column(
-             crossAxisAlignment: CrossAxisAlignment.start,
-             children: [
-               Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-               Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 14)),
-             ],
+           Expanded(
+             child: Column(
+               crossAxisAlignment: CrossAxisAlignment.start,
+               children: [
+                 Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                 Text(subtitle, style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 14)),
+               ],
+             ),
            )
         ],
       ),
