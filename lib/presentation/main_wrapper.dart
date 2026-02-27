@@ -6,6 +6,7 @@ import 'package:carvia/presentation/profile/profile_page.dart';
 import 'package:carvia/presentation/vehicle/my_vehicles_page.dart';
 import 'package:carvia/presentation/challan/e_challan_page.dart';
 import 'package:carvia/presentation/ai/ai_chat_page.dart';
+import 'package:carvia/presentation/ai/voice_assistant_bottom_sheet.dart';
 import 'package:carvia/presentation/auth/login_page.dart';
 import 'package:carvia/presentation/vehicle/wishlist_page.dart';
 import 'package:carvia/presentation/profile/settings_page.dart';
@@ -43,6 +44,11 @@ class _MainWrapperState extends State<MainWrapper> {
       body: IndexedStack(
         index: _currentIndex,
         children: _pages,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => VoiceAssistantBottomSheet.show(context),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Iconsax.microphone_2, color: Colors.white),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,

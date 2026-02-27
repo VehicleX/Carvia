@@ -5,6 +5,7 @@ import 'package:carvia/presentation/police/police_challan_list_page.dart';
 import 'package:carvia/presentation/police/police_dashboard.dart';
 import 'package:carvia/presentation/police/police_issue_challan.dart';
 import 'package:carvia/presentation/police/police_search_vehicle.dart';
+import 'package:carvia/presentation/ai/voice_assistant_bottom_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:carvia/presentation/landing/landing_page.dart';
@@ -107,6 +108,11 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => VoiceAssistantBottomSheet.show(context),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Iconsax.microphone_2, color: Colors.white),
       ),
       bottomNavigationBar: isDesktop ? null : NavigationBar(
         selectedIndex: _selectedIndex > 3 ? 0 : _selectedIndex,

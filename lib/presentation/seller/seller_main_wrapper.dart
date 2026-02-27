@@ -7,6 +7,7 @@ import 'package:carvia/presentation/seller/manage_listings_page.dart';
 import 'package:carvia/presentation/seller/add_vehicle_page.dart';
 import 'package:carvia/presentation/seller/seller_orders_page.dart';
 import 'package:carvia/presentation/seller/seller_test_drives_page.dart';
+import 'package:carvia/presentation/ai/voice_assistant_bottom_sheet.dart';
 import 'package:carvia/presentation/seller/seller_analytics_page.dart';
 import 'package:carvia/presentation/seller/seller_profile_page.dart';
 
@@ -172,6 +173,11 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
         ),
       ),
       body: _pages[_currentIndex],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => VoiceAssistantBottomSheet.show(context),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Iconsax.microphone_2, color: Colors.white),
+      ),
     ),
     );
   }
