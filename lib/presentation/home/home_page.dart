@@ -125,7 +125,7 @@ class _HomePageState extends State<HomePage> {
           },
           child: CircleAvatar(
             backgroundColor: Theme.of(context).cardColor,
-            child: Icon(Iconsax.notification),
+            child: Icon(Iconsax.notification, color: Theme.of(context).colorScheme.onSurface),
           ),
         ),
       ],

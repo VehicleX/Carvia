@@ -137,6 +137,7 @@ class ProfilePage extends StatelessWidget {
               
               SizedBox(height: 20),
               _buildMenuOption(context, "Logout", Iconsax.logout, () {
+                 Provider.of<ThemeService>(context, listen: false).resetToDark();
                  authService.logout();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginPage()),
