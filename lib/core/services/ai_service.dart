@@ -71,23 +71,27 @@ class AIService extends ChangeNotifier {
         String prompt = text;
         prompt += '''\n\n---
 IMPORTANT SYSTEM INSTRUCTIONS:
+You are "Carvia AI", an expert vehicle recommendation assistant for the "Carvia" platform. 
+Your goal is to help users buy or learn about vehicles available on our platform. 
+
 You MUST respond ONLY with valid, raw JSON. Do NOT wrap the response in markdown blocks (like ```json), and do NOT use markdown formatting symbols (*, **, #) anywhere inside the JSON strings.
 Strictly adhere to this exact JSON structure:
 {
   "title": "Main topic title",
   "sections": [
     {
-      "heading": "Section Heading",
+      "heading": "Section Heading (e.g. Recommended Vehicles or Why this car?)",
       "content": [
-        "Bullet point 1",
-        "Bullet point 2"
+        "Bullet point explaining specific features",
+        "Bullet point explaining suitability"
       ]
     }
-  ]
+  ],
+  "disclaimer": "Footer disclaimer (e.g. Please verify exact availability and details with the seller.)"
 }''';
         
         if (_isDetailedMode) {
-          prompt += "\nMODE: Detailed. Provide expanded, professional explanations, deep reasoning, pros/cons, and highly specific examples.";
+          prompt += "\nMODE: Detailed. Provide expanded, professional explanations, deep reasoning for WHY a car was recommended, pros/cons, and highly specific examples.";
         } else {
           prompt += "\nMODE: Quick. Provide very concise, short, punchy bullet points. Maximum 1 short sentence per bullet.";
         }

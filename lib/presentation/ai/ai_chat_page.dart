@@ -115,16 +115,43 @@ class _AIChatPageState extends State<AIChatPage> {
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Column(
         children: [
-          _buildToggleBtn("Quick Mode", !aiService.isDetailedMode, () {
-            if (aiService.isDetailedMode) aiService.toggleDetailedMode();
-          }),
-          SizedBox(width: 12),
-          _buildToggleBtn("Detailed Mode", aiService.isDetailedMode, () {
-            if (!aiService.isDetailedMode) aiService.toggleDetailedMode();
-          }),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildToggleBtn("Quick Mode", !aiService.isDetailedMode, () {
+                if (aiService.isDetailedMode) aiService.toggleDetailedMode();
+              }),
+              SizedBox(width: 12),
+              _buildToggleBtn("Detailed Mode", aiService.isDetailedMode, () {
+                if (!aiService.isDetailedMode) aiService.toggleDetailedMode();
+              }),
+            ],
+          ),
+          if (aiService.isDetailedMode)
+            Padding(
+              padding: const EdgeInsets.only(top: 16.0, bottom: 4.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Iconsax.magic_star, color: Theme.of(context).colorScheme.primary, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Detailed AI Recommendations Enabled",
+                      style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+            ).animate().fade(duration: 400.ms).slideY(begin: -0.5, end: 0, curve: Curves.easeOutBack, duration: 500.ms).shimmer(duration: 1.5.seconds, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5)),
         ],
       ),
     );
@@ -313,6 +340,7 @@ class AiResponseSectionWidget extends StatelessWidget {
       final Map<String, dynamic> data = jsonDecode(rawText);
       final String? title = data['title'];
       final List<dynamic>? sections = data['sections'];
+      final String? disclaimer = data['disclaimer'];
 
       if (title != null && sections != null && sections.isNotEmpty) {
         return Padding(
@@ -357,6 +385,28 @@ class AiResponseSectionWidget extends StatelessWidget {
                   ),
                 );
               }),
+              if (disclaimer != null && disclaimer.isNotEmpty) ...[
+                Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Divider(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Iconsax.info_circle, size: 14, color: Theme.of(context).colorScheme.secondary),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          disclaimer,
+                          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: Theme.of(context).colorScheme.secondary),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
           ),
         );
