@@ -32,6 +32,10 @@
 	<string>We use your location to show and select pickup/drop points on the map.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>We use your location to improve map-based location selection.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone for voice commands.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We need speech recognition to understand your voice commands.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
