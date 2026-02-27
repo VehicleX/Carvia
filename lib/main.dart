@@ -8,6 +8,7 @@ import 'package:carvia/core/services/location_service.dart';
 import 'package:carvia/core/services/compare_service.dart';
 import 'package:carvia/core/services/order_service.dart';
 import 'package:carvia/core/services/notification_service.dart';
+import 'package:carvia/core/services/voice_service.dart';
 import 'package:carvia/presentation/splash/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -36,6 +37,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CompareService()),
         ChangeNotifierProvider(create: (_) => OrderService()),
         ChangeNotifierProvider(create: (_) => NotificationService()),
+        ChangeNotifierProvider(create: (_) => VoiceService()),
       ],
       child: const CarviaApp(),
     ),
