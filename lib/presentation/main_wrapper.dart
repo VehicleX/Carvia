@@ -116,6 +116,7 @@ class _MainWrapperState extends State<MainWrapper> {
           }),
           const Spacer(),
           _drawerItem(icon: Iconsax.logout, title: "Logout", color: Theme.of(context).colorScheme.onSurface, onTap: () {
+            Provider.of<ThemeService>(context, listen: false).resetToDark();
             authService.logout();
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
           }),

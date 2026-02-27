@@ -26,4 +26,11 @@ class ThemeService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_themeKey, _themeMode == ThemeMode.dark);
   }
+
+  Future<void> resetToDark() async {
+    _themeMode = ThemeMode.dark;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_themeKey, true);
+  }
 }

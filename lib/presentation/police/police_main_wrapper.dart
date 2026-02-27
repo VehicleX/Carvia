@@ -1,4 +1,5 @@
 import 'package:carvia/core/services/auth_service.dart';
+import 'package:carvia/core/services/theme_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:carvia/presentation/police/police_analytics_page.dart';
 import 'package:carvia/presentation/police/police_dashboard.dart';
@@ -110,6 +111,7 @@ class _PoliceMainWrapperState extends State<PoliceMainWrapper> {
       leading: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.primary),
       title: _isSidebarExpanded ? Text("Logout", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)) : null,
       onTap: () {
+        Provider.of<ThemeService>(context, listen: false).resetToDark();
         Provider.of<AuthService>(context, listen: false).logout();
       },
     );

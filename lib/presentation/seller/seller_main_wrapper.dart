@@ -111,6 +111,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
           IconButton(
             icon: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.onSurface),
             onPressed: () {
+              Provider.of<ThemeService>(context, listen: false).resetToDark();
               authService.logout();
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const LoginPage()),
@@ -159,6 +160,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
               leading: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.error),
               title: Text("Logout", style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () {
+                Provider.of<ThemeService>(context, listen: false).resetToDark();
                 authService.logout();
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (_) => const LoginPage()),
