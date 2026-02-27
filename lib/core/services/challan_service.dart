@@ -215,6 +215,21 @@ class ChallanService extends ChangeNotifier {
   }
   // --- Police Methods ---
 
+  Future<void> deleteChallan(String challanId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _firestore.collection('challans').doc(challanId).delete();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error deleting challan: $e");
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> issueChallan(ChallanModel challan) async {
     _isLoading = true;
     notifyListeners();
@@ -227,15 +242,17 @@ class ChallanService extends ChangeNotifier {
       
       await docRef.set(challan.toMap()); // Save to DB
 
-      // Notify Owner
-      final notificationService = NotificationService();
-      await notificationService.createNotification(
-        userId: challan.ownerId,
-        title: "E-Challan Issued 🚨",
-        body: "You have been fined \$${challan.fineAmount} for ${challan.violationType}. Vehicle: ${challan.vehicleNumber}",
-        type: "challan_issued",
-        data: {'challanId': docRef.id},
-      );
+      // Notify Owner if we have their ID
+      if (challan.ownerId.isNotEmpty) {
+        final notificationService = NotificationService();
+        await notificationService.createNotification(
+          userId: challan.ownerId,
+          title: "E-Challan Issued 🚨",
+          body: "You have been fined \$${challan.fineAmount} for ${challan.violationType}. Vehicle: ${challan.vehicleNumber}",
+          type: "challan_issued",
+          data: {'challanId': docRef.id},
+        );
+      }
       
       notifyListeners();
     } catch (e) {
@@ -249,14 +266,18 @@ class ChallanService extends ChangeNotifier {
 
   Future<List<ChallanModel>> fetchAllChallans({String? status}) async {
     try {
-      Query query = _firestore.collection('challans').orderBy('issuedAt', descending: true);
+      Query query = _firestore.collection('challans');
       
       if (status != null && status != 'All') {
         query = query.where('status', isEqualTo: status.toLowerCase());
       }
       
       final snapshot = await query.get();
-      return snapshot.docs.map((doc) => ChallanModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+      final results = snapshot.docs.map((doc) => ChallanModel.fromMap(doc.data() as Map<String, dynamic>, doc.id)).toList();
+      
+      // Sort client-side to avoid index requirements
+      results.sort((a, b) => b.issuedAt.compareTo(a.issuedAt));
+      return results;
     } catch (e) {
       debugPrint("Error fetching all challans: $e");
       return [];
@@ -302,6 +323,26 @@ class ChallanService extends ChangeNotifier {
       'insurance_status': 'Expired', // Mock
       'puc_status': 'Valid',
     };
+  }
+
+  // Fetch challans issued by a specific officer
+  Future<List<ChallanModel>> fetchIssuedChallans(String officerId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('challans')
+          .where('issuedBy', isEqualTo: officerId)
+          .get();
+      final results = snapshot.docs
+          .map((doc) => ChallanModel.fromMap(doc.data(), doc.id))
+          .toList();
+          
+      // Sort client-side
+      results.sort((a, b) => b.issuedAt.compareTo(a.issuedAt));
+      return results;
+    } catch (e) {
+      debugPrint("Error fetching issued challans: $e");
+      return [];
+    }
   }
 
   // Analytics Helpers

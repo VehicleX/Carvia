@@ -9,10 +9,12 @@ class VehicleService extends ChangeNotifier {
   
   List<VehicleModel> _featuredVehicles = [];
   List<VehicleModel> _recommendedVehicles = [];
+  List<VehicleModel> _soldVehicles = [];
   bool _isLoading = false;
 
   List<VehicleModel> get featuredVehicles => _featuredVehicles;
   List<VehicleModel> get recommendedVehicles => _recommendedVehicles;
+  List<VehicleModel> get soldVehicles => _soldVehicles;
   bool get isLoading => _isLoading;
 
   final List<String> _wishlistIds = [];
@@ -104,7 +106,7 @@ class VehicleService extends ChangeNotifier {
     notifyListeners();
 
     try {
-      Query queryRef = _firestore.collection('vehicles').where('status', isEqualTo: 'available');
+      Query queryRef = _firestore.collection('vehicles').where('status', whereIn: ['available', 'active']);
 
       if (brand != null && brand.isNotEmpty && brand != 'All') {
         queryRef = queryRef.where('brand', isEqualTo: brand);
@@ -529,6 +531,25 @@ class VehicleService extends ChangeNotifier {
         .map((snapshot) => snapshot.docs
             .map((doc) => VehicleModel.fromMap(doc.data(), doc.id))
             .toList());
+  }
+
+  Future<void> fetchSoldVehicles() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final snapshot = await _firestore
+          .collection('vehicles')
+          .where('status', isEqualTo: 'sold')
+          .get();
+      _soldVehicles = snapshot.docs
+          .map((doc) => VehicleModel.fromMap(doc.data(), doc.id))
+          .toList();
+    } catch (e) {
+      debugPrint("Error fetching sold vehicles: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
 
