@@ -87,7 +87,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           child: _isProcessing 
             ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary) 
-            : Text("PAY \$${widget.vehicle.price.toStringAsFixed(0)}", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            : Text(widget.vehicle.price > 0 ? "PAY ₹${widget.vehicle.price.toStringAsFixed(0)}" : "BOOK NOW", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
       ),
     );
@@ -125,7 +125,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
           ),
           Text(
-            "\$${widget.vehicle.price.toStringAsFixed(0)}",
+            widget.vehicle.displayPrice,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
@@ -165,9 +165,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     return Column(
       children: [
-        _row("Vehicle Price", "\$${price.toStringAsFixed(0)}"),
-        _row("Taxes (5%)", "\$${tax.toStringAsFixed(0)}"),
-        _row("Delivery Fee", "\$500"),
+        _row("Vehicle Price", "₹${price.toStringAsFixed(0)}"),
+        _row("Taxes (5%)", "₹${tax.toStringAsFixed(0)}"),
+        _row("Delivery Fee", "₹500"),
         
         if (availableCredits > 0)
           SwitchListTile(
@@ -179,10 +179,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
         
         if (_useCredits && actualDiscount > 0)
-           _row("Credits Discount", "-\$${actualDiscount.toStringAsFixed(0)}", color: Theme.of(context).colorScheme.onSurface),
+           _row("Credits Discount", "-₹${actualDiscount.toStringAsFixed(0)}", color: Theme.of(context).colorScheme.onSurface),
 
         Divider(height: 24),
-        _row("Total Amount", "\$${total.toStringAsFixed(0)}", isBold: true),
+        _row("Total Amount", "₹${total.toStringAsFixed(0)}", isBold: true),
         
         SizedBox(height: 10),
         Container(

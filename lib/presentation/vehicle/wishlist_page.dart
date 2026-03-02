@@ -134,7 +134,7 @@ class _WishlistPageState extends State<WishlistPage> {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      "\$${vehicle.price.toStringAsFixed(0)}", 
+                      vehicle.displayPrice, 
                       style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                     ),
                     const Spacer(),
@@ -146,7 +146,7 @@ class _WishlistPageState extends State<WishlistPage> {
                         SizedBox(width: 12),
                         Icon(Iconsax.speedometer, size: 14, color: Theme.of(context).colorScheme.secondary),
                         SizedBox(width: 4),
-                        Text("${vehicle.mileage} km", style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary)),
+                        Text(vehicle.displayMileage, style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.secondary)),
                       ],
                     ),
                   ],

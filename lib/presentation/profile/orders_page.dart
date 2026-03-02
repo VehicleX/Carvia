@@ -155,7 +155,7 @@ class _OrderCard extends StatelessWidget {
                         style: GoogleFonts.outfit(fontWeight: FontWeight.bold, fontSize: 15)),
                     SizedBox(height: 2),
                     Text(
-                      "\$${order.amount.toStringAsFixed(0)} • ${order.paymentMethod}",
+                      "₹${order.amount.toStringAsFixed(0)} • ${order.paymentMethod}",
                       style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12),
                     ),
                   ],

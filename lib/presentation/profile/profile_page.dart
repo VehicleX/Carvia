@@ -137,12 +137,7 @@ class ProfilePage extends StatelessWidget {
               
               SizedBox(height: 20),
               _buildMenuOption(context, "Logout", Iconsax.logout, () {
-                 Provider.of<ThemeService>(context, listen: false).resetToDark();
-                 authService.logout();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                  (route) => false,
-                );
+                _showLogoutDialog(context);
               }, color: Theme.of(context).colorScheme.onSurface),
             ],
           ),
@@ -210,6 +205,42 @@ class ProfilePage extends StatelessWidget {
               }
             },
             child: Text("Save"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to sign out?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () async {
+              Navigator.pop(context);
+              Provider.of<ThemeService>(context, listen: false).resetToDark();
+              await Provider.of<AuthService>(context, listen: false).logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text("Logout"),
           ),
         ],
       ),

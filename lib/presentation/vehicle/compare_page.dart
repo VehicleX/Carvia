@@ -76,7 +76,7 @@ class ComparePage extends StatelessWidget {
                   flex: 75,
                   child: Column(
                     children: [
-                      _buildRow(context, "Price", v1, v2, (v) => "\$${v.price.toStringAsFixed(0)}", (v) => v.price <= bestPrice),
+                      _buildRow(context, "Price", v1, v2, (v) => "₹${v.price.toStringAsFixed(0)}", (v) => v.price <= bestPrice),
                       _buildRow(context, "Year", v1, v2, (v) => "${v.year}", (v) => v.year >= bestYear),
                       _buildRow(context, "Brand", v1, v2, (v) => v.brand, (v) => false),
                       _buildRow(context, "Fuel", v1, v2, (v) => v.fuel, (v) => false),
@@ -340,7 +340,7 @@ class _VehicleSelectionBottomSheetState extends State<VehicleSelectionBottomShee
                                   SizedBox(height: 4),
                                   Text("${vehicle.year} • ${vehicle.fuel}", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
                                   SizedBox(height: 4),
-                                  Text("\$${vehicle.price.toStringAsFixed(0)}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                                  Text(vehicle.displayPrice, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                                 ],
                               ),
                             ),

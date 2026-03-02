@@ -122,9 +122,8 @@ class _MainWrapperState extends State<MainWrapper> {
           }),
           const Spacer(),
           _drawerItem(icon: Iconsax.logout, title: "Logout", color: Theme.of(context).colorScheme.onSurface, onTap: () {
-            Provider.of<ThemeService>(context, listen: false).resetToDark();
-            authService.logout();
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
+            Navigator.pop(context);
+            _showLogoutDialog(context);
           }),
           SizedBox(height: 20),
         ],
@@ -137,6 +136,42 @@ class _MainWrapperState extends State<MainWrapper> {
       leading: Icon(icon, color: color ?? Theme.of(context).colorScheme.onSurface),
       title: Text(title, style: TextStyle(color: color ?? (Theme.of(context).brightness == Brightness.dark ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface))),
       onTap: onTap,
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to sign out?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () async {
+              Navigator.pop(context);
+              Provider.of<ThemeService>(context, listen: false).resetToDark();
+              await Provider.of<AuthService>(context, listen: false).logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text("Logout"),
+          ),
+        ],
+      ),
     );
   }
 }

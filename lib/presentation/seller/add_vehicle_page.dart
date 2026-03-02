@@ -60,7 +60,9 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       _brandController.text = vehicle.brand;
       _modelController.text = vehicle.model;
       _yearController.text = vehicle.year.toString();
-      _priceController.text = vehicle.price.toStringAsFixed(0);
+      // Load price: prefer priceText if it exists, otherwise use numeric price
+      _priceController.text = vehicle.specs['priceText']?.toString() ?? 
+                              (vehicle.price > 0 ? vehicle.price.toStringAsFixed(0) : '');
       _mileageController.text = vehicle.mileage.toString();
       _descriptionController.text = vehicle.specs['description']?.toString() ?? '';
       _locationController.text = vehicle.location;
@@ -322,7 +324,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           _sectionLabel("Vehicle Type"),
           SizedBox(height: 8),
           _ChipSelector(
-            options: ["Car", "Bike", "Truck", "SUV", "Van"],
+            options: ["Car", "Bike"],
             selected: _selectedType,
             onChanged: (v) => setState(() => _selectedType = v),
           ),
@@ -349,7 +351,6 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
               Expanded(
                 child: TextFormField(
                   controller: _priceController,
-                  keyboardType: TextInputType.number,
                   decoration: _dec("Price (₹)", Iconsax.money),
                   validator: (val) => val!.isEmpty ? "Required" : null,
                 ),
@@ -655,6 +656,9 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
       final user = authService.currentUser;
       if (user == null) return;
 
+      // Handle price - support both numeric and text (e.g., "Negotiable", "Contact for price")
+      final priceText = _priceController.text.trim();
+      final numericPrice = double.tryParse(priceText);
 
       final vehicle = VehicleModel(
         id: widget.vehicle?.id ?? "",
@@ -663,7 +667,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         year: int.tryParse(_yearController.text) ?? DateTime.now().year,
         fuel: _selectedFuel,
         transmission: _selectedType.toLowerCase() == 'bike' ? 'Manual' : _selectedTransmission,
-        price: double.tryParse(_priceController.text) ?? 0,
+        price: numericPrice ?? 0,
         mileage: int.tryParse(_mileageController.text) ?? 0,
         images: allUrls,
         sellerId: user.uid,
@@ -673,10 +677,12 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         specs: {
           'description': _descriptionController.text.trim(),
           'color': _selectedColor,
-          'licensePlate': _licensePlateController.text.trim(),
+          'licensePlate': _licensePlateController.text.trim().toUpperCase().replaceAll(' ', ''),
           'sellerName': user.name,
           'sellerPhone': user.phone,
           'sellerEmail': user.email,
+          if (numericPrice == null && priceText.isNotEmpty)
+            'priceText': priceText,
           if (_selectedType.toLowerCase() == 'bike' && _engineCcController.text.isNotEmpty)
             'engineCc': int.tryParse(_engineCcController.text) ?? 0,
         },

@@ -135,8 +135,8 @@ Strictly adhere to this exact JSON structure:
       Brand: ${vehicle.brand}
       Model: ${vehicle.model}
       Year: ${vehicle.year}
-      Price: \$${vehicle.price}
-      Mileage: ${vehicle.mileage} miles
+      Price: ₹${vehicle.price}
+      Mileage: ${vehicle.mileage} km
       Fuel: ${vehicle.fuel}
       Transmission: ${vehicle.transmission}
 

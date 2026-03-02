@@ -111,14 +111,7 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
           ),
           IconButton(
             icon: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.onSurface),
-            onPressed: () {
-              Provider.of<ThemeService>(context, listen: false).resetToDark();
-              authService.logout();
-              Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
-              );
-            },
+            onPressed: () => _showLogoutDialog(context),
           ),
         ],
       ),
@@ -161,12 +154,8 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
               leading: Icon(Iconsax.logout, color: Theme.of(context).colorScheme.error),
               title: Text("Logout", style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () {
-                Provider.of<ThemeService>(context, listen: false).resetToDark();
-                authService.logout();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                  (route) => false,
-                );
+                Navigator.pop(context);
+                _showLogoutDialog(context);
               },
             ),
           ],
@@ -179,6 +168,42 @@ class _SellerMainWrapperState extends State<SellerMainWrapper> {
         child: const Icon(Iconsax.microphone_2, color: Colors.white),
       ),
     ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to sign out?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () async {
+              Navigator.pop(context);
+              Provider.of<ThemeService>(context, listen: false).resetToDark();
+              await Provider.of<AuthService>(context, listen: false).logout();
+              if (context.mounted) {
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+                );
+              }
+            },
+            child: const Text("Logout"),
+          ),
+        ],
+      ),
     );
   }
 }

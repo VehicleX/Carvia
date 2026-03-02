@@ -129,4 +129,18 @@ class VehicleModel {
       fullImages: fullImages ?? this.fullImages,
     );
   }
+
+  /// Returns the display price - either custom text like "Negotiable" or formatted numeric price
+  String get displayPrice {
+    final priceText = specs['priceText'];
+    if (priceText != null && priceText.toString().isNotEmpty) {
+      return priceText.toString();
+    }
+    return "₹${price.toStringAsFixed(0)}";
+  }
+
+  /// Returns the display mileage with unit
+  String get displayMileage {
+    return "$mileage km";
+  }
 }

@@ -125,7 +125,7 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
                 SizedBox(height: 4),
                 Text(widget.vehicle.year.toString(), style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
                 SizedBox(height: 8),
-                Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                Text(widget.vehicle.displayPrice, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
               ],
             ),
           ),

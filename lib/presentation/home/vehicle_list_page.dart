@@ -84,7 +84,7 @@ class VehicleListPage extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "\$${vehicle.price.toStringAsFixed(0)}", 
+                        vehicle.displayPrice, 
                         style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)
                       ),
                        SizedBox(height: 4),

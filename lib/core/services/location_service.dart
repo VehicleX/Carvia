@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LocationService extends ChangeNotifier {
-  String _currentLocation = "New York, USA"; // Default
-  final List<String> _recentLocations = ["New York, USA", "Los Angeles, CA", "Chicago, IL"];
+  String _currentLocation = "Current Location"; // Default - no location filter applied
+  final List<String> _recentLocations = ["Mumbai, India", "Delhi, India", "Bangalore, India"];
 
   String get currentLocation => _currentLocation;
   List<String> get recentLocations => _recentLocations;
@@ -15,7 +15,7 @@ class LocationService extends ChangeNotifier {
 
   Future<void> _loadLocation() async {
     final prefs = await SharedPreferences.getInstance();
-    _currentLocation = prefs.getString('user_location') ?? "New York, USA";
+    _currentLocation = prefs.getString('user_location') ?? "Current Location";
     notifyListeners();
   }
 

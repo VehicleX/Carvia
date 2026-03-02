@@ -93,7 +93,7 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
       
       // If vehicle found, use its IDs; otherwise use empty strings (manual entry)
       final vehicleId = vehicleData != null ? vehicleData['id'] : "";
-      final ownerId = (vehicleData != null && vehicleData['data'] != null) ? (vehicleData['data']['ownerId'] ?? "") : "";
+      final ownerId = vehicleData != null ? (vehicleData['ownerId'] ?? "") : "";
 
       final challan = ChallanModel(
         id: "", // Auto
@@ -113,8 +113,10 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Challan Issued Successfully! 🚨"),
+          SnackBar(
+            content: Text(ownerId.isNotEmpty 
+              ? "Challan Issued Successfully! Owner will be notified. 🚨" 
+              : "Challan Issued! (No owner found for this vehicle number)"),
             backgroundColor: Colors.green,
           ),
         );
@@ -243,7 +245,7 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text("Calculated Fine", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("\$${_fineAmount.toStringAsFixed(0)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                    Text("₹${_fineAmount.toStringAsFixed(0)}", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
                   ],
                 ),
               ),

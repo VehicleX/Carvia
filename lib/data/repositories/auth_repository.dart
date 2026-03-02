@@ -13,13 +13,14 @@ abstract class AuthRepository {
     required String password, 
     required String name, 
     required String phone,
+    required String address,
     required UserRole role,
   });
   Future<UserModel?> loginWithGoogle();
   Future<void> logout();
   Future<void> verifyPhone(String phone, Function(String, int?) codeSent);
   Future<bool> verifyOTP(String verificationId, String smsCode);
-  Future<UserModel?> completeProfile({required UserRole role, required String phone, required String name, required String email});
+  Future<UserModel?> completeProfile({required UserRole role, required String phone, required String address, required String name, required String email});
   Future<bool> checkEmailExists(String email);
   Future<void> updateProfile({required String uid, required String name, required String phone, String? profileImage});
   Future<void> updateAccountType(String uid, AccountType accountType);
@@ -89,6 +90,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
     required String name,
     required String phone,
+    required String address,
     required UserRole role,
   }) async {
     try {
@@ -105,6 +107,7 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         phone: phone,
         role: role,
+        address: address.isNotEmpty ? {'full': address} : {},
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isVerified: true, 
@@ -213,6 +216,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserModel?> completeProfile({
     required UserRole role,
     required String phone,
+    required String address,
     required String name,
     required String email,
   }) async {
@@ -226,6 +230,7 @@ class AuthRepositoryImpl implements AuthRepository {
         email: email,
         phone: phone,
         role: role,
+        address: address.isNotEmpty ? {'full': address} : {},
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
         isVerified: true, 

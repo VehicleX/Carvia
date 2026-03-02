@@ -138,6 +138,7 @@ class AuthService extends ChangeNotifier {
     required String password,
     required String name,
     required String phone,
+    required String address,
     required UserRole role,
   }) async {
     _setLoading(true);
@@ -155,6 +156,7 @@ class AuthService extends ChangeNotifier {
         password: password,
         name: name,
         phone: phone,
+        address: address,
         role: role,
       );
       
@@ -205,6 +207,7 @@ class AuthService extends ChangeNotifier {
     required String password,
     required String name,
     required String phone,
+    required String address,
     required UserRole role,
     required String verificationId,
     required String smsCode,
@@ -230,6 +233,7 @@ class AuthService extends ChangeNotifier {
         password: password,
         name: name,
         phone: phone,
+        address: address,
         role: role,
       );
       
@@ -246,12 +250,14 @@ class AuthService extends ChangeNotifier {
   Future<void> completeProfile({
     required UserRole role,
     required String phone,
+    required String address,
   }) async {
     _setLoading(true);
     try {
       final user = await _authRepository.completeProfile(
         role: role, 
         phone: phone,
+        address: address,
         name: _authRepository.currentFirebaseUser?.displayName ?? "User",
         email: _authRepository.currentFirebaseUser?.email ?? "",
       );

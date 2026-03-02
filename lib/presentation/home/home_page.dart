@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage> {
   // Filter States
   String _selectedBrand = "All";
   String _selectedType = "All"; 
-  RangeValues _priceRange = const RangeValues(0, 300000);
+  RangeValues _priceRange = const RangeValues(0, 5000000);
 
   @override
   void initState() {
@@ -179,10 +179,13 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBrandsList() {
     final brands = [
       {"name": "All", "icon": Icons.grid_view},
-      {"name": "Tesla", "icon": Icons.electric_car},
-      {"name": "BMW", "icon": Icons.directions_car},
-      {"name": "Porsche", "icon": Icons.speed},
-      {"name": "Mercedes", "icon": Icons.stars},
+      {"name": "Toyota", "icon": Icons.directions_car},
+      {"name": "Tata", "icon": Icons.local_shipping},
+      {"name": "Hyundai", "icon": Icons.drive_eta},
+      {"name": "Maruti Suzuki", "icon": Icons.car_rental},
+      {"name": "TVS", "icon": Icons.two_wheeler},
+      {"name": "Royal Enfield", "icon": Icons.motorcycle},
+      {"name": "Bajaj", "icon": Icons.electric_bike},
     ];
 
     return SizedBox(
@@ -273,29 +276,14 @@ class _HomePageState extends State<HomePage> {
   List<VehicleModel> _filterVehicles(List<VehicleModel> allVehicles) {
       var vehicles = allVehicles;
       
-      // Location Filter
-      final locationService = Provider.of<LocationService>(context, listen: false);
-      final currentLocation = locationService.currentLocation;
-      
-      if (currentLocation != "Current Location" && currentLocation.isNotEmpty) {
-        // Simple string match - if vehicle location contains the selected location (e.g. City name)
-        // or if selected location contains vehicle location.
-        // Assuming "New York, USA" vs "New York"
-        vehicles = vehicles.where((v) {
-          if (v.location.isEmpty) return true; // Show all if location not set? Or hide? Let's show all for now to avoid empty screens
-          return v.location.toLowerCase().contains(currentLocation.toLowerCase()) || 
-                 currentLocation.toLowerCase().contains(v.location.toLowerCase());
-        }).toList();
-      }
-
-      // Brand Filter
+      // Brand Filter - Case insensitive matching
       if (_selectedBrand != "All") {
-        vehicles = vehicles.where((v) => v.brand == _selectedBrand).toList();
+        vehicles = vehicles.where((v) => v.brand.toLowerCase() == _selectedBrand.toLowerCase()).toList();
       }
       
-      // Type Filter
+      // Type Filter - Case insensitive matching
       if (_selectedType != "All") {
-        vehicles = vehicles.where((v) => v.type == _selectedType).toList();
+        vehicles = vehicles.where((v) => v.type.toLowerCase() == _selectedType.toLowerCase()).toList();
       }
 
       // Search Filter
@@ -309,6 +297,21 @@ class _HomePageState extends State<HomePage> {
 
       // Price Filter
       vehicles = vehicles.where((v) => v.price >= _priceRange.start && v.price <= _priceRange.end).toList();
+      
+      // Location Filter - Only apply if location is explicitly set and not "Current Location"
+      // Apply AFTER other filters to be less restrictive
+      final locationService = Provider.of<LocationService>(context, listen: false);
+      final currentLocation = locationService.currentLocation;
+      
+      if (currentLocation != "Current Location" && currentLocation.isNotEmpty) {
+        vehicles = vehicles.where((v) {
+          // Always show vehicles without location data
+          if (v.location.isEmpty) return true;
+          // Show if location matches
+          return v.location.toLowerCase().contains(currentLocation.toLowerCase()) || 
+                 currentLocation.toLowerCase().contains(v.location.toLowerCase());
+        }).toList();
+      }
 
       return vehicles;
   }
@@ -340,15 +343,20 @@ class _HomePageState extends State<HomePage> {
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: vehicle.images.isNotEmpty
-                  ? VehicleImage(
-                      src: vehicle.images.first,
-                      width: double.infinity,
-                      height: double.infinity,
+                  ? AspectRatio(
+                      aspectRatio: 4/3,
+                      child: VehicleImage(
+                        src: vehicle.images.first,
+                        fit: BoxFit.cover,
+                      ),
                     )
-                  : Container(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                      alignment: Alignment.center,
-                      child: Icon(Icons.electric_car, color: Theme.of(context).colorScheme.onSurface, size: 42),
+                  : AspectRatio(
+                      aspectRatio: 4/3,
+                      child: Container(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                        alignment: Alignment.center,
+                        child: Icon(Icons.electric_car, color: Theme.of(context).colorScheme.onSurface, size: 42),
+                      ),
                     ),
             ),
             Positioned(
@@ -362,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
-                    colors: [Theme.of(context).colorScheme.onSurface, Colors.transparent],
+                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
                   ),
                 ),
                 child: Row(
@@ -377,19 +385,19 @@ class _HomePageState extends State<HomePage> {
                             "${vehicle.brand} ${vehicle.model}",
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                           Text(
                             "${vehicle.year} • ${vehicle.fuel}",
-                            style: TextStyle(color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.7), fontSize: 12),
+                            style: TextStyle(color: Colors.white70, fontSize: 12),
                           ),
                         ],
                       ),
                     ),
                     SizedBox(width: 12),
                     Text(
-                      "\$${vehicle.price.toStringAsFixed(0)}",
-                      style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16),
+                      vehicle.displayPrice,
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ],
                 ),
@@ -450,16 +458,18 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Row(
           children: [
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: 80,
+                height: 80,
+                child: vehicle.images.isNotEmpty 
+                    ? VehicleImage(src: vehicle.images.first, fit: BoxFit.cover, width: 80, height: 80)
+                    : Container(
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                        child: Icon(Icons.electric_car, color: Theme.of(context).colorScheme.onSurface),
+                      ),
               ),
-              child: vehicle.images.isNotEmpty 
-                  ? VehicleImage(src: vehicle.images.first, fit: BoxFit.cover)
-                  : Icon(Icons.electric_car, color: Theme.of(context).colorScheme.onSurface),
             ),
             SizedBox(width: 16),
             Expanded(
@@ -469,7 +479,7 @@ class _HomePageState extends State<HomePage> {
                   Text("${vehicle.brand} ${vehicle.model}", style: TextStyle(fontWeight: FontWeight.bold)),
                   Text("${vehicle.year} • ${vehicle.fuel} • ${vehicle.mileage} mi", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
                   SizedBox(height: 4),
-                  Text("\$${vehicle.price.toStringAsFixed(0)}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
+                  Text(vehicle.displayPrice, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -582,11 +592,11 @@ class _HomePageState extends State<HomePage> {
                           onPressed: () {
                             setModalState(() {
                               _selectedBrand = "All";
-                              _priceRange = const RangeValues(0, 300000);
+                              _priceRange = const RangeValues(0, 5000000);
                               _selectedType = "All";
                             });
                           }, 
-                          child: Text("Reset")
+                          child: Text("Reset All")
                         ),
                       ],
                     ),
@@ -595,7 +605,7 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(height: 10),
                     Wrap(
                       spacing: 10,
-                      children: ["All", "Car", "Bike", "Truck", "Auto"].map((type) {
+                      children: ["All", "Car", "Bike"].map((type) {
                         final isSelected = _selectedType == type;
                         return ChoiceChip(
                           label: Text(type),
@@ -613,7 +623,7 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(height: 10),
                     Wrap(
                       spacing: 10,
-                      children: ["All", "Tesla", "BMW", "Porsche", "Mercedes", "Toyota", "Honda"].map((brand) {
+                      children: ["All", "Toyota", "Tata", "Hyundai", "Maruti Suzuki", "TVS", "Royal Enfield", "Bajaj"].map((brand) {
                         final isSelected = _selectedBrand == brand;
                         return ChoiceChip(
                           label: Text(brand),
@@ -627,14 +637,14 @@ class _HomePageState extends State<HomePage> {
                       }).toList(),
                     ),
                     SizedBox(height: 20),
-                    Text("Price Range: \$${_priceRange.start.toInt()} - \$${_priceRange.end.toInt()}", style: TextStyle(fontWeight: FontWeight.bold)),
+                    Text("Price Range: ₹${(_priceRange.start.toInt() / 100000).toStringAsFixed(1)}L - ₹${(_priceRange.end.toInt() / 100000).toStringAsFixed(1)}L", style: TextStyle(fontWeight: FontWeight.bold)),
                     RangeSlider(
                       values: _priceRange,
                       min: 0,
-                      max: 300000,
-                      divisions: 30,
+                      max: 5000000,
+                      divisions: 50,
                       activeColor: Theme.of(context).colorScheme.primary,
-                      labels: RangeLabels("\$${_priceRange.start.toInt()}", "\$${_priceRange.end.toInt()}"),
+                      labels: RangeLabels("₹${(_priceRange.start.toInt() / 100000).toStringAsFixed(1)}L", "₹${(_priceRange.end.toInt() / 100000).toStringAsFixed(1)}L"),
                       onChanged: (values) {
                         setModalState(() => _priceRange = values);
                       },

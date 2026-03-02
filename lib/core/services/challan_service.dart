@@ -40,19 +40,32 @@ class ChallanService extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
     try {
-      // 1. Find Vehicle
-      final vehicleQuery = await _firestore
+      // 1. Find Vehicle - normalize the vehicle number
+      final normalizedNumber = vehicleNumber.toUpperCase().replaceAll(' ', '');
+      
+      // Try normalized format first
+      var vehicleQuery = await _firestore
           .collection('vehicles')
-          .where('vehicleNumber', isEqualTo: vehicleNumber) // Ensure vehicleNumber is indexed
+          .where('specs.licensePlate', isEqualTo: normalizedNumber)
           .limit(1)
           .get();
+      
+      // If not found, try with spaces for legacy data
+      if (vehicleQuery.docs.isEmpty) {
+        final withSpaces = vehicleNumber.toUpperCase().trim();
+        vehicleQuery = await _firestore
+            .collection('vehicles')
+            .where('specs.licensePlate', isEqualTo: withSpaces)
+            .limit(1)
+            .get();
+      }
 
       if (vehicleQuery.docs.isEmpty) {
         throw "Vehicle not found";
       }
 
       final vehicle = vehicleQuery.docs.first;
-      final ownerId = vehicle.data()['ownerId'];
+      final ownerId = vehicle.data()['sellerId']; // Use sellerId as ownerId
       final ownerEmail = vehicle.data()['ownerEmail'] ?? "owner@example.com"; // Mock if missing
 
       if (ownerId == requesterId) {
@@ -64,7 +77,7 @@ class ChallanService extends ChangeNotifier {
       final requestId = const Uuid().v4();
 
       await _firestore.collection('challan_access_requests').doc(requestId).set({
-        'vehicleNumber': vehicleNumber,
+        'vehicleNumber': normalizedNumber,
         'vehicleId': vehicle.id,
         'ownerId': ownerId,
         'requesterId': requesterId,
@@ -82,9 +95,9 @@ class ChallanService extends ChangeNotifier {
       await notificationService.createNotification(
         userId: ownerId,
         title: "Access Request",
-        body: "Someone requested access to view challans of $vehicleNumber.",
+        body: "Someone requested access to view challans of $normalizedNumber.",
         type: "challan_access_request",
-        data: {'requestId': requestId, 'vehicleNumber': vehicleNumber},
+        data: {'requestId': requestId, 'vehicleNumber': normalizedNumber},
       );
 
       return {'status': 'otp_sent', 'requestId': requestId, 'email': ownerEmail};
@@ -159,11 +172,24 @@ class ChallanService extends ChangeNotifier {
   }
 
   Future<List<ChallanModel>> _fetchChallansByNumber(String vehicleNumber) async {
-    final snapshot = await _firestore
+    final normalizedNumber = vehicleNumber.toUpperCase().replaceAll(' ', '');
+    
+    // Try normalized format first
+    var snapshot = await _firestore
           .collection('vehicles')
-          .where('vehicleNumber', isEqualTo: vehicleNumber)
+          .where('specs.licensePlate', isEqualTo: normalizedNumber)
           .limit(1)
           .get();
+    
+    // If not found, try with spaces for legacy data
+    if (snapshot.docs.isEmpty) {
+      final withSpaces = vehicleNumber.toUpperCase().trim();
+      snapshot = await _firestore
+          .collection('vehicles')
+          .where('specs.licensePlate', isEqualTo: withSpaces)
+          .limit(1)
+          .get();
+    }
 
     if (snapshot.docs.isEmpty) return [];
     
@@ -248,7 +274,7 @@ class ChallanService extends ChangeNotifier {
         await notificationService.createNotification(
           userId: challan.ownerId,
           title: "E-Challan Issued 🚨",
-          body: "You have been fined \$${challan.fineAmount} for ${challan.violationType}. Vehicle: ${challan.vehicleNumber}",
+          body: "You have been fined ₹${challan.fineAmount} for ${challan.violationType}. Vehicle: ${challan.vehicleNumber}",
           type: "challan_issued",
           data: {'challanId': docRef.id},
         );
@@ -286,17 +312,37 @@ class ChallanService extends ChangeNotifier {
 
   Future<Map<String, dynamic>?> searchVehicleDetails(String query) async {
     try {
-      // Search by vehicle number (exact match for now)
-      final snapshot = await _firestore.collection('vehicles').where('vehicleNumber', isEqualTo: query).limit(1).get();
+      // Normalize the query (uppercase, remove spaces)
+      final normalizedQuery = query.toUpperCase().replaceAll(' ', '');
+      
+      // Try searching with normalized format first (without spaces)
+      var snapshot = await _firestore
+          .collection('vehicles')
+          .where('specs.licensePlate', isEqualTo: normalizedQuery)
+          .limit(1)
+          .get();
+      
+      // If not found, try with the original format (with spaces) for legacy data
+      if (snapshot.docs.isEmpty) {
+        final withSpaces = query.toUpperCase().trim();
+        snapshot = await _firestore
+            .collection('vehicles')
+            .where('specs.licensePlate', isEqualTo: withSpaces)
+            .limit(1)
+            .get();
+      }
       
       if (snapshot.docs.isNotEmpty) {
         final doc = snapshot.docs.first;
         final data = doc.data();
         
-        // Fetch Owner Name (optional, if not in vehicle doc)
+        // Get sellerId which is the owner ID
+        final ownerId = data['sellerId'] ?? '';
+        
+        // Fetch Owner Name
         String ownerName = "Unknown";
-        if (data['ownerId'] != null) {
-          final userSnap = await _firestore.collection('users').doc(data['ownerId']).get();
+        if (ownerId.isNotEmpty) {
+          final userSnap = await _firestore.collection('users').doc(ownerId).get();
           if (userSnap.exists) {
             ownerName = userSnap.data()?['name'] ?? "Unknown";
           }
@@ -305,7 +351,9 @@ class ChallanService extends ChangeNotifier {
         return {
           'id': doc.id,
           'data': data,
+          'ownerId': ownerId, // Use sellerId as ownerId for challan
           'ownerName': ownerName,
+          'licensePlate': data['specs']?['licensePlate'] ?? '',
         };
       }
       return null;

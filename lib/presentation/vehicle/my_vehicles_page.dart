@@ -3,6 +3,7 @@ import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
 
 import 'package:carvia/core/theme/app_theme.dart';
+import 'package:carvia/core/widgets/vehicle_image.dart';
 
 import 'package:carvia/presentation/vehicle/add_external_vehicle_page.dart';
 import 'package:carvia/presentation/challan/e_challan_page.dart';
@@ -153,39 +154,41 @@ class _MyVehiclesPageState extends State<MyVehiclesPage> {
         child: Column(
           children: [
             // ── Vehicle image
-            Container(
-              height: 160,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                image: vehicle.images.isNotEmpty
-                    ? DecorationImage(image: NetworkImage(vehicle.images.first), fit: BoxFit.cover)
-                    : null,
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-              ),
-              child: Stack(
-                children: [
-                  if (vehicle.images.isEmpty)
-                    Center(child: Icon(Icons.directions_car, size: 60, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54))),
-                  // Badge: External vs Purchased
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: isExternal
-                            ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85)
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        isExternal ? "EXTERNAL" : "OWNED",
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+              child: AspectRatio(
+                aspectRatio: 16/9,
+                child: Stack(
+                  children: [
+                    vehicle.images.isNotEmpty
+                        ? VehicleImage(src: vehicle.images.first, fit: BoxFit.cover, width: double.infinity, height: double.infinity)
+                        : Container(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
+                            child: Center(
+                              child: Icon(Icons.directions_car, size: 60, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54))
+                            ),
+                          ),
+                    // Badge: External vs Purchased
+                    Positioned(
+                      top: 12,
+                      right: 12,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: isExternal
+                              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85)
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          isExternal ? "EXTERNAL" : "OWNED",
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 10),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             // ── Vehicle details

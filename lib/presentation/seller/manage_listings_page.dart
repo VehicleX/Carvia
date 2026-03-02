@@ -156,8 +156,17 @@ class _ListingsTabState extends State<_ListingsTab> {
               ClipRRect(
                 borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 child: vehicle.images.isNotEmpty
-                    ? VehicleImage(src: vehicle.images.first, height: 180, width: double.infinity)
-                    : Container(height: 180, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), child: Icon(Icons.directions_car, color: Theme.of(context).colorScheme.onSurface, size: 50)),
+                    ? AspectRatio(
+                        aspectRatio: 16/9,
+                        child: VehicleImage(src: vehicle.images.first, fit: BoxFit.cover),
+                      )
+                    : AspectRatio(
+                        aspectRatio: 16/9,
+                        child: Container(
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), 
+                          child: Icon(Icons.directions_car, color: Theme.of(context).colorScheme.onSurface, size: 50)
+                        ),
+                      ),
               ),
               Positioned(
                 top: 10,
@@ -166,7 +175,7 @@ class _ListingsTabState extends State<_ListingsTab> {
                   padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54), borderRadius: BorderRadius.circular(8)),
                   child: Text(
-                    "\$${vehicle.price.toStringAsFixed(0)}",
+                    "₹${vehicle.price.toStringAsFixed(0)}",
                     style: TextStyle(color: Theme.of(context).colorScheme.onSurface, fontWeight: FontWeight.bold),
                   ),
                 ),

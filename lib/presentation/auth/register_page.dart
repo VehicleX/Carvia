@@ -24,6 +24,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _addressController = TextEditingController();
 
   void _handleRegister() async {
     final name = _nameController.text.trim();
@@ -113,6 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
     final name = _nameController.text.trim();
     final phone = _phoneController.text.trim();
     final password = _passwordController.text.trim();
+    final address = _addressController.text.trim();
     final authService = Provider.of<AuthService>(context, listen: false);
 
     showModalBottomSheet(
@@ -142,6 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
               password: password,
               name: name,
               phone: phone,
+              address: address,
               role: _selectedRole,
             );
             
@@ -234,6 +237,8 @@ class _RegisterPageState extends State<RegisterPage> {
             _buildTextField("EMAIL ADDRESS", Icons.email_outlined, _emailController),
             SizedBox(height: 20),
             _buildTextField("PHONE NUMBER (OPTIONAL)", Icons.phone_outlined, _phoneController, isPhone: true),
+            SizedBox(height: 20),
+            _buildTextField("ADDRESS (OPTIONAL)", Icons.location_on_outlined, _addressController),
             SizedBox(height: 20),
             _buildTextField("PASSWORD", Icons.lock_outline_rounded, _passwordController, isPassword: true),
             

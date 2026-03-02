@@ -19,6 +19,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   final List<String> _roleNames = ["User", "Seller", "Police"];
   final List<UserRole> _roles = [UserRole.buyer, UserRole.seller, UserRole.police];
   final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
   bool _isLoading = false;
 
   void _handleCompleteProfile() async {
@@ -36,6 +37,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
       await authService.completeProfile(
         role: _roles[_selectedRoleIndex],
         phone: _phoneController.text.trim(),
+        address: _addressController.text.trim(),
       );
       
       if (mounted) {
@@ -83,7 +85,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
             ),
             SizedBox(height: 8),
             Text(
-              "Select your role and add your phone number (optional).",
+              "Select your role and add your details (optional).",
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(color: Theme.of(context).colorScheme.secondary),
             ),
@@ -100,6 +102,20 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
                 labelText: "Phone Number (Optional)",
                 hintText: "Add phone number later",
                 prefixIcon: Icon(Icons.phone_rounded),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+            ),
+            
+            SizedBox(height: 20),
+            
+            TextField(
+              controller: _addressController,
+              keyboardType: TextInputType.streetAddress,
+              maxLines: 2,
+              decoration: InputDecoration(
+                labelText: "Address (Optional)",
+                hintText: "Add address later",
+                prefixIcon: Icon(Icons.location_on_rounded),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
               ),
             ),

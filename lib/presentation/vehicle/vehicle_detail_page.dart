@@ -49,14 +49,6 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
         actions: [
           CircleAvatar(
             backgroundColor: Theme.of(context).colorScheme.primary,
-            child: IconButton(
-              icon: Icon(Icons.share, color: Theme.of(context).colorScheme.onSurface),
-              onPressed: () {},
-            ),
-          ),
-          SizedBox(width: 8),
-          CircleAvatar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
             child: Consumer<VehicleService>(
               builder: (context, vehicleService, child) {
                 final isWishlisted = vehicleService.isInWishlist(widget.vehicle.id);
@@ -93,8 +85,9 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
   }
 
   Widget _buildImageSlider() {
-    return SizedBox(
-      height: 350,
+    return Container(
+      height: 400,
+      color: Theme.of(context).colorScheme.surface,
       child: Stack(
         children: [
           PageView.builder(
@@ -102,9 +95,20 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
             onPageChanged: (index) => setState(() => _currentImageIndex = index),
             itemBuilder: (context, index) {
               if (widget.vehicle.images.isEmpty) {
-                return Container(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), child: Center(child: Icon(Icons.directions_car, size: 80, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54))));
+                return Container(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05), 
+                  child: Center(
+                    child: Icon(Icons.directions_car, size: 80, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.54))
+                  )
+                );
               }
-              return VehicleImage(src: widget.vehicle.images[index], fit: BoxFit.cover);
+              return Container(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: VehicleImage(
+                  src: widget.vehicle.images[index], 
+                  fit: BoxFit.contain,
+                ),
+              );
             },
           ),
           Positioned(
@@ -159,8 +163,8 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("\$${widget.vehicle.price.toStringAsFixed(0)}", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
-                    Text("Fixed Price", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
+                    Text(widget.vehicle.displayPrice, style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+                    Text("Price", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
                   ],
                 ),
             ],
@@ -365,6 +369,8 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
     );
   }
 
+
+
   Widget _buildSellerCard() {
     return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
       stream: FirebaseFirestore.instance
@@ -398,28 +404,15 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
           ),
           child: Row(
             children: [
-              CircleAvatar(
-                backgroundImage: NetworkImage("https://randomuser.me/api/portraits/men/32.jpg"),
-                radius: 25,
-              ),
-              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            sellerName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        SizedBox(width: 4),
-                        Icon(Icons.verified, size: 16, color: Theme.of(context).colorScheme.onSurface),
-                      ],
+                    Text(
+                      sellerName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Row(
                       children: [
@@ -438,29 +431,6 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
                   ],
                 ),
               ),
-              IconButton(
-                onPressed: () {
-                  final user = Provider.of<AuthService>(context, listen: false).currentUser;
-                  if (user == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Please login to chat')));
-                    return;
-                  }
-                  if (user.uid == widget.vehicle.sellerId) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('This is your own listing')));
-                    return;
-                  }
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => ChatPage(
-                    currentUserId: user.uid,
-                    currentUserName: user.name,
-                    otherUserId: widget.vehicle.sellerId,
-                    otherUserName: sellerName,
-                    vehicleId: widget.vehicle.id,
-                    vehicleName: '${widget.vehicle.brand} ${widget.vehicle.model}',
-                  )));
-                },
-                icon: Container(padding: EdgeInsets.all(8), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(10)), child: Icon(Iconsax.message, size: 20)),
-              ),
-              SizedBox(width: 8),
               IconButton(
                 onPressed: () {
                   final number = sellerPhone.isNotEmpty ? sellerPhone : 'Not available';

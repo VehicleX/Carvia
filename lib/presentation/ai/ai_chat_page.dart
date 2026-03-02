@@ -220,7 +220,7 @@ class _AIChatPageState extends State<AIChatPage> {
                 return ListTile(
                   leading: Icon(Iconsax.car, color: Theme.of(context).colorScheme.primary),
                   title: Text("${v.brand} ${v.model}", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                  subtitle: Text("\$${v.price.toStringAsFixed(0)} • ${v.year}", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
+                  subtitle: Text("₹${v.price.toStringAsFixed(0)} • ${v.year}", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
                   onTap: () => _insertMention(v),
                 );
               },
