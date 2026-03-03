@@ -140,27 +140,20 @@ class _HomePageState extends State<HomePage> {
             controller: _searchController,
             decoration: InputDecoration(
               hintText: "Search premium cars...",
-              prefixIcon: Icon(Iconsax.search_normal),
+              prefixIcon: const Icon(Iconsax.search_normal),
               fillColor: Theme.of(context).cardColor,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
               ),
             ),
-            // onChanged added implicitly by controller listener
           ),
         ),
-        SizedBox(width: 10),
-        GestureDetector(
+        const SizedBox(width: 10),
+        _HoverIconBtn(
+          icon: Iconsax.setting_4,
           onTap: _showFilterBottomSheet,
-          child: Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Iconsax.setting_4, color: Theme.of(context).colorScheme.onSurface),
-          ),
+          tooltip: "Filters",
         ),
       ],
     );
@@ -193,35 +186,18 @@ class _HomePageState extends State<HomePage> {
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         itemCount: brands.length,
-        separatorBuilder: (context, index) => SizedBox(width: 16),
+        separatorBuilder: (context, index) => const SizedBox(width: 16),
         itemBuilder: (context, index) {
           final brandName = brands[index]["name"] as String;
           final isSelected = _selectedBrand == brandName;
-          
-          return GestureDetector(
+          return _HoverBrandChip(
+            brandName: brandName,
+            icon: brands[index]["icon"] as IconData,
+            isSelected: isSelected,
             onTap: () {
               setState(() => _selectedBrand = brandName);
               _applyFilters();
             },
-            child: Column(
-              children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: isSelected ? Theme.of(context).colorScheme.onSurface : Theme.of(context).cardColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    brands[index]["icon"] as IconData, 
-                    size: 30,
-                    color: isSelected ? Theme.of(context).colorScheme.surface : Theme.of(context).colorScheme.onSurface, 
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(brandName, style: TextStyle(fontSize: 12, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
-              ],
-            ),
           );
         },
       ),
@@ -327,86 +303,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFeaturedCard(VehicleModel vehicle) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => VehicleDetailPage(vehicle: vehicle)));
-      },
-      child: Container(
-        width: 300,
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2), width: 1),
-        ),
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: vehicle.images.isNotEmpty
-                  ? AspectRatio(
-                      aspectRatio: 4/3,
-                      child: VehicleImage(
-                        src: vehicle.images.first,
-                        fit: BoxFit.cover,
-                      ),
-                    )
-                  : AspectRatio(
-                      aspectRatio: 4/3,
-                      child: Container(
-                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                        alignment: Alignment.center,
-                        child: Icon(Icons.electric_car, color: Theme.of(context).colorScheme.onSurface, size: 42),
-                      ),
-                    ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "${vehicle.brand} ${vehicle.model}",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          Text(
-                            "${vehicle.year} • ${vehicle.fuel}",
-                            style: TextStyle(color: Colors.white70, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Text(
-                      vehicle.displayPrice,
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return _FeaturedCard(vehicle: vehicle);
   }
 
   Widget _buildRecommendedList() {
@@ -669,6 +566,344 @@ class _HomePageState extends State<HomePage> {
           }
         );
       }
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hover-aware brand chip
+// ---------------------------------------------------------------------------
+class _HoverBrandChip extends StatefulWidget {
+  final String brandName;
+  final IconData icon;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _HoverBrandChip({
+    required this.brandName,
+    required this.icon,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  State<_HoverBrandChip> createState() => _HoverBrandChipState();
+}
+
+class _HoverBrandChipState extends State<_HoverBrandChip> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+    final cardColor = Theme.of(context).cardColor;
+    final surfaceColor = Theme.of(context).colorScheme.surface;
+
+    final bool active = widget.isSelected || _hovered;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _hovered && !widget.isSelected ? 1.08 : 1.0,
+          duration: const Duration(milliseconds: 180),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: widget.isSelected
+                      ? onSurface
+                      : _hovered
+                          ? primary.withValues(alpha: 0.12)
+                          : cardColor,
+                  shape: BoxShape.circle,
+                  boxShadow: active
+                      ? [
+                          BoxShadow(
+                            color: primary.withValues(alpha: 0.2),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          )
+                        ]
+                      : [],
+                ),
+                child: Icon(
+                  widget.icon,
+                  size: 28,
+                  color: widget.isSelected
+                      ? surfaceColor
+                      : _hovered
+                          ? primary
+                          : onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: active ? FontWeight.bold : FontWeight.normal,
+                  color: active ? primary : onSurface,
+                ),
+                child: Text(widget.brandName),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Hover-aware icon button for the filter
+// ---------------------------------------------------------------------------
+class _HoverIconBtn extends StatefulWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final String? tooltip;
+
+  const _HoverIconBtn({required this.icon, required this.onTap, this.tooltip});
+
+  @override
+  State<_HoverIconBtn> createState() => _HoverIconBtnState();
+}
+
+class _HoverIconBtnState extends State<_HoverIconBtn> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    Widget btn = MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      cursor: SystemMouseCursors.click,
+      child: Material(
+        color: Colors.transparent,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: _hovered
+                  ? primary.withValues(alpha: 0.12)
+                  : onSurface.withValues(alpha: 0.05),
+              shape: BoxShape.circle,
+            ),
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 180),
+              child: Icon(
+                widget.icon,
+                key: ValueKey(_hovered),
+                color: _hovered ? primary : onSurface,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    if (widget.tooltip != null) {
+      btn = Tooltip(message: widget.tooltip!, child: btn);
+    }
+    return btn;
+  }
+}
+
+/// A featured vehicle card with a hover/press-activated dark overlay that
+/// slides up from the bottom, showing the vehicle name clearly in white text.
+class _FeaturedCard extends StatefulWidget {
+  final VehicleModel vehicle;
+  const _FeaturedCard({required this.vehicle});
+
+  @override
+  State<_FeaturedCard> createState() => _FeaturedCardState();
+}
+
+class _FeaturedCardState extends State<_FeaturedCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final vehicle = widget.vehicle;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isHovered = true),
+        onTapUp: (_) {
+          setState(() => _isHovered = false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => VehicleDetailPage(vehicle: vehicle),
+            ),
+          );
+        },
+        onTapCancel: () => setState(() => _isHovered = false),
+        child: Container(
+          width: 300,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              width: 1,
+            ),
+            boxShadow: _isHovered
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.25),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    )
+                  ]
+                : [],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                // ── Vehicle Photo ──────────────────────────────────
+                SizedBox(
+                  width: 300,
+                  height: 250,
+                  child: vehicle.images.isNotEmpty
+                      ? VehicleImage(
+                          src: vehicle.images.first,
+                          fit: BoxFit.cover,
+                          width: 300,
+                          height: 250,
+                        )
+                      : Container(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.05),
+                          alignment: Alignment.center,
+                          child: Icon(
+                            Icons.electric_car,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            size: 42,
+                          ),
+                        ),
+                ),
+
+                // ── Slide-up dark overlay with vehicle info ────────
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    curve: Curves.easeOut,
+                    height: _isHovered ? 100 : 60,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: _isHovered
+                            ? [
+                                Colors.black.withOpacity(0.88),
+                                Colors.black.withOpacity(0.6),
+                                Colors.transparent,
+                              ]
+                            : [
+                                Colors.black.withOpacity(0.55),
+                                Colors.black.withOpacity(0.15),
+                                Colors.transparent,
+                              ],
+                      ),
+                    ),
+                    padding: const EdgeInsets.fromLTRB(14, 8, 14, 14),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 180),
+                      opacity: 1.0,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  "${vehicle.brand} ${vehicle.model}",
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.black,
+                                        blurRadius: 6,
+                                        offset: Offset(0, 1),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                vehicle.displayPrice,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black,
+                                      blurRadius: 6,
+                                      offset: Offset(0, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (_isHovered) ...[
+                            const SizedBox(height: 4),
+                            Text(
+                              "${vehicle.year} • ${vehicle.fuel}",
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.black,
+                                    blurRadius: 4,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

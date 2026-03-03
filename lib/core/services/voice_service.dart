@@ -29,12 +29,12 @@ class VoiceService extends ChangeNotifier {
   void _initSpeech() async {
     _speechEnabled = await _speechToText.initialize(
       onError: (val) {
-        debugPrint('Speech recognition error: \${val.errorMsg}');
+        debugPrint('Speech recognition error: ${val.errorMsg}');
         _isListening = false;
         notifyListeners();
       },
       onStatus: (val) {
-        debugPrint('Speech recognition status: \$val');
+        debugPrint('Speech recognition status: $val');
         if (val == 'done' || val == 'notListening') {
           _isListening = false;
           notifyListeners();
@@ -72,11 +72,14 @@ class VoiceService extends ChangeNotifier {
 
       await _speechToText.listen(
         onResult: (result) {
-           // Only update text while actively listening to prevent late empty updates
-           if (_isListening) {
-             _recognizedText = result.recognizedWords;
-             notifyListeners();
-           }
+          // Always capture the latest recognised words.
+          // Do NOT guard on _isListening — the final result often arrives
+          // AFTER onStatus fires 'done' and sets _isListening = false.
+          // Only ignore truly empty results to avoid wiping good text.
+          if (result.recognizedWords.isNotEmpty) {
+            _recognizedText = result.recognizedWords;
+            notifyListeners();
+          }
         },
         listenFor: const Duration(seconds: 45), // Keep listening for longer phrases
         pauseFor: const Duration(seconds: 4),  // Allow 4 seconds of silence before auto-stopping

@@ -60,23 +60,21 @@ class _VoiceAssistantBottomSheetState extends State<VoiceAssistantBottomSheet> {
 
   void _onVoiceServiceUpdate() {
     final voiceService = Provider.of<VoiceService>(context, listen: false);
-    
-    // Update text box if listening
-    if (voiceService.isListening && voiceService.recognizedText.isNotEmpty) {
+
+    // Update the text box whenever there is recognized text — both during
+    // live transcription AND when speech stops (final result).
+    if (voiceService.recognizedText.isNotEmpty) {
       _controller.text = voiceService.recognizedText;
-      _controller.selection = TextSelection.fromPosition(TextPosition(offset: _controller.text.length));
+      _controller.selection = TextSelection.fromPosition(
+          TextPosition(offset: _controller.text.length));
     }
 
-    // If the user manually stopped listening or the speech engine stopped listening on its own (silence)
-    if (!voiceService.isListening && voiceService.recognizedText.isNotEmpty) {
-      // Trigger submit automatically after a short delay to allow UI to catch up
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted && _controller.text.isNotEmpty) {
-           _triggerAiSubmit(voiceService);
-        }
-      });
+    // Refresh UI so the send button appears / disappears correctly
+    if (mounted) {
+      setState(() {});
     }
   }
+
 
   void _triggerAiSubmit(VoiceService voiceService) async {
     if (_controller.text.isEmpty) return;
@@ -402,7 +400,7 @@ class _VoiceAssistantBottomSheetState extends State<VoiceAssistantBottomSheet> {
                     onSubmitted: (_) => _triggerAiSubmit(voiceService),
                   ),
                 ),
-                if (!voiceService.isListening && _controller.text.isNotEmpty) ...[
+                if (_controller.text.isNotEmpty) ...[
                   IconButton(
                     icon: Container(
                       padding: const EdgeInsets.all(8),

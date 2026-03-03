@@ -111,4 +111,38 @@ class NotificationService extends ChangeNotifier {
       debugPrint("Error creating notification: $e");
     }
   }
+
+  /// Delete a single notification by its ID.
+  Future<void> deleteNotification(String userId, String notificationId) async {
+    try {
+      await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .doc(notificationId)
+          .delete();
+      // Real-time listener will update _notifications automatically.
+    } catch (e) {
+      debugPrint("Error deleting notification: $e");
+    }
+  }
+
+  /// Delete ALL notifications for the user in a single batch write.
+  Future<void> clearAllNotifications(String userId) async {
+    try {
+      final snapshot = await _firestore
+          .collection('users')
+          .doc(userId)
+          .collection('notifications')
+          .get();
+
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+    } catch (e) {
+      debugPrint("Error clearing notifications: $e");
+    }
+  }
 }

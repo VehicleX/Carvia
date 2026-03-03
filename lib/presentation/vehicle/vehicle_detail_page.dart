@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/services/ai_service.dart';
+import 'package:carvia/presentation/ai/ai_chat_page.dart';
 
 class VehicleDetailPage extends StatefulWidget {
   final VehicleModel vehicle;
@@ -41,32 +42,59 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: BackButton(color: Theme.of(context).colorScheme.onSurface, onPressed: () => Navigator.pop(context)),
-        ),
-        actions: [
-          CircleAvatar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            child: Consumer<VehicleService>(
-              builder: (context, vehicleService, child) {
-                final isWishlisted = vehicleService.isInWishlist(widget.vehicle.id);
-                return IconButton(
-                  icon: Icon(isWishlisted ? Icons.favorite : Icons.favorite_border,
-                      color: isWishlisted ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.onSurface),
-                  onPressed: () {
-                    final authService = Provider.of<AuthService>(context, listen: false);
-                     if (authService.currentUser != null) {
-                        vehicleService.toggleWishlist(authService.currentUser!.uid, widget.vehicle.id);
-                     } else {
-                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Please login to wishlist vehicles!")));
-                     }
-                  },
-                );
-              },
+        elevation: 0,
+        leadingWidth: 56,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Material(
+            color: Theme.of(context).colorScheme.primary,
+            shape: const CircleBorder(),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () => Navigator.pop(context),
+              child: const SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+              ),
             ),
           ),
-          SizedBox(width: 20),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: Material(
+              color: Theme.of(context).colorScheme.primary,
+              shape: const CircleBorder(),
+              clipBehavior: Clip.antiAlias,
+              child: Consumer<VehicleService>(
+                builder: (context, vehicleService, child) {
+                  final isWishlisted = vehicleService.isInWishlist(widget.vehicle.id);
+                  return InkWell(
+                    onTap: () {
+                      final authService = Provider.of<AuthService>(context, listen: false);
+                      if (authService.currentUser != null) {
+                        vehicleService.toggleWishlist(authService.currentUser!.uid, widget.vehicle.id);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Please login to wishlist vehicles!")),
+                        );
+                      }
+                    },
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Icon(
+                        isWishlisted ? Icons.favorite : Icons.favorite_border,
+                        color: isWishlisted ? Colors.red[200] : Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -270,101 +298,67 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
   }
 
   Widget _buildAIAnalysis() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1), Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05)],
-        ),
+    return Material(
+      color: Colors.transparent,
+      borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Iconsax.magic_star, color: Theme.of(context).colorScheme.onSurface),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Carvia AI Analysis", style: TextStyle(fontWeight: FontWeight.bold)),
-                Text("98% Match for your preferences", style: TextStyle(color: Theme.of(context).colorScheme.secondary, fontSize: 12)),
+        onTap: _openAIChat,
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
               ],
             ),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.4)),
           ),
-          TextButton(onPressed: _showAIAnalysis, child: Text("DETAILS", style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2))),
-        ],
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Iconsax.magic_star, color: Theme.of(context).colorScheme.primary),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Carvia AI Analysis",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.onSurface)),
+                    Text("Tap for AI Recommendation Engine →",
+                        style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 12, fontWeight: FontWeight.w500)),
+                  ],
+                ),
+              ),
+              Icon(Icons.arrow_forward_ios_rounded,
+                  size: 16, color: Theme.of(context).colorScheme.primary),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  void _showAIAnalysis() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
-      builder: (context) {
-        return Container(
-          padding: EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Iconsax.magic_star, color: Theme.of(context).colorScheme.onSurface, size: 20),
-                  ),
-                  SizedBox(width: 12),
-                  Text("AI Analysis", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              SizedBox(height: 20),
-              FutureBuilder<String>(
-                future: Provider.of<AIService>(context, listen: false).generateVehicleAIAnalysis(widget.vehicle),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40),
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Center(child: Text("Error generating analysis."));
-                  }
-                  return Flexible(
-                    child: SingleChildScrollView(
-                      child: Text(
-                        snapshot.data ?? "",
-                        style: TextStyle(height: 1.5, fontSize: 16),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("Close"),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
+  /// Navigate to AI Chat and pre-fill a query about this specific vehicle.
+  void _openAIChat() {
+    final aiService = Provider.of<AIService>(context, listen: false);
+    final query = "Give me a detailed AI analysis and recommendation for the ${widget.vehicle.year} ${widget.vehicle.brand} ${widget.vehicle.model}. Include pros, cons, value for money and who should buy it.";
+    // Send the message so when chat opens it already has context
+    aiService.sendMessage(query);
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const AIChatPage()),
     );
   }
 
@@ -510,54 +504,56 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
     }
 
     return Container(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-            blurRadius: 10,
-            offset: Offset(0, -5),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.12),
+            blurRadius: 14,
+            offset: const Offset(0, -5),
           ),
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          IconButton(
-            onPressed: () {
-               final compareService = Provider.of<CompareService>(context, listen: false);
-               compareService.addToCompare(widget.vehicle);
-               Navigator.push(context, MaterialPageRoute(builder: (_) => const ComparePage()));
+          // ── Compare ─────────────────────────────────────
+          _BottomBarButton(
+            onTap: () {
+              final compareService = Provider.of<CompareService>(context, listen: false);
+              compareService.addToCompare(widget.vehicle);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ComparePage()));
             },
-            icon: Icon(Icons.compare_arrows),
             tooltip: "Compare",
-            style: IconButton.styleFrom(
-              side: BorderSide(color: Theme.of(context).colorScheme.outline),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              padding: EdgeInsets.all(12),
-            ),
+            child: const Icon(Icons.compare_arrows_rounded, size: 22),
+            outlined: true,
+            fixedWidth: 56,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 10),
+          // ── Test Drive ──────────────────────────────────
           Expanded(
-            child: OutlinedButton(
-              onPressed: () => _showBookTestDriveDialog(),
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                side: BorderSide(color: Theme.of(context).colorScheme.outline),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              ),
-              child: Text("Test Drive", style: TextStyle(fontWeight: FontWeight.bold)),
+            child: _BottomBarButton(
+              onTap: _showBookTestDriveDialog,
+              label: "Test Drive",
+              outlined: true,
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 10),
+          // ── Buy Now ─────────────────────────────────────
           Expanded(
             flex: 2,
-            child: ElevatedButton(
-              onPressed: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (_) => CheckoutPage(vehicle: widget.vehicle)));
-              },
-              child: Text("BUY NOW"),
+            child: _BottomBarButton(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => CheckoutPage(vehicle: widget.vehicle)),
+              ),
+              label: "BUY NOW",
+              filled: true,
             ),
           ),
         ],
@@ -571,6 +567,117 @@ class _VehicleDetailPageState extends State<VehicleDetailPage> {
       MaterialPageRoute(
         builder: (_) => BookTestDrivePage(vehicle: widget.vehicle),
       ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Reusable hover-aware bottom bar button
+// ---------------------------------------------------------------------------
+class _BottomBarButton extends StatefulWidget {
+  final VoidCallback onTap;
+  final String? label;
+  final Widget? child;
+  final bool outlined;
+  final bool filled;
+  final double? fixedWidth;
+  final String? tooltip;
+
+  const _BottomBarButton({
+    required this.onTap,
+    this.label,
+    this.child,
+    this.outlined = false,
+    this.filled = false,
+    this.fixedWidth,
+    this.tooltip,
+  });
+
+  @override
+  State<_BottomBarButton> createState() => _BottomBarButtonState();
+}
+
+class _BottomBarButtonState extends State<_BottomBarButton> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
+    final onPrimary = Theme.of(context).colorScheme.onPrimary;
+    final outline = Theme.of(context).colorScheme.outline;
+    final onSurface = Theme.of(context).colorScheme.onSurface;
+
+    final Color bgColor;
+    final Color fgColor;
+    final Border? border;
+
+    if (widget.filled) {
+      bgColor = _hovered ? primary.withValues(alpha: 0.85) : primary;
+      fgColor = onPrimary;
+      border = null;
+    } else if (widget.outlined) {
+      bgColor = _hovered
+          ? primary.withValues(alpha: 0.08)
+          : Colors.transparent;
+      fgColor = _hovered ? primary : onSurface;
+      border = Border.all(color: _hovered ? primary : outline, width: 1.5);
+    } else {
+      bgColor = Colors.transparent;
+      fgColor = onSurface;
+      border = null;
+    }
+
+    Widget content = AnimatedContainer(
+      duration: const Duration(milliseconds: 180),
+      curve: Curves.easeOut,
+      height: 52,
+      width: widget.fixedWidth,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(16),
+        border: border,
+        boxShadow: (widget.filled && _hovered)
+            ? [
+                BoxShadow(
+                  color: primary.withValues(alpha: 0.35),
+                  blurRadius: 14,
+                  offset: const Offset(0, 4),
+                )
+              ]
+            : [],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onTap,
+          onHover: (h) => setState(() => _hovered = h),
+          child: Center(
+            child: widget.child != null
+                ? IconTheme(data: IconThemeData(color: fgColor), child: widget.child!)
+                : Text(
+                    widget.label ?? '',
+                    style: TextStyle(
+                      color: fgColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      letterSpacing: widget.filled ? 0.8 : 0,
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+
+    if (widget.tooltip != null) {
+      content = Tooltip(message: widget.tooltip!, child: content);
+    }
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      cursor: SystemMouseCursors.click,
+      child: content,
     );
   }
 }
