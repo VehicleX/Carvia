@@ -32,43 +32,10 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
     'Expired Insurance': 2000,
   };
 
-  List<String> _allVehicleNumbers = [];
-  bool _fetchingVehicles = false;
-
   @override
   void initState() {
     super.initState();
     _vehicleNumberController = TextEditingController(text: widget.prefilledVehicleNumber ?? '');
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchVehicles();
-    });
-  }
-
-  Future<void> _fetchVehicles() async {
-    setState(() => _fetchingVehicles = true);
-    try {
-      final vehicleService = Provider.of<VehicleService>(context, listen: false);
-      // We'll use fetchVehicles to load them into the service's internal state
-      // But there isn't a direct "getAllAvailable" method that returns a list easily without filtering.
-      // So we'll query firestore directly here or use a helper if it exists.
-      // Let's assume we want to show suggestions from what's in the system.
-      
-      // Fetch sold vehicles for the police suggestions
-      await vehicleService.fetchSoldVehicles();
-      if (mounted) {
-        setState(() {
-          _allVehicleNumbers = vehicleService.soldVehicles
-              .map((v) => (v.specs['licensePlate'] ?? v.id).toString())
-              .where((n) => n.isNotEmpty)
-              .toSet()
-              .toList();
-        });
-      }
-    } catch (e) {
-      debugPrint("Error fetching vehicle suggestions: $e");
-    } finally {
-      if (mounted) setState(() => _fetchingVehicles = false);
-    }
   }
 
   void _onViolationChanged(String? newValue) {
@@ -148,81 +115,20 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildAvailableVehiclesSection(),
-              const SizedBox(height: 32),
               Text("Challan Details", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
               const SizedBox(height: 16),
-              LayoutBuilder(
-                builder: (context, constraints) => Autocomplete<String>(
-                  key: ValueKey(_vehicleNumberController.text),
-                  initialValue: TextEditingValue(text: _vehicleNumberController.text),
-                  optionsBuilder: (TextEditingValue textEditingValue) {
-                    if (textEditingValue.text == '') {
-                      return const Iterable<String>.empty();
-                    }
-                    return _allVehicleNumbers.where((String option) {
-                      return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                    });
-                  },
-                  onSelected: (String selection) {
-                    _vehicleNumberController.text = selection;
-                  },
-                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                    // Pre-fill the controller if it's empty and we have a pre-filled value
-                    if (controller.text.isEmpty && _vehicleNumberController.text.isNotEmpty) {
-                      controller.text = _vehicleNumberController.text;
-                    }
-                    
-                    // Sync internal state whenever the field changes
-                    controller.addListener(() {
-                      if (_vehicleNumberController.text != controller.text) {
-                        _vehicleNumberController.text = controller.text;
-                      }
-                    });
-
-                    return TextFormField(
-                      controller: controller,
-                      focusNode: focusNode,
-                      decoration: InputDecoration(
-                        labelText: "Vehicle Number",
-                        hintText: "Enter or select vehicle",
-                        prefixIcon: const Icon(Iconsax.car),
-                        suffixIcon: _fetchingVehicles 
-                          ? const SizedBox(width: 20, height: 20, child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator(strokeWidth: 2)))
-                          : IconButton(icon: const Icon(Icons.clear), onPressed: () => controller.clear()),
-                        border: const OutlineInputBorder(),
-                      ),
-                      validator: (val) => val!.isEmpty ? "Required" : null,
-                      onFieldSubmitted: (value) => onFieldSubmitted(),
-                    );
-                  },
-                  optionsViewBuilder: (context, onSelected, options) {
-                    return Align(
-                      alignment: Alignment.topLeft,
-                      child: Material(
-                        elevation: 4.0,
-                        child: Container(
-                          width: constraints.maxWidth,
-                          color: Theme.of(context).cardColor,
-                          child: ListView.builder(
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            itemCount: options.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final String option = options.elementAt(index);
-                              return ListTile(
-                                title: Text(option),
-                                onTap: () => onSelected(option),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+              TextFormField(
+                controller: _vehicleNumberController,
+                decoration: const InputDecoration(
+                  labelText: "Vehicle Number",
+                  hintText: "Enter vehicle registration number",
+                  prefixIcon: Icon(Iconsax.car),
+                  border: OutlineInputBorder(),
                 ),
+                textCapitalization: TextCapitalization.characters,
+                validator: (val) => val!.isEmpty ? "Required" : null,
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               
               DropdownButtonFormField<String>(
                 // ignore: deprecated_member_use
@@ -287,119 +193,6 @@ class _PoliceIssueChallanState extends State<PoliceIssueChallan> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildAvailableVehiclesSection() {
-    final vehicleService = Provider.of<VehicleService>(context);
-    final vehicles = vehicleService.soldVehicles;
-
-    if (_fetchingVehicles && vehicles.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (vehicles.isEmpty) return const SizedBox();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Select Sold Vehicle", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
-            TextButton(onPressed: _fetchVehicles, child: const Text("Refresh")),
-          ],
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 140,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: vehicles.length,
-            itemBuilder: (context, index) {
-              final v = vehicles[index];
-              final plate = (v.specs['licensePlate']?.toString().isNotEmpty == true) 
-                  ? v.specs['licensePlate'].toString().toUpperCase() 
-                  : "${v.brand} ${v.model}".toUpperCase();
-              
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _vehicleNumberController.text = plate;
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Selected: $plate"), duration: const Duration(seconds: 1)),
-                  );
-                },
-                child: Container(
-                  width: 140,
-                  margin: const EdgeInsets.only(right: 12),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _vehicleNumberController.text == plate 
-                        ? Theme.of(context).colorScheme.primary 
-                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                      width: 2,
-                    ),
-                  ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-                          child: v.images.isNotEmpty 
-                            ? Image.network(v.images[0], fit: BoxFit.cover, width: double.infinity)
-                            : Container(color: Colors.grey.shade200, child: const Icon(Iconsax.car)),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(color: Colors.black, width: 1),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 2,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ],
-                              ),
-                              child: Text(
-                                plate,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold, 
-                                  fontSize: 10,
-                                  color: Colors.black,
-                                  letterSpacing: 0.5,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "${v.brand} ${v.model}",
-                              style: TextStyle(fontSize: 9, color: Theme.of(context).colorScheme.secondary),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
     );
   }
 }

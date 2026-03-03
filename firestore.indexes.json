@@ -1,0 +1,15 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "external_vehicles",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": [
+        {
+          "fieldPath": "specs.licensePlate",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

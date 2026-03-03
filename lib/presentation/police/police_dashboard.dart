@@ -1,6 +1,5 @@
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/challan_service.dart';
-import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/presentation/police/police_challan_list_page.dart';
 import 'package:carvia/presentation/police/police_issue_challan.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +19,10 @@ class _PoliceDashboardState extends State<PoliceDashboard> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<VehicleService>(context, listen: false).fetchSoldVehicles();
-    });
   }
 
   Future<void> _handleRefresh() async {
-    await Future.wait([
-      Provider.of<ChallanService>(context, listen: false).fetchDashboardStats(),
-      Provider.of<VehicleService>(context, listen: false).fetchSoldVehicles(),
-    ]);
+    await Provider.of<ChallanService>(context, listen: false).fetchDashboardStats();
   }
 
   @override
@@ -233,149 +226,8 @@ class _PoliceDashboardState extends State<PoliceDashboard> {
             ),
           ),
 
-          // ── Sold Vehicles Section ──────────────────────────────────────
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 28, 20, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text("Registered Vehicles",
-                          style: GoogleFonts.outfit(
-                              fontWeight: FontWeight.bold, fontSize: 18)),
-                      TextButton(
-                        onPressed: () => Provider.of<VehicleService>(context, listen: false).fetchSoldVehicles(),
-                        child: const Text("See All"),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  _buildSoldVehiclesList(context),
-                ],
-              ),
-            ),
-          ),
-
           const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
-      ),
-    );
-  }
-
-  Widget _buildSoldVehiclesList(BuildContext context) {
-    final vehicleService = Provider.of<VehicleService>(context);
-    final vehicles = vehicleService.soldVehicles;
-
-    if (vehicleService.isLoading && vehicles.isEmpty) {
-      return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator()));
-    }
-
-    if (vehicles.isEmpty) {
-      return Container(
-        padding: const EdgeInsets.all(24),
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: Theme.of(context).dividerColor),
-        ),
-        child: Column(
-          children: [
-            Icon(Iconsax.car, size: 40, color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3)),
-            const SizedBox(height: 12),
-            const Text("No sold vehicles found.", textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: Colors.grey)),
-          ],
-        ),
-      );
-    }
-
-    return SizedBox(
-      height: 160,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: vehicles.length,
-        itemBuilder: (context, index) {
-          final v = vehicles[index];
-          final plate = (v.specs['licensePlate']?.toString().isNotEmpty == true) 
-              ? v.specs['licensePlate'].toString().toUpperCase() 
-              : "${v.brand} ${v.model}".toUpperCase();
-
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PoliceIssueChallan(prefilledVehicleNumber: plate),
-                ),
-              );
-            },
-            child: Container(
-              width: 150,
-              margin: const EdgeInsets.only(right: 14),
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: Theme.of(context).dividerColor),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
-                      child: v.images.isNotEmpty
-                          ? Image.network(v.images[0], fit: BoxFit.cover, width: double.infinity)
-                          : Container(
-                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.05),
-                              child: const Icon(Iconsax.car, size: 40, color: Colors.grey),
-                            ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.black, width: 1),
-                          ),
-                          child: Text(
-                            plate,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10,
-                                color: Colors.black,
-                                letterSpacing: 0.5),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          "${v.brand} ${v.model}",
-                          style: TextStyle(
-                              fontSize: 10, color: Theme.of(context).colorScheme.secondary),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
       ),
     );
   }

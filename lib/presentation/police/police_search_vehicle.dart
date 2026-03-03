@@ -148,22 +148,71 @@ class _PoliceSearchVehicleState extends State<PoliceSearchVehicle> {
                     : null,
               ),
               SizedBox(width: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(vehicle['vehicleNumber'] ?? "Unknown", style: GoogleFonts.outfit(fontSize: 24, fontWeight: FontWeight.bold)),
-                  Text("$ownerName", style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.secondary)),
-                ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "${vehicle['brand'] ?? 'Unknown'} ${vehicle['model'] ?? 'Vehicle'}",
+                      style: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Iconsax.user, size: 14, color: Theme.of(context).colorScheme.secondary),
+                        SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            ownerName,
+                            style: TextStyle(fontSize: 14, color: Theme.of(context).colorScheme.secondary),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 4),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      child: Text(
+                        _vehicleData!['licensePlate'] ?? 'N/A',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const Spacer(),
+              SizedBox(width: 12),
               ElevatedButton.icon(
                 onPressed: () {
                    // Navigate to Issue Challan with pre-filled data
-                   Navigator.push(context, MaterialPageRoute(builder: (_) => PoliceIssueChallan(prefilledVehicleNumber: vehicle['vehicleNumber'])));
-                }, 
-                icon: Icon(Iconsax.receipt_add),
-                label: Text("Issue Challan"),
-                style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
+                   Navigator.push(
+                     context,
+                     MaterialPageRoute(
+                       builder: (_) => PoliceIssueChallan(
+                         prefilledVehicleNumber: _vehicleData!['licensePlate'] ?? ''
+                       )
+                     ),
+                   );
+                },
+                icon: Icon(Iconsax.receipt_add, size: 16),
+                label: Text("Issue\nChallan", textAlign: TextAlign.center, style: TextStyle(fontSize: 12)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
               )
             ],
           ),

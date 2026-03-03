@@ -12,7 +12,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:carvia/core/services/auth_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
-import 'package:carvia/presentation/vehicle/chat_page.dart';
 import 'package:carvia/core/services/ai_service.dart';
 
 class VehicleDetailPage extends StatefulWidget {

@@ -315,7 +315,7 @@ class ChallanService extends ChangeNotifier {
       // Normalize the query (uppercase, remove spaces)
       final normalizedQuery = query.toUpperCase().replaceAll(' ', '');
       
-      // Try searching with normalized format first (without spaces)
+      // STEP 1: Search in main vehicles collection
       var snapshot = await _firestore
           .collection('vehicles')
           .where('specs.licensePlate', isEqualTo: normalizedQuery)
@@ -351,11 +351,54 @@ class ChallanService extends ChangeNotifier {
         return {
           'id': doc.id,
           'data': data,
-          'ownerId': ownerId, // Use sellerId as ownerId for challan
+          'ownerId': ownerId,
           'ownerName': ownerName,
           'licensePlate': data['specs']?['licensePlate'] ?? '',
         };
       }
+      
+      // STEP 2: Search in external_vehicles subcollections (user's manually added vehicles)
+      var externalSnapshot = await _firestore
+          .collectionGroup('external_vehicles')
+          .where('specs.licensePlate', isEqualTo: normalizedQuery)
+          .limit(1)
+          .get();
+      
+      // Try with spaces if not found
+      if (externalSnapshot.docs.isEmpty) {
+        final withSpaces = query.toUpperCase().trim();
+        externalSnapshot = await _firestore
+            .collectionGroup('external_vehicles')
+            .where('specs.licensePlate', isEqualTo: withSpaces)
+            .limit(1)
+            .get();
+      }
+      
+      if (externalSnapshot.docs.isNotEmpty) {
+        final doc = externalSnapshot.docs.first;
+        final data = doc.data();
+        
+        // Get owner ID from the document path (parent of external_vehicles)
+        final ownerId = data['sellerId'] ?? '';
+        
+        // Fetch Owner Name
+        String ownerName = "Unknown";
+        if (ownerId.isNotEmpty) {
+          final userSnap = await _firestore.collection('users').doc(ownerId).get();
+          if (userSnap.exists) {
+            ownerName = userSnap.data()?['name'] ?? "Unknown";
+          }
+        }
+
+        return {
+          'id': doc.id,
+          'data': data,
+          'ownerId': ownerId,
+          'ownerName': ownerName,
+          'licensePlate': data['specs']?['licensePlate'] ?? '',
+        };
+      }
+      
       return null;
     } catch (e) {
       debugPrint("Error searching vehicle: $e");
