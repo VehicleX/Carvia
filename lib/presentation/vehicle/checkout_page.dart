@@ -20,18 +20,15 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   late TextEditingController _addressController;
-  String _selectedPayment = "Credit Card";
   bool _isProcessing = false;
   
   @override
   void initState() {
     super.initState();
     final user = Provider.of<AuthService>(context, listen: false).currentUser;
-    String initialAddress = "123 Main St, Springfield";
-    if (user != null) {
-      if (user.address.containsKey('street') && user.address['street'] != null) {
-        initialAddress = "${user.address['street']}, ${user.address['city'] ?? ''}";
-      }
+    String initialAddress = "";
+    if (user != null && user.address.isNotEmpty) {
+      initialAddress = user.address['full']?.toString() ?? "";
     }
     _addressController = TextEditingController(text: initialAddress);
   }
@@ -63,11 +60,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               maxLines: 2,
             ),
-            SizedBox(height: 24),
-            Text("Payment Method", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            SizedBox(height: 12),
-            _buildPaymentOption("Credit Card", Icons.credit_card),
-            _buildPaymentOption("UPI / Netbanking", Icons.account_balance_wallet),
+
             SizedBox(height: 30),
             _buildPriceBreakdown(),
           ],
@@ -87,7 +80,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           ),
           child: _isProcessing 
             ? CircularProgressIndicator(color: Theme.of(context).colorScheme.primary) 
-            : Text(widget.vehicle.price > 0 ? "PAY ₹${widget.vehicle.price.toStringAsFixed(0)}" : "BOOK NOW", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            : Text("BOOK NOW", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
         ),
       ),
     );
@@ -129,20 +122,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildPaymentOption(String label, IconData icon) {
-    return RadioGroup<String>(
-      groupValue: _selectedPayment,
-      onChanged: (val) => setState(() => _selectedPayment = val!),
-      child: RadioListTile<String>(
-        value: label,
-        title: Text(label),
-        secondary: Icon(icon, color: Theme.of(context).colorScheme.primary),
-        activeColor: Theme.of(context).colorScheme.primary,
-        contentPadding: EdgeInsets.zero,
       ),
     );
   }
@@ -264,7 +243,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         amount: total, 
         date: DateTime.now(),
         status: OrderStatus.confirmed, 
-        paymentMethod: _selectedPayment,
+        paymentMethod: "Booking",
         creditsUsed: creditsToUse,
         creditsEarned: earnedCredits,
       );

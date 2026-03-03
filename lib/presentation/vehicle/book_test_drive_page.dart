@@ -27,11 +27,8 @@ class _BookTestDrivePageState extends State<BookTestDrivePage> {
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<AuthService>(context, listen: false).currentUser;
+    // For test drives, show seller's location (buyer goes to seller)
     String defaultLocation = widget.vehicle.location;
-    if (user != null && user.address.containsKey('street') && user.address['street'] != null) {
-      defaultLocation = "${user.address['street']}, ${user.address['city'] ?? ''}";
-    }
     _locationController = TextEditingController(text: defaultLocation.isNotEmpty ? defaultLocation : "Seller's Location");
   }
 

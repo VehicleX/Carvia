@@ -119,9 +119,9 @@ class SellerDashboard extends StatelessWidget {
                         orders.where((o) => o.status == OrderStatus.pending).length;
                     final confirmedOrders =
                         orders.where((o) => o.status == OrderStatus.confirmed).length;
-                    final totalRevenue = vehicles
-                        .where((v) => v.status == 'sold')
-                        .fold(0.0, (s, v) => s + v.price);
+                    final totalRevenue = orders
+                        .where((o) => o.status == OrderStatus.delivered)
+                        .fold(0.0, (s, o) => s + o.amount);
 
                     final stats = [
                       _Stat("Active Listings", "$activeCount", Iconsax.car, Theme.of(context).colorScheme.onSurface, 1),

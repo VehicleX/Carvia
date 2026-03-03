@@ -78,14 +78,10 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
         final user = Provider.of<AuthService>(context, listen: false).currentUser;
         if (user != null && _locationController.text.isEmpty) {
           final businessAddress = user.sellerDetails['businessAddress']?.toString().trim();
-          final city = user.address['city']?.toString().trim();
-          final street = user.address['street']?.toString().trim();
-          final state = user.address['state']?.toString().trim();
+          final fullAddress = user.address['full']?.toString().trim();
           _locationController.text =
               (businessAddress?.isNotEmpty == true ? businessAddress! : null) ??
-              (city?.isNotEmpty == true ? city! : null) ??
-              (street?.isNotEmpty == true ? street! : null) ??
-              (state?.isNotEmpty == true ? state! : null) ??
+              (fullAddress?.isNotEmpty == true ? fullAddress! : null) ??
               '';
         }
       });
@@ -658,7 +654,7 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
 
       // Handle price - support both numeric and text (e.g., "Negotiable", "Contact for price")
       final priceText = _priceController.text.trim();
-      final numericPrice = double.tryParse(priceText);
+      final numericPrice = _parseIndianPrice(priceText);
 
       final vehicle = VehicleModel(
         id: widget.vehicle?.id ?? "",
@@ -681,7 +677,8 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
           'sellerName': user.name,
           'sellerPhone': user.phone,
           'sellerEmail': user.email,
-          if (numericPrice == null && priceText.isNotEmpty)
+          // Store original price text if it's not a plain number (for display purposes)
+          if (priceText.isNotEmpty && priceText.toUpperCase().contains(RegExp(r'[LC]|LAKH|CRORE')))
             'priceText': priceText,
           if (_selectedType.toLowerCase() == 'bike' && _engineCcController.text.isNotEmpty)
             'engineCc': int.tryParse(_engineCcController.text) ?? 0,
@@ -714,6 +711,39 @@ class _AddVehiclePageState extends State<AddVehiclePage> {
     } finally {
       if (mounted) setState(() => _isSubmitLoading = false);
     }
+  }
+
+  /// Parses Indian price formats (Lakhs, Crores) to numeric values
+  /// Examples: "8.80L" → 880000, "1.5Cr" → 15000000, "75K" → 75000, "75,000" → 75000
+  double? _parseIndianPrice(String text) {
+    if (text.isEmpty) return null;
+    
+    // Remove spaces, commas, and convert to uppercase for easier matching
+    String cleaned = text.replaceAll(' ', '').replaceAll(',', '').toUpperCase();
+    
+    // Check for Crores (Cr)
+    if (cleaned.endsWith('CR') || cleaned.endsWith('CRORE') || cleaned.endsWith('CRORES')) {
+      String numPart = cleaned.replaceAll(RegExp(r'CRORES?'), '').replaceAll('CR', '');
+      double? value = double.tryParse(numPart);
+      if (value != null) return value * 10000000; // 1 Crore = 10 million
+    }
+    
+    // Check for Lakhs (L)
+    if (cleaned.endsWith('L') || cleaned.endsWith('LAKH') || cleaned.endsWith('LAKHS')) {
+      String numPart = cleaned.replaceAll(RegExp(r'LAKHS?'), '').replaceAll('L', '');
+      double? value = double.tryParse(numPart);
+      if (value != null) return value * 100000; // 1 Lakh = 100,000
+    }
+    
+    // Check for Thousands (K)
+    if (cleaned.endsWith('K') || cleaned.endsWith('THOUSAND') || cleaned.endsWith('THOUSANDS')) {
+      String numPart = cleaned.replaceAll(RegExp(r'THOUSANDS?'), '').replaceAll('K', '');
+      double? value = double.tryParse(numPart);
+      if (value != null) return value * 1000; // 1 K = 1,000
+    }
+    
+    // Try parsing as plain number (commas already removed)
+    return double.tryParse(cleaned);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

@@ -1,5 +1,7 @@
+import 'package:carvia/core/models/order_model.dart';
 import 'package:carvia/core/models/vehicle_model.dart';
 import 'package:carvia/core/services/auth_service.dart';
+import 'package:carvia/core/services/order_service.dart';
 import 'package:carvia/core/services/vehicle_service.dart';
 import 'package:carvia/core/theme/app_theme.dart';
 import 'package:carvia/core/widgets/vehicle_image.dart';
@@ -21,22 +23,28 @@ class SellerAnalyticsPage extends StatelessWidget {
     return StreamBuilder<List<VehicleModel>>(
       stream: Provider.of<VehicleService>(context, listen: false)
           .getSellerVehiclesStream(user.uid),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        }
+      builder: (context, vehicleSnapshot) {
+        return StreamBuilder<List<OrderModel>>(
+          stream: Provider.of<OrderService>(context, listen: false)
+              .getSellerOrdersStream(user.uid),
+          builder: (context, orderSnapshot) {
+            if (vehicleSnapshot.connectionState == ConnectionState.waiting ||
+                orderSnapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-        final vehicles = snapshot.data ?? [];
-        final totalViews = vehicles.fold(0, (s, v) => s + v.viewsCount);
-        final totalWishlists = vehicles.fold(0, (s, v) => s + v.wishlistCount);
-        final activeListings = vehicles.where((v) => v.status == 'active').length;
-        final soldVehicles = vehicles.where((v) => v.status == 'sold').length;
-        final totalRevenue = vehicles
-            .where((v) => v.status == 'sold')
-            .fold(0.0, (s, v) => s + v.price);
-        final conversionRate = vehicles.isEmpty
-            ? 0.0
-            : (soldVehicles / vehicles.length) * 100;
+            final vehicles = vehicleSnapshot.data ?? [];
+            final orders = orderSnapshot.data ?? [];
+            final totalViews = vehicles.fold(0, (s, v) => s + v.viewsCount);
+            final totalWishlists = vehicles.fold(0, (s, v) => s + v.wishlistCount);
+            final activeListings = vehicles.where((v) => v.status == 'active').length;
+            final soldVehicles = vehicles.where((v) => v.status == 'sold').length;
+            final totalRevenue = orders
+                .where((o) => o.status == OrderStatus.delivered)
+                .fold(0.0, (s, o) => s + o.amount);
+            final conversionRate = vehicles.isEmpty
+                ? 0.0
+                : (soldVehicles / vehicles.length) * 100;
 
         return CustomScrollView(
           slivers: [
@@ -156,8 +164,8 @@ class SellerAnalyticsPage extends StatelessWidget {
             _buildTopVehicles(context, vehicles),
             const SliverToBoxAdapter(child: SizedBox(height: 28)),
           ],
-        );
-      },
+        );          },
+        );      },
     );
   }
 

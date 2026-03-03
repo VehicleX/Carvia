@@ -508,69 +508,6 @@ class _EChallanPageState extends State<EChallanPage>
               ),
             ],
           ),
-          if (!isPaid) ...[
-            SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _showPaymentDialog(challan),
-                icon: Icon(Iconsax.wallet_2, size: 16, color: Theme.of(context).colorScheme.onSurface),
-                label: Text("Pay Now", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  void _showPaymentDialog(ChallanModel challan) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("Pay Challan"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Iconsax.wallet_2, size: 48, color: Theme.of(context).colorScheme.primary),
-            SizedBox(height: 12),
-            Text(
-              "₹${challan.fineAmount.toStringAsFixed(0)}",
-              style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 32,
-                  color: Theme.of(context).colorScheme.onSurface),
-            ),
-            SizedBox(height: 4),
-            Text(challan.violationType,
-                style: TextStyle(color: Theme.of(context).colorScheme.secondary)),
-          ],
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel")),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surface),
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text("Payment gateway integration coming soon!"),
-                  backgroundColor: Theme.of(context).colorScheme.surface,
-                ),
-              );
-            },
-            child: Text("Proceed to Pay",
-                style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-          ),
         ],
       ),
     );
