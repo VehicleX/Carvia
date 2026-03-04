@@ -5,7 +5,7 @@ git clone https://github.com/flutter/flutter.git -b stable
 export PATH="$PATH:`pwd`/flutter/bin"
 
 echo "Enabling Flutter Web..."
-flutter config --enable-web
+flutter config --enable-web --no-analytics
 
 echo "Getting packages..."
 flutter pub get
