@@ -17,8 +17,7 @@ echo "Generating missing api_keys.dart file..."
 mkdir -p lib/core/constants
 cat <<EOF > lib/core/constants/api_keys.dart
 class ApiKeys {
-  static const String geminiApiKey = "";
-  // Feel free to add placeholders for other keys you might use in ai_service.dart
+  static const String geminiApiKey = "${GEMINI_API_KEY}";
 }
 EOF
 
