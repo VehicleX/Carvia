@@ -45,4 +45,4 @@ class DefaultFirebaseOptions {
 EOF
 
 echo "Building for web..."
-flutter build web --release --no-tree-shake-icons --no-source-maps --web-renderer canvaskit
+flutter build web -v --release --no-tree-shake-icons --no-source-maps --web-renderer canvaskit
