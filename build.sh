@@ -7,8 +7,11 @@ export PATH="$PATH:`pwd`/flutter/bin"
 echo "Enabling Flutter Web..."
 flutter config --enable-web --no-analytics
 
+echo "Disabling Dart Analytics..."
+dart --disable-analytics
+
 echo "Getting packages..."
 flutter pub get
 
 echo "Building for web..."
-flutter build web --release --no-tree-shake-icons
+flutter build web -v --release --no-tree-shake-icons
