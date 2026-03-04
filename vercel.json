@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bash build.sh",
+  "buildCommand": "echo 'Using pre-built web files'",
   "outputDirectory": "build/web",
   "framework": null,
   "rewrites": [
