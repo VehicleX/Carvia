@@ -14,4 +14,4 @@ echo "Getting packages..."
 flutter pub get
 
 echo "Building for web..."
-flutter build web -v --release --no-tree-shake-icons
+flutter build web --release --no-tree-shake-icons --no-source-maps --web-renderer canvaskit
