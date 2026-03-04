@@ -45,4 +45,4 @@ class DefaultFirebaseOptions {
 EOF
 
 echo "Building for web..."
-flutter build web -v --release --no-tree-shake-icons --no-source-maps --web-renderer canvaskit --dart-define=Dart2jsOptimization=O1
+flutter build web -v --release --no-tree-shake-icons --no-source-maps --dart-define=Dart2jsOptimization=O1
