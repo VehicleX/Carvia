@@ -421,7 +421,7 @@ class _ScoreSectionState extends State<_ScoreSection>
     final maxTotal = scores.length * 10.0;
 
     final c1 = Theme.of(context).colorScheme.primary;
-    final c2 = Colors.orange;
+    final c2 = Theme.of(context).colorScheme.onSurface;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -730,12 +730,12 @@ class _RecommendationBanner extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.green.withValues(alpha: 0.15),
-            Colors.green.withValues(alpha: 0.04),
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.13),
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.03),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.green.withValues(alpha: 0.35)),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -745,22 +745,22 @@ class _RecommendationBanner extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.15),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.emoji_events_rounded,
-                    color: Colors.green, size: 22),
+                child: Icon(Icons.emoji_events_rounded,
+                    color: Theme.of(context).colorScheme.primary, size: 22),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('⭐  Best for You',
+                    Text('★  Best for You',
                         style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
-                            color: Colors.green,
+                            color: Theme.of(context).colorScheme.primary,
                             letterSpacing: 0.8)),
                     const SizedBox(height: 2),
                     Text(
@@ -816,18 +816,20 @@ class _ReasonChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 14, color: Colors.green),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-                fontSize: 12, fontWeight: FontWeight.w600, color: Colors.green),
+    return Builder(
+      builder: (context) => Row(
+        children: [
+          Icon(icon, size: 14, color: Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                  fontSize: 12, fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
